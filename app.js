@@ -1,7 +1,7 @@
-/* ═══════════════════════════════════════════════
-   SOUNDTRACKS — App Controller v19
+/* ==========================================================
+   SONGS — App Controller v19
    Add / Modify Playlist Option inside Details Modal & Player Bar
-   ═══════════════════════════════════════════════ */
+   ========================================================== */
 
 // Pure User Catalog
 const DEFAULT_SONGS = [];
@@ -143,104 +143,8 @@ function stopProgressTimer() {
   if (audioProgressTimer) clearInterval(audioProgressTimer);
 }
 
-// ═══════════════════════════════════
-// PIN GATE & EXPERIENCE CHOICE LOGIC
-// ═══════════════════════════════════
-const CORRECT_PIN = "1301";
-let pinBuffer = "";
-
-function initPinGate() {
-  const overlay = document.getElementById("pinGateOverlay");
-  if (!overlay) return; // not on index.html, skip
-
-  const choiceOverlay = document.getElementById("choiceModalOverlay");
-  const pinCard = overlay.querySelector(".pin-card");
-  const errMsg = document.getElementById("pinErrMsg");
-
-  // check if already unlocked this session
-  if (sessionStorage.getItem("pin_unlocked") === "1") {
-    overlay.classList.remove("open");
-    if (choiceOverlay) choiceOverlay.classList.add("open");
-    return;
-  }
-
-  function updateDots() {
-    for (let i = 0; i < 4; i++) {
-      const dot = document.getElementById("dot" + i);
-      if (dot) dot.classList.toggle("filled", i < pinBuffer.length);
-    }
-  }
-
-  function shakeCard() {
-    pinCard.classList.add("shake");
-    setTimeout(() => pinCard.classList.remove("shake"), 450);
-  }
-
-  function pressKey(num) {
-    if (pinBuffer.length >= 4) return;
-    pinBuffer += num;
-    updateDots();
-    if (pinBuffer.length === 4) {
-      setTimeout(() => {
-        if (pinBuffer === CORRECT_PIN) {
-          sessionStorage.setItem("pin_unlocked", "1");
-          overlay.style.transition = "opacity .4s";
-          overlay.style.opacity = "0";
-          setTimeout(() => {
-            overlay.classList.remove("open");
-            overlay.style.opacity = "";
-            if (choiceOverlay) choiceOverlay.classList.add("open");
-          }, 400);
-        } else {
-          shakeCard();
-          errMsg.classList.add("show");
-          setTimeout(() => errMsg.classList.remove("show"), 2000);
-          pinBuffer = "";
-          updateDots();
-        }
-      }, 150);
-    }
-  }
-
-  overlay.querySelectorAll(".pin-key[data-num]").forEach(btn => {
-    btn.addEventListener("click", () => pressKey(btn.dataset.num));
-  });
-
-  document.getElementById("pinDelBtn").addEventListener("click", () => {
-    if (pinBuffer.length > 0) {
-      pinBuffer = pinBuffer.slice(0, -1);
-      updateDots();
-    }
-  });
-
-  // keyboard support
-  document.addEventListener("keydown", (e) => {
-    if (!overlay.classList.contains("open")) return;
-    if (/^[0-9]$/.test(e.key)) pressKey(e.key);
-    if (e.key === "Backspace") {
-      if (pinBuffer.length > 0) { pinBuffer = pinBuffer.slice(0, -1); updateDots(); }
-    }
-  });
-
-  // Choice buttons
-  document.getElementById("choiceOldRoomBtn")?.addEventListener("click", () => {
-    window.location.href = "/legacy/index.html";
-  });
-  document.getElementById("choiceNewRoomBtn")?.addEventListener("click", () => {
-    if (choiceOverlay) {
-      choiceOverlay.style.transition = "opacity .3s";
-      choiceOverlay.style.opacity = "0";
-      setTimeout(() => {
-        choiceOverlay.classList.remove("open");
-        choiceOverlay.style.opacity = "";
-      }, 300);
-    }
-  });
-}
-
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
-  initPinGate();
   initAudioEngine();
   loadData();
   bindEvents();
@@ -267,44 +171,49 @@ async function fetchTrackLyrics(title, artist) {
 
 // Persistent Data Handling
 async function loadData() {
-  let localData = [];
-  try {
-    const raw = localStorage.getItem("local_music_catalog");
-    if (raw) localData = JSON.parse(raw);
-  } catch (e) {}
+  let loadedCatalog = null;
 
-  let serverData = null;
   try {
     const res = await fetch("/api/songs");
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data)) serverData = data;
+      if (Array.isArray(data) && data.length > 0) {
+        loadedCatalog = data;
+      }
     }
   } catch (err) {
     console.warn("Failed to fetch from /api/songs:", err);
   }
 
-  const map = new Map();
-  if (Array.isArray(serverData)) {
-    serverData.forEach(s => map.set(s.id || s.youtubeId, s));
-  }
-  if (Array.isArray(localData)) {
-    localData.forEach(s => map.set(s.id || s.youtubeId, s));
-  }
-
-  catalog = Array.from(map.values());
-  localStorage.setItem("local_music_catalog", JSON.stringify(catalog));
-
-  if (catalog.length > 0) {
+  // Fallback 1: Static songs.json file
+  if (!loadedCatalog || loadedCatalog.length === 0) {
     try {
-      fetch("/api/songs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(catalog)
-      });
+      const staticRes = await fetch("songs.json");
+      if (staticRes.ok) {
+        const staticData = await staticRes.json();
+        if (Array.isArray(staticData) && staticData.length > 0) {
+          loadedCatalog = staticData;
+        }
+      }
     } catch (e) {}
   }
 
+  // Fallback 2: localStorage
+  if (!loadedCatalog || loadedCatalog.length === 0) {
+    try {
+      const localData = localStorage.getItem("local_music_catalog");
+      if (localData) loadedCatalog = JSON.parse(localData);
+    } catch (e) {}
+  }
+
+  if (loadedCatalog && Array.isArray(loadedCatalog)) {
+    catalog = loadedCatalog;
+    localStorage.setItem("local_music_catalog", JSON.stringify(catalog));
+  } else {
+    catalog = [];
+  }
+
+  // Extract unique playlists
   playlists = Array.from(new Set(catalog.flatMap(s => s.playlists || []).filter(Boolean)));
 
   renderPage();
@@ -325,9 +234,8 @@ async function saveData() {
   }
 }
 
-
 async function deleteTrack(songId) {
-  if (!confirm("Are you sure you want to delete this soundtrack?")) return;
+  if (!confirm("Are you sure you want to delete this song?")) return;
 
   catalog = catalog.filter(s => s.id !== songId);
   playlists = Array.from(new Set(catalog.flatMap(s => s.playlists || []).filter(Boolean)));
@@ -411,18 +319,60 @@ async function playTrack(track) {
     console.log('[stream] Playing from instant preloaded cache:', track.title);
     triggerPlayback(streamCache[track.youtubeId]);
   } else {
-    // Fetch audio stream URL from server
+    // 1. Try server endpoint /api/stream/
+    let streamObj = null;
     try {
       showToast('Loading...');
       const res = await fetch(`/api/stream/${track.youtubeId}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const data = await res.json();
-      if (!data.url) throw new Error('No URL returned');
-
-      streamCache[track.youtubeId] = data;
-      triggerPlayback(data);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.url && !data.isProxy) {
+          streamObj = data;
+        }
+      }
     } catch (err) {
-      console.error('Stream fetch error:', err);
+      console.warn('Backend stream fetch failed, using fallback stream provider...', err);
+    }
+
+    // 2. Client-side fallback: Cobalt / Piped public audio stream API
+    if (!streamObj) {
+      try {
+        const pipedRes = await fetch(`https://pipedapi.kavin.rocks/streams/${track.youtubeId}`);
+        if (pipedRes.ok) {
+          const pipedData = await pipedRes.json();
+          if (pipedData.audioStreams && pipedData.audioStreams.length > 0) {
+            const bestStream = pipedData.audioStreams.find(s => s.mimeType.includes('audio/webm')) || pipedData.audioStreams[0];
+            streamObj = { url: bestStream.url, mimeType: bestStream.mimeType || 'audio/webm' };
+          }
+        }
+      } catch (pipedErr) {
+        console.warn('Piped API stream fallback error:', pipedErr);
+      }
+    }
+
+    // 3. Fallback 3: Invidious stream API
+    if (!streamObj) {
+      try {
+        const invRes = await fetch(`https://invidious.privacyredirect.com/api/v1/videos/${track.youtubeId}`);
+        if (invRes.ok) {
+          const invData = await invRes.json();
+          if (invData.adaptiveFormats && invData.adaptiveFormats.length > 0) {
+            const audioStream = invData.adaptiveFormats.find(f => f.type && f.type.startsWith('audio/'));
+            if (audioStream && audioStream.url) {
+              streamObj = { url: audioStream.url, mimeType: audioStream.type || 'audio/webm' };
+            }
+          }
+        }
+      } catch (invErr) {
+        console.warn('Invidious API stream fallback error:', invErr);
+      }
+    }
+
+    if (streamObj && streamObj.url) {
+      streamCache[track.youtubeId] = streamObj;
+      triggerPlayback(streamObj);
+    } else {
+      console.error('All audio stream sources failed for track:', track.title);
       showToast('Could not load audio stream');
     }
   }
@@ -609,6 +559,8 @@ function renderSongsGrid() {
   if (viewMode === "list") {
     grid.innerHTML = songs.map(song => {
       const isCurPlaying = isPlaying && currentTrack && currentTrack.id === song.id;
+      const byName = song.addedBy || "Avi";
+      const isAwwnanya = byName.toLowerCase().includes("awwnanya");
       return `
         <div class="cw">
           <div class="card ${isCurPlaying ? 'playing' : ''} ${song.isFav ? 'is-fav' : ''}" data-id="${song.id}">
@@ -622,10 +574,13 @@ function renderSongsGrid() {
             </div>
             <div class="card-info-wrap">
               <div class="card-title">${song.title}</div>
-              <div class="card-artist" style="margin-top:2px;">${song.artist}</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
+                <span class="card-artist">${song.artist}</span>
+                <span class="added-by-pill ${isAwwnanya ? 'awwnanya' : ''}">${byName}</span>
+              </div>
             </div>
             ${song.isFav ? `<div class="card-fav-icon">♥</div>` : ''}
-            <button class="card-del-btn" data-delid="${song.id}" title="Delete soundtrack">✕</button>
+            <button class="card-del-btn" data-delid="${song.id}" title="Delete song">✕</button>
           </div>
         </div>
       `;
@@ -633,10 +588,12 @@ function renderSongsGrid() {
   } else {
     grid.innerHTML = songs.map(song => {
       const isCurPlaying = isPlaying && currentTrack && currentTrack.id === song.id;
+      const byName = song.addedBy || "Avi";
+      const isAwwnanya = byName.toLowerCase().includes("awwnanya");
       return `
         <div class="cw">
           <div class="card ${isCurPlaying ? 'playing' : ''} ${song.isFav ? 'is-fav' : ''}" data-id="${song.id}">
-            <button class="card-del-btn" data-delid="${song.id}" title="Delete soundtrack">✕</button>
+            <button class="card-del-btn" data-delid="${song.id}" title="Delete song">✕</button>
             <div class="pw">
               <img src="${song.thumbnail || 'https://i.ytimg.com/vi/' + song.youtubeId + '/hqdefault.jpg'}" alt="${song.title}" loading="lazy" />
               <div class="card-play-overlay">
@@ -647,7 +604,10 @@ function renderSongsGrid() {
               ${song.isFav ? `<div class="card-fav-icon">♥</div>` : ''}
             </div>
             <div class="card-title">${song.title}</div>
-            <div class="card-artist" style="margin-top:4px;">${song.artist}</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:4px;">
+              <span class="card-artist" style="margin-top:0;">${song.artist}</span>
+              <span class="added-by-pill ${isAwwnanya ? 'awwnanya' : ''}">${byName}</span>
+            </div>
           </div>
         </div>
       `;
@@ -708,7 +668,7 @@ function renderPlaylists() {
       
       const thumbMarkup = thumbs.length > 0 
         ? thumbs.map((t, idx) => `<div class="stacked-thumb stacked-thumb-${idx + 1}"><img src="${t}" alt="" /></div>`).join("")
-        : `<div class="stacked-thumb stacked-thumb-3"><div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:32px;">🎵</div></div>`;
+        : `<div class="stacked-thumb stacked-thumb-3"><div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:32px;">≡ƒÄ╡</div></div>`;
 
       const ytmUrl = `https://music.youtube.com/search?q=${encodeURIComponent(plName)}`;
       const spotifyUrl = `https://open.spotify.com/search/${encodeURIComponent(plName)}`;
@@ -768,6 +728,9 @@ function renderPlaylists() {
   }
 }
 
+
+
+
 function renderPlaylistsAccordion() {
   const container = document.getElementById("playlistsContainer");
   if (!container) return;
@@ -781,10 +744,11 @@ function renderPlaylistsAccordion() {
       <div class="pl-accordion">
         <div class="pl-acc-header" data-pl="${plName}">
           <div class="pl-acc-left">
-            <div class="pl-acc-title">
+            <div class="pl-acc-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
               <span>${plName}</span>
               <span class="pl-acc-count">(${plSongs.length} tracks)</span>
             </div>
+
             <div class="pl-actions" onclick="event.stopPropagation()">
               <button class="btn-s pl-edit-btn" data-pl="${plName}" style="height:26px;padding:0 10px;font-size:11px;">
                 ✏ Edit
@@ -806,7 +770,7 @@ function renderPlaylistsAccordion() {
             ${plSongs.length > 0 ? plSongs.map(song => `
               <div class="cw">
                 <div class="card ${song.isFav ? 'is-fav' : ''}" data-id="${song.id}">
-                  <button class="card-del-btn" data-delid="${song.id}" title="Delete soundtrack">✕</button>
+                  <button class="card-del-btn" data-delid="${song.id}" title="Delete song">✕</button>
                   <div class="pw">
                     <img src="${song.thumbnail || 'https://i.ytimg.com/vi/' + song.youtubeId + '/hqdefault.jpg'}" alt="${song.title}" loading="lazy" />
                   </div>
@@ -819,6 +783,8 @@ function renderPlaylistsAccordion() {
         </div>
       </div>
     `;
+  }).join("");
+
   container.querySelectorAll(".pl-acc-header").forEach(header => {
     header.addEventListener("click", () => {
       const accordion = header.closest(".pl-accordion");
@@ -862,9 +828,9 @@ function playPlaylistTracks(plName) {
   }
 }
 
-/* ═══════════════════════════════════════════════════
+/* ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
    VIEW CONTROL LISTENERS & PERSISTENCE
-   ═══════════════════════════════════════════════════ */
+   ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ */
 function initViewControlListeners() {
   const gridBtn = document.getElementById("viewModeGridBtn");
   const listBtn = document.getElementById("viewModeListBtn");
@@ -921,9 +887,9 @@ function updateViewControlUI() {
   }
 }
 
-/* ═══════════════════════════════════════════════════
+/* ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
    PLAYLIST DETAIL VIEW MODAL
-   ═══════════════════════════════════════════════════ */
+   ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ */
 let viewingPlaylistName = null;
 
 function openPlaylistDetailModal(plName) {
@@ -950,7 +916,7 @@ function renderPlaylistDetailContents() {
   if (nameEl) nameEl.textContent = plName;
 
   const countEl = document.getElementById("plDetailCount");
-  if (countEl) countEl.textContent = `${plSongs.length} soundtrack${plSongs.length === 1 ? '' : 's'}`;
+  if (countEl) countEl.textContent = `${plSongs.length} song${plSongs.length === 1 ? '' : 's'}`;
 
   // Stack thumbnails
   const stackEl = document.getElementById("plDetailStack");
@@ -958,7 +924,7 @@ function renderPlaylistDetailContents() {
     const thumbs = plSongs.slice(0, 3).map(s => s.thumbnail || 'https://i.ytimg.com/vi/' + s.youtubeId + '/hqdefault.jpg');
     stackEl.innerHTML = thumbs.length > 0
       ? thumbs.map((t, idx) => `<div class="stacked-thumb stacked-thumb-${idx + 1}"><img src="${t}" alt="" /></div>`).join("")
-      : `<div class="stacked-thumb stacked-thumb-3"><div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:28px;">🎵</div></div>`;
+      : `<div class="stacked-thumb stacked-thumb-3"><div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--muted);font-size:28px;">≡ƒÄ╡</div></div>`;
   }
 
   // Buttons & Links
@@ -985,7 +951,7 @@ function renderPlaylistDetailContents() {
   const tracklistEl = document.getElementById("plDetailTracklist");
   if (tracklistEl) {
     if (plSongs.length === 0) {
-      tracklistEl.innerHTML = `<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">No soundtracks in this playlist yet.</div>`;
+      tracklistEl.innerHTML = `<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px;">No songs in this playlist yet.</div>`;
     } else {
       tracklistEl.innerHTML = plSongs.map((song, idx) => {
         const isCurPlaying = isPlaying && currentTrack && currentTrack.id === song.id;
@@ -1025,9 +991,9 @@ function renderPlaylistDetailContents() {
   }
 }
 
-/* ═══════════════════════════════════════════════════
+/* ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ
    PLAYLIST EDITOR MODAL & TRACK MANAGEMENT
-   ═══════════════════════════════════════════════════ */
+   ΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉΓòÉ */
 function openPlaylistEditModal(plName) {
   editingPlaylistName = plName;
   const modal = document.getElementById("playlistEditModal");
@@ -1375,7 +1341,7 @@ function renderSearchResults(results) {
         </div>
         <div class="sm-res-info">
           <div class="sm-res-title">${item.title}</div>
-          <div class="sm-res-artist">${item.artist} · ${item.durationStr}</div>
+          <div class="sm-res-artist">${item.artist} ┬╖ ${item.durationStr}</div>
         </div>
       </div>
       <button class="sm-res-select-btn">Select</button>
@@ -1456,7 +1422,7 @@ async function handleSaveCuration() {
   document.getElementById("searchModal").classList.remove("open");
   renderPage();
   updateStats();
-  showToast("Added to your soundtracks!");
+  showToast("Added to your songs!");
 
   // Keep currently playing track if active; only play newTrack if no song is playing!
   if (!currentTrack || !isPlaying) {
@@ -1524,7 +1490,7 @@ function bindEvents() {
     plBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       if (!currentTrack) {
-        showToast("Play a soundtrack first to manage playlists");
+        showToast("Play a song first to manage playlists");
         return;
       }
       renderPlaylistPicker();
@@ -1853,7 +1819,7 @@ function bindEvents() {
     });
   }
 
-  // Collapsible All Soundtracks Header
+  // Collapsible All Songs Header
   const allSongsHeader = document.getElementById("allSongsHeader");
   if (allSongsHeader) {
     allSongsHeader.addEventListener("click", toggleAllSongsCollapse);
@@ -1897,6 +1863,54 @@ function bindEvents() {
   if (plInlineSearchInput) {
     plInlineSearchInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") handleInlinePlaylistSearch();
+    });
+  }
+
+  // Page Info Modal Handlers
+  const openPageInfoBtn = document.getElementById("openPageInfoBtn");
+  const pageInfoModal = document.getElementById("pageInfoModal");
+  const closePageInfoModalBtn = document.getElementById("closePageInfoModalBtn");
+  const startListeningBtn = document.getElementById("startListeningBtn");
+
+  const hasSeenSongsInfo = localStorage.getItem("has_seen_songs_info");
+  if (!hasSeenSongsInfo && pageInfoModal) {
+    setTimeout(() => pageInfoModal.classList.add("open"), 600);
+  }
+
+  function closeSongsInfoModal() {
+    if (pageInfoModal) pageInfoModal.classList.remove("open");
+    localStorage.setItem("has_seen_songs_info", "true");
+  }
+
+  if (openPageInfoBtn && pageInfoModal) {
+    openPageInfoBtn.addEventListener("click", () => pageInfoModal.classList.add("open"));
+  }
+  if (closePageInfoModalBtn) {
+    closePageInfoModalBtn.addEventListener("click", closeSongsInfoModal);
+  }
+  if (startListeningBtn) {
+    startListeningBtn.addEventListener("click", closeSongsInfoModal);
+  }
+  if (pageInfoModal) {
+    pageInfoModal.addEventListener("click", (e) => {
+      if (e.target === pageInfoModal) closeSongsInfoModal();
+    });
+  }
+
+  // Rooms Navigation Modal Handlers
+  const openRoomsModalBtn = document.getElementById("openRoomsModalBtn");
+  const roomsNavigationModal = document.getElementById("roomsNavigationModal");
+  const closeRoomsModalBtn = document.getElementById("closeRoomsModalBtn");
+
+  if (openRoomsModalBtn && roomsNavigationModal) {
+    openRoomsModalBtn.addEventListener("click", () => roomsNavigationModal.classList.add("open"));
+  }
+  if (closeRoomsModalBtn && roomsNavigationModal) {
+    closeRoomsModalBtn.addEventListener("click", () => roomsNavigationModal.classList.remove("open"));
+  }
+  if (roomsNavigationModal) {
+    roomsNavigationModal.addEventListener("click", (e) => {
+      if (e.target === roomsNavigationModal) roomsNavigationModal.classList.remove("open");
     });
   }
 

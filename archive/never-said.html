@@ -1,336 +1,584 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Things I Never Said Out Loud — Chapter IV</title>
-  <meta name="description" content="An intimate 12-chapter story deck about unspoken feelings, gratitude, and memories." />
+  <title>One Last Thing... — for her</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400;1,600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=25" />
-  <link rel="stylesheet" href="never-said.css?v=5" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --paper: #F7F4EF;
+      --ink: #1A1816;
+      --muted: #7A7370;
+      --accent: #B07A5A;
+      --serif: 'EB Garamond', Georgia, serif;
+      --sans: 'Inter', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      overflow-x: hidden;
+    }
+
+    /* Topbar */
+    .bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 48px;
+      background: rgba(247,244,239,0.93);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(26,24,22,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      z-index: 100;
+    }
+
+    .bar-brand {
+      font-family: var(--serif);
+      font-size: 14px;
+      font-style: italic;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .bar-nav {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .bar-nav a {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .bar-nav a:hover, .bar-nav a.active { color: var(--ink); }
+
+    /* Page wrapper */
+    .page-wrap { padding-top: 48px; }
+
+    /* Magazine meta bar */
+    .mag-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 32px;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid rgba(26,24,22,0.1);
+    }
+
+    /* Hero header */
+    .letter-hero {
+      text-align: center;
+      padding: 64px 24px 44px;
+      border-bottom: 1px solid rgba(26,24,22,0.1);
+    }
+
+    .hero-eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+
+    .hero-title {
+      font-family: var(--serif);
+      font-size: clamp(50px, 8vw, 90px);
+      font-weight: 400;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 20px;
+    }
+
+    .hero-title em { font-style: italic; color: var(--accent); }
+
+    .hero-quote {
+      font-family: var(--serif);
+      font-size: 17px;
+      font-style: italic;
+      color: var(--muted);
+    }
+
+    /* ── Spreads ── */
+    .spread {
+      display: grid;
+      border-bottom: 1px solid rgba(26,24,22,0.1);
+    }
+
+    .spread-2col { grid-template-columns: 1fr 1fr; }
+    .spread-3col { grid-template-columns: 1fr 1fr 1fr; }
+    .spread-text-wide { grid-template-columns: 5fr 7fr; }
+    .spread-wide-text { grid-template-columns: 7fr 5fr; }
+
+    /* Text panel */
+    .text-panel {
+      padding: 44px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-right: 1px solid rgba(26,24,22,0.1);
+    }
+
+    .text-panel.no-border { border-right: none; }
+
+    /* Photo cells */
+    .p-cell {
+      overflow: hidden;
+      border-right: 1px solid rgba(26,24,22,0.1);
+      border-bottom: 1px solid rgba(26,24,22,0.1);
+      position: relative;
+    }
+
+    .p-cell:last-child { border-bottom: none; }
+    .p-cell.no-right { border-right: none; }
+    .p-cell.no-bottom { border-bottom: none; }
+
+    .p-cell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.02);
+      transition: transform 0.6s ease;
+    }
+
+    .p-cell:hover img { transform: scale(1.04); }
+
+    .p-num {
+      position: absolute;
+      top: 10px; left: 10px;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: rgba(26,24,22,0.45);
+      background: rgba(247,244,239,0.75);
+      padding: 2px 6px;
+      border-radius: 2px;
+    }
+
+    /* Chapter typography */
+    .chap-eyebrow {
+      font-size: 10px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .chap-title {
+      font-family: var(--serif);
+      font-size: clamp(22px, 2.8vw, 30px);
+      font-weight: 400;
+      line-height: 1.2;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    .chap-rule {
+      width: 36px;
+      height: 1px;
+      background: var(--accent);
+      margin-bottom: 20px;
+    }
+
+    .chap-body {
+      font-size: 13.5px;
+      line-height: 1.9;
+      color: #3A3633;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .chap-body p { margin: 0; }
+
+    .chap-foot {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px dashed rgba(26,24,22,0.15);
+    }
+
+    /* Full-width quote break */
+    .quote-break {
+      padding: 60px 24px;
+      text-align: center;
+      border-bottom: 1px solid rgba(26,24,22,0.1);
+    }
+
+    .q-text {
+      font-family: var(--serif);
+      font-size: clamp(18px, 3vw, 30px);
+      font-style: italic;
+      color: var(--ink);
+      max-width: 680px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    .q-attr {
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 18px;
+    }
+
+    /* Photo stack in a column */
+    .photo-stack {
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Final screen */
+    .final-spread {
+      text-align: center;
+      padding: 90px 24px;
+      border-bottom: 1px solid rgba(26,24,22,0.1);
+    }
+
+    .final-title {
+      font-family: var(--serif);
+      font-size: clamp(28px, 5vw, 52px);
+      font-weight: 400;
+      font-style: italic;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+
+    .final-sub {
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* Footer */
+    .mag-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 32px;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* Responsive */
+    @media (max-width: 860px) {
+      .spread-2col, .spread-3col, .spread-text-wide, .spread-wide-text { grid-template-columns: 1fr; }
+      .text-panel { border-right: none; border-bottom: 1px solid rgba(26,24,22,0.1); }
+      .p-cell { height: 240px !important; border-right: none; }
+    }
+  </style>
 </head>
 <body>
 
-  <!-- Ambient Glow Overlays -->
-  <div class="glow g1"></div>
-  <div class="glow g2"></div>
-
-  <!-- Minimal Topbar -->
-  <header class="topbar">
-    <div class="tb">
-      <a href="index.html" class="brand-wrap" style="text-decoration:none;">
-        <span class="brand-dot"></span>
-        <span class="brand-name">things never said</span>
-        <span class="brand-chapter-badge">Chapter IV</span>
-      </a>
-      <nav class="tbr tbr-nav">
-        <a href="index.html" class="nav-tab">🏠 Home</a>
-        <a href="music.html" class="nav-tab">🎵 Soundtracks</a>
-        <a href="movies.html" class="nav-tab">🎬 Movies</a>
-        <a href="never-said.html" class="nav-tab active">📖 Chapter IV</a>
-        <a href="eleven.html" class="nav-tab">✨ 11:11</a>
-        <a href="/legacy" target="_blank" class="nav-tab nav-tab-legacy">💌 1301 Archive</a>
-      </nav>
+  <!-- Topbar -->
+  <nav class="bar">
+    <a href="../home.html" class="bar-brand">for her</a>
+    <div class="bar-nav">
+      <a href="../home.html">Home</a>
+      <a href="../music.html">Songs</a>
+      <a href="eleven.html">11:11</a>
+      <a href="never-said.html" class="active">Final Letter</a>
     </div>
-  </header>
+  </nav>
 
-  <!-- Main Container -->
-  <main class="page-container">
+  <div class="page-wrap">
 
-    <!-- Hero Section -->
-    <section class="hero-section">
-      <div class="hero-tag">Intimate Memories</div>
-      <h1 class="hero-title">Things I Never Said<br>Out Loud</h1>
-      <p class="hero-subtitle">Some words stayed inside me for too long. Read slowly, at your own pace.</p>
+    <!-- Hero -->
+    <div class="letter-hero">
+      <div class="hero-eyebrow">The Final Letter &nbsp;·&nbsp; Room 03</div>
+      <h1 class="hero-title">One Last<br><em>Thing...</em></h1>
+      <p class="hero-quote">"Thank you for making it till the end."</p>
+    </div>
 
-      <!-- View Switcher -->
-      <div class="view-switcher">
-        <button class="switch-tab active" id="tabDeckView">Card Deck 🎴</button>
-        <button class="switch-tab" id="tabListView">Scroll List 📜</button>
+    <div class="mag-meta">
+      <span>p. 01</span>
+      <span>for her &nbsp;·&nbsp; The Final Letter</span>
+      <span>p. 02</span>
+    </div>
+
+    <!-- ── SPREAD 1: Intro text + tall photo ── -->
+    <div class="spread spread-text-wide">
+
+      <div class="text-panel">
+        <div class="chap-eyebrow">Before You Read</div>
+        <h2 class="chap-title">If you're reading this, you've made it to the end.</h2>
+        <div class="chap-rule"></div>
+        <div class="chap-body">
+          <p>Thank you for taking the time to explore everything. Every page before this had a reason to exist, and this is where all of it comes together.</p>
+          <p>This isn't meant to change your mind about anything or ask you for something in return.</p>
+          <p>It's simply everything I wanted to say, collected in one place.</p>
+        </div>
+        <div class="chap-foot">Read chronologically &nbsp;·&nbsp; Scroll slowly</div>
       </div>
-    </section>
 
-    <!-- CAROUSEL DECK VIEW -->
-    <section class="deck-carousel-wrap" id="deckWrap">
-      <div class="deck-nav-bar">
-        <span class="chapter-counter" id="chapterCounter">Chapter 01 / 12</span>
-        <div class="deck-arrows">
-          <button class="btn-deck-arrow" id="btnPrevCard" disabled title="Previous">←</button>
-          <button class="btn-deck-arrow" id="btnNextCard" title="Next">→</button>
+      <div class="photo-stack">
+        <div class="p-cell no-right" style="height:280px;">
+          <span class="p-num">01</span>
+          <img src="../photos/1781014861379.png" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+        <div class="p-cell no-right no-bottom" style="height:280px;">
+          <span class="p-num">02</span>
+          <img src="../photos/IMG_20260610_225715.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
         </div>
       </div>
 
-      <div class="cards-deck-container" id="cardsContainer">
-
-        <!-- CARD 01 -->
-        <article class="story-card" data-idx="0">
-          <div>
-            <span class="card-chapter-num">Chapter I</span>
-            <h2 class="card-title">A Small Request</h2>
-            <div class="card-text-body">
-              <p>Reply to each paragraph one by one if you feel like.</p>
-              <p>I don't expect you to reply instantly.</p>
-              <p>Just read it at your own pace.</p>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="card-footer-note">No pressure. Whenever you feel like.</span>
-            <button class="btn-reply-glass" data-reply="Chapter I — A Small Request">Reply</button>
-          </div>
-        </article>
-
-        <!-- CARD 02 -->
-        <article class="story-card" data-idx="1">
-          <div>
-            <span class="card-chapter-num">Chapter II</span>
-            <h2 class="card-title">I Notice Everything</h2>
-            <div class="card-text-body">
-              <p>You know I bother you a lot. I know I bring negativity sometimes, and I know you can't always do what I expect.</p>
-              <p>Whatever you do for me is genuinely appreciable. You listened to my random VMs. You read my long paragraphs. You understood me even when I didn't make sense.</p>
-              <p>Sometimes I forget how kind you are. You are sweet, caring, understanding and genuinely a beautiful person. You deserve all the love and happiness in the world.</p>
-            </div>
-            <!-- Her Photo Frame -->
-            <div class="card-photo-frame">
-              <img src="photos/b.jpg" onerror="this.src='legacy/assets/images/her/ChatGPT Image Jun 11, 2026, 01_20_10 PM.png'" alt="Her" />
-              <div class="card-photo-caption">"You are genuinely a beautiful person."</div>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="card-footer-note">Thank you before anything else.</span>
-            <button class="btn-reply-glass" data-reply="Chapter II — Thank You">Reply</button>
-          </div>
-        </article>
-
-        <!-- CARD 03 -->
-        <article class="story-card" data-idx="2">
-          <div>
-            <span class="card-chapter-num">Chapter III</span>
-            <h2 class="card-title">I'm Sorry</h2>
-            <div class="card-text-body">
-              <p>I know I blamed you. I know I made things difficult and made your life chaotic. I owe you so many apologies.</p>
-              <p>I'm sorry for saying hurtful things. I'm sorry whenever I complained. I'm sorry whenever I made you feel like you weren't enough.</p>
-              <p>I'm genuinely sorry for everything.</p>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="card-footer-note">My sincere apology.</span>
-            <button class="btn-reply-glass" data-reply="Chapter III — Apology">Reply</button>
-          </div>
-        </article>
-
-        <!-- CARD 04 -->
-        <article class="story-card" data-idx="3">
-          <div>
-            <span class="card-chapter-num">Chapter IV</span>
-            <h2 class="card-title">Can I Be Honest?</h2>
-            <div class="card-text-body">
-              <p>The story reposts left unacknowledged. The unshared Reels. The quiet distance on the photography account.</p>
-              <p>The movie post that felt like a wall between us. The dry texting when all I hoped for was warmth.</p>
-              <p>Feeling ignored and wanting to feel important. Feeling left out when I wanted small efforts.</p>
-              <p style="margin-top:8px;font-style:italic;color:var(--muted);">I don't expect perfection. Sometimes I just wanted to feel remembered.</p>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="card-footer-note">Would you like to share your thoughts?</span>
-            <button class="btn-reply-glass" data-reply="Chapter IV — Honesty">Reply</button>
-          </div>
-        </article>
-
-        <!-- CARD 05 -->
-        <article class="story-card" data-idx="4">
-          <div>
-            <span class="card-chapter-num">Chapter V</span>
-            <h2 class="card-title">About Me</h2>
-            <div class="card-text-body">
-              <p>I behave like I own you sometimes. That's not love.</p>
-              <p>You're free. I ask for too much. There wasn't space to breathe.</p>
-              <p>Maybe things will naturally happen when I stop asking. I know these things can't be forced.</p>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="card-footer-note">A realization.</span>
-            <button class="btn-reply-glass" data-reply="Chapter V — Realization">Reply</button>
-          </div>
-        </article>
-
-        <!-- CARD 06 -->
-        <article class="story-card" data-idx="5">
-          <div>
-            <span class="card-chapter-num">Chapter VI</span>
-            <h2 class="card-title">What I Still Believe</h2>
-            <div class="card-text-body">
-              <p>I see potential in us.</p>
-              <p>We fight because of expectations. I think we can become better friends.</p>
-              <p>I want to improve myself. Give me one month. I want to become a version you'll appreciate.</p>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="card-footer-note">A quiet promise.</span>
-            <button class="btn-reply-glass" data-reply="Chapter VI — Promise">Reply</button>
-          </div>
-        </article>
-
-        <!-- CARD 07 -->
-        <article class="story-card" data-idx="6">
-          <div>
-            <span class="card-chapter-num">Chapter VII</span>
-            <h2 class="card-title">The Future</h2>
-            <div class="card-text-body">
-              <p>I know you don't see us together. I know you may find someone else.</p>
-              <p>I don't know how I'll react. I don't want to force anything. I won't ask you to love me.</p>
-              <p>If someday you ever feel that way, it'll be your decision.</p>
-            </div>
-            <div class="card-photo-frame">
-              <img src="photos/1781014861379.png" onerror="this.src='legacy/a.jpg'" alt="Sunrise" />
-              <div class="card-photo-caption">"Every sunrise carries a quiet promise."</div>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="card-footer-note">Whatever happens, stays real.</span>
-            <button class="btn-reply-glass" data-reply="Chapter VII — Future">Reply</button>
-          </div>
-        </article>
-
-        <!-- CARD 08 — BUCKET LIST -->
-        <article class="story-card" data-idx="7">
-          <div>
-            <span class="card-chapter-num">Chapter VIII</span>
-            <h2 class="card-title">Bucket List</h2>
-            <div class="checklist-grid">
-              <div class="checklist-item">
-                <div class="check-icon">✓</div>
-                <span>Hangout on a quiet afternoon with nowhere urgent to be</span>
-              </div>
-              <div class="checklist-item">
-                <div class="check-icon">✓</div>
-                <span>Bring you fresh flowers and handwritten notes</span>
-              </div>
-              <div class="checklist-item">
-                <div class="check-icon">✓</div>
-                <span>Watch movies until midnight without checking the clock</span>
-              </div>
-              <div class="checklist-item">
-                <div class="check-icon">✓</div>
-                <span>Explore new quiet places together with zero plans</span>
-              </div>
-              <div class="checklist-item">
-                <div class="check-icon">✓</div>
-                <span>All the future moments I've saved in my heart for you</span>
-              </div>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="card-footer-note">Saved in my heart.</span>
-            <button class="btn-reply-glass" data-reply="Chapter VIII — Bucket List">Reply</button>
-          </div>
-        </article>
-
-        <!-- CARD 09 — QUESTIONS -->
-        <article class="story-card" data-idx="8">
-          <div>
-            <span class="card-chapter-num">Chapter IX</span>
-            <h2 class="card-title">Questions</h2>
-            <div class="question-box">
-              <div class="q-prompt-title">What's one thing you wish more people understood about you?</div>
-              <textarea class="q-textarea" id="qInput1" placeholder="Write your thoughts here..."></textarea>
-            </div>
-            <div class="question-box">
-              <div class="q-prompt-title">What is a memory of us that still makes you smile?</div>
-              <textarea class="q-textarea" id="qInput2" placeholder="Write your thoughts here..."></textarea>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="card-footer-note">Take your time answering.</span>
-            <button class="btn-reply-glass" id="btnSaveQuestions">Save Answers</button>
-          </div>
-        </article>
-
-        <!-- CARD 10 — OBSERVATIONS -->
-        <article class="story-card" data-idx="9">
-          <div>
-            <span class="card-chapter-num">Chapter X</span>
-            <h2 class="card-title">Observations</h2>
-            <div class="obs-grid">
-              <div class="obs-item">
-                <p style="font-size:14px;font-weight:500;">You pretend you don't care about little details, but you notice everything.</p>
-                <div class="obs-btn-group">
-                  <button class="btn-obs-choice" data-obs="1" data-val="true">✅ True</button>
-                  <button class="btn-obs-choice" data-obs="1" data-val="false">❌ Not Really</button>
-                </div>
-              </div>
-              <div class="obs-item">
-                <p style="font-size:14px;font-weight:500;">You listen to songs on repeat when a specific mood hits.</p>
-                <div class="obs-btn-group">
-                  <button class="btn-obs-choice" data-obs="2" data-val="true">✅ True</button>
-                  <button class="btn-obs-choice" data-obs="2" data-val="false">❌ Not Really</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="card-footer-note">How accurate are these?</span>
-            <button class="btn-reply-glass" data-reply="Chapter X — Observations">Reply</button>
-          </div>
-        </article>
-
-        <!-- CARD 11 — BTS EFFORT -->
-        <article class="story-card" data-idx="10">
-          <div>
-            <span class="card-chapter-num">Chapter XI</span>
-            <h2 class="card-title">The Effort Behind This</h2>
-            <div class="card-text-body">
-              <p><strong>🔒 Taking Time Off:</strong> Stepping away from social distractions to focus entirely on building something thoughtful for you.</p>
-              <p><strong>💻 Custom Code & Design:</strong> Crafting every transition, color palette, and audio sync with care.</p>
-              <p><strong>🎵 Soundtracks & 11:11 Archive:</strong> Gathering every track and screenshot collected over time.</p>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="card-footer-note">Behind the scenes.</span>
-            <button class="btn-reply-glass" data-reply="Chapter XI — Effort">Reply</button>
-          </div>
-        </article>
-
-        <!-- CARD 12 — THANK YOU -->
-        <article class="story-card" data-idx="11">
-          <div>
-            <span class="card-chapter-num">Chapter XII</span>
-            <h2 class="card-title">Thank You</h2>
-            <div class="card-text-body">
-              <p>I adore you. Thank you for existing.</p>
-              <p>You're worthy, kind, and genuinely wonderful. I hope you forgive any mistakes I made.</p>
-              <p style="margin-top:14px;font-weight:600;">This space was created simply to say... thank you for being in my life.</p>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span class="card-footer-note">— Abhinav</span>
-            <a href="index.html" class="btn-reply-glass" style="text-decoration:none;">Listen to Soundtracks →</a>
-          </div>
-        </article>
-
-      </div>
-    </section>
-
-    <!-- EDITORIAL VERTICAL SCROLL LIST VIEW (Hidden by default) -->
-    <section class="editorial-list-container" id="listWrap" style="display:none;">
-      <!-- Cloned dynamically or displayed directly -->
-    </section>
-
-  </main>
-
-  <!-- Slide-Up Reply Modal -->
-  <div class="reply-modal" id="replyModal">
-    <div class="reply-sheet">
-      <div class="sheet-top">
-        <div class="sheet-title" id="replyModalTitle">Reply</div>
-        <button class="sheet-close" id="btnCloseModal">✕</button>
-      </div>
-      <textarea class="sheet-input" id="replyInput" placeholder="Write whatever you feel like..."></textarea>
-      <button class="btn-sheet-send" id="btnSendReply">Send Reply</button>
     </div>
+
+    <!-- ── SPREAD 2: 3 wide photos ── -->
+    <div class="spread spread-3col">
+      <div class="p-cell" style="height:340px;">
+        <span class="p-num">03</span>
+        <img src="../photos/IMG_20260610_225728.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
+      <div class="p-cell" style="height:340px;">
+        <span class="p-num">04</span>
+        <img src="../photos/IMG_20260610_225840.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
+      <div class="p-cell no-right" style="height:340px;">
+        <span class="p-num">05</span>
+        <img src="../photos/IMG_20260610_225850.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
+    </div>
+
+    <div class="mag-meta">
+      <span>p. 03</span>
+      <span>Chapter 01 — Before Anything Else</span>
+      <span>p. 04</span>
+    </div>
+
+    <!-- ── SPREAD 3: Chapter 1 ── -->
+    <div class="spread spread-wide-text">
+
+      <div class="photo-stack">
+        <div class="p-cell" style="height:560px;">
+          <span class="p-num">06</span>
+          <img src="../photos/IMG_20260610_230008.png" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+      </div>
+
+      <div class="text-panel no-border">
+        <div class="chap-eyebrow">Chapter 01 &nbsp;·&nbsp; Appreciation</div>
+        <h2 class="chap-title">Before Anything Else</h2>
+        <div class="chap-rule"></div>
+        <div class="chap-body">
+          <p>First of all, thank you. Thank you for taking the time to read through all of this and for making it till the end.</p>
+          <p>I know life gets busy, and you didn't have to spend your time exploring this website, but the fact that you did means more to me than I can put into words.</p>
+          <p>Every page before this—the songs, the playlists, the 11:11 screenshots—had a specific reason to exist. None of it was added just to fill space. This entire website is simply my way of appreciating you and celebrating having you in my life.</p>
+          <p>Thank you for staying. Thank you for reading. Thank you for being exactly who you are.</p>
+        </div>
+        <div class="chap-foot">Chapter 01 of 06</div>
+      </div>
+
+    </div>
+
+    <!-- ── Quote Break ── -->
+    <div class="quote-break">
+      <p class="q-text">"I got so caught up in what was hurting me that I sometimes forgot to pause and appreciate everything you were already doing."</p>
+      <div class="q-attr">Chapter 02 — I'm Sorry</div>
+    </div>
+
+    <!-- ── SPREAD 4: Chapter 2 + photos ── -->
+    <div class="spread spread-2col">
+
+      <div class="text-panel">
+        <div class="chap-eyebrow">Chapter 02 &nbsp;·&nbsp; Apology</div>
+        <h2 class="chap-title">I'm Sorry</h2>
+        <div class="chap-rule"></div>
+        <div class="chap-body">
+          <p>Before saying anything else, I owe you a genuine apology.</p>
+          <p>Looking back, I realize there were times when I complained too much, held too many expectations, and made things far more chaotic than they ever needed to be.</p>
+          <p>I want to acknowledge my mistakes honestly, without making excuses or shifting blame onto you. I am truly sorry for any moment I made you feel overwhelmed or unheard.</p>
+        </div>
+        <div class="chap-foot">Chapter 02 of 06</div>
+      </div>
+
+      <div class="photo-stack">
+        <div class="p-cell no-right" style="height:280px;">
+          <span class="p-num">07</span>
+          <img src="../photos/IMG_20260610_230029.png" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+        <div class="p-cell no-right no-bottom" style="height:280px;">
+          <span class="p-num">08</span>
+          <img src="../photos/IMG-20260610-WA0015.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+      </div>
+
+    </div>
+
+    <div class="mag-meta">
+      <span>p. 05</span>
+      <span>Chapter 03 — Things I Never Told You</span>
+      <span>p. 06</span>
+    </div>
+
+    <!-- ── SPREAD 5: 3 photos ── -->
+    <div class="spread spread-3col">
+      <div class="p-cell" style="height:300px;">
+        <span class="p-num">09</span>
+        <img src="../photos/1781014822480.png" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
+      <div class="p-cell" style="height:300px;">
+        <span class="p-num">10</span>
+        <img src="../photos/1781014830273.png" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
+      <div class="p-cell no-right" style="height:300px;">
+        <span class="p-num">11</span>
+        <img src="../photos/1781014842250.png" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
+    </div>
+
+    <!-- ── SPREAD 6: Chapter 3 ── -->
+    <div class="spread spread-wide-text">
+
+      <div class="photo-stack">
+        <div class="p-cell" style="height:300px;">
+          <span class="p-num">12</span>
+          <img src="../photos/1781014866056.png" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+        <div class="p-cell no-bottom" style="height:300px;">
+          <span class="p-num">13</span>
+          <img src="../photos/1781014873693.png" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+      </div>
+
+      <div class="text-panel no-border">
+        <div class="chap-eyebrow">Chapter 03 &nbsp;·&nbsp; The Things I Never Told You</div>
+        <h2 class="chap-title">The Things I Never Said</h2>
+        <div class="chap-rule"></div>
+        <div class="chap-body">
+          <p>There are so many quiet details about you that I've noticed over time—things you probably don't even realize people notice.</p>
+          <p>I've noticed your incredible patience, the quiet kindness in how you treat people, and the small ways you make everything around you feel a little brighter.</p>
+          <p>You have this subtle warmth that makes people feel safe and understood, even when you aren't trying to.</p>
+          <p>Those little things are the exact reason why you became so genuinely important to me.</p>
+        </div>
+        <div class="chap-foot">Chapter 03 of 06</div>
+      </div>
+
+    </div>
+
+    <div class="mag-meta">
+      <span>p. 07</span>
+      <span>Chapter 04 — Behind This Project</span>
+      <span>p. 08</span>
+    </div>
+
+    <!-- ── SPREAD 7: Chapter 4 + photos ── -->
+    <div class="spread spread-2col">
+
+      <div class="text-panel">
+        <div class="chap-eyebrow">Chapter 04 &nbsp;·&nbsp; Behind the Scenes</div>
+        <h2 class="chap-title">Behind This Project</h2>
+        <div class="chap-rule"></div>
+        <div class="chap-body">
+          <p>I've been thinking about building something like this for a very long time. What started as a tiny draft slowly turned into a complete passion project.</p>
+          <p>If you wondered why I quietly disappeared for a while—this was the reason. I spent countless hours tweaking design details, refining playlists, writing synced lyrics, and assembling memories.</p>
+          <p>There were so many pages that never made it—ideas I scrapped because they didn't feel right. This isn't even the full vision I originally had, but I decided to share it now rather than making you wait for perfection.</p>
+        </div>
+        <div class="chap-foot">Chapter 04 of 06</div>
+      </div>
+
+      <div class="photo-stack">
+        <div class="p-cell no-right" style="height:560px;">
+          <span class="p-num">14</span>
+          <img src="../photos/IMG-20260610-WA0005.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── SPREAD 8: Chapter 5 ── -->
+    <div class="spread spread-3col">
+      <div class="p-cell" style="height:300px;">
+        <span class="p-num">15</span>
+        <img src="../photos/IMG-20260610-WA0008.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
+      <div class="p-cell" style="height:300px;">
+        <span class="p-num">16</span>
+        <img src="../photos/IMG-20260610-WA0009.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
+      <div class="p-cell no-right" style="height:300px;">
+        <span class="p-num">17</span>
+        <img src="../photos/IMG-20260610-WA0010.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
+    </div>
+
+    <div class="mag-meta">
+      <span>p. 09</span>
+      <span>Chapter 05 &amp; 06 — Closing</span>
+      <span>p. 10</span>
+    </div>
+
+    <!-- ── SPREAD 9: Chapters 5 + 6 side by side ── -->
+    <div class="spread spread-2col">
+
+      <div class="text-panel">
+        <div class="chap-eyebrow">Chapter 05 &nbsp;·&nbsp; Looking Ahead</div>
+        <h2 class="chap-title">Looking Ahead</h2>
+        <div class="chap-rule"></div>
+        <div class="chap-body">
+          <p>This website isn't meant to be a static project that stays frozen in time. It's something that will keep growing.</p>
+          <p>I'll continue updating the songs whenever I discover new tracks that remind me of you. There are also new ideas planned—private posts, organized saved collections, and more quiet little corners.</p>
+          <p>Think of this as a quiet room that will always be here for you whenever you feel like revisiting it.</p>
+        </div>
+        <div class="chap-foot">Chapter 05 of 06</div>
+      </div>
+
+      <div class="text-panel no-border" style="background: rgba(176,122,90,0.05);">
+        <div class="chap-eyebrow">Chapter 06 &nbsp;·&nbsp; Goodbye</div>
+        <h2 class="chap-title">Goodbye (For This Website)</h2>
+        <div class="chap-rule"></div>
+        <div class="chap-body">
+          <p>And so, we've arrived at the end of this letter.</p>
+          <p>Thank you again for being here, for reading, and for sharing this experience with me. I genuinely wish you all the happiness, warmth, and peace in the world.</p>
+          <p>Whether you spent five minutes here today or revisit this years from now, I'm simply glad you experienced something built with genuine care.</p>
+          <p>Take good care of yourself. Always. ♥</p>
+        </div>
+        <div class="chap-foot">Chapter 06 of 06 &nbsp;·&nbsp; End</div>
+      </div>
+
+    </div>
+
+    <!-- ── Final Screen ── -->
+    <div class="final-spread">
+      <p class="final-title">Thank you for reading. ♥</p>
+      <p class="final-sub" style="margin-top:14px;">A quiet space built with care.</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="mag-footer">
+      <span>for her &nbsp;·&nbsp; Vol. 01</span>
+      <span>The Final Letter</span>
+      <span>p. 10</span>
+    </div>
+
   </div>
 
-  <script src="never-said.js?v=4"></script>
 </body>
 </html>

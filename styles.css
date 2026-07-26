@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════
-   FOR HER — Soundtracks Design System v18
+   FOR HER — Songs Design System v18
    Floating Video Preview Above Player Bar · Playlist Manager in Player Bar
    ═══════════════════════════════════════════════════ */
 
@@ -698,6 +698,42 @@ body { font-family:var(--sans); background:var(--bg); color:var(--text); min-hei
 .choice-opt-desc { font-size:12px; color:var(--muted); line-height:1.45; margin:0 0 16px; }
 .choice-opt-action { font-size:12px; font-weight:700; color:var(--warm); background:rgba(233,169,144,0.15); padding:8px 16px; border-radius:16px; transition:all .2s; }
 .choice-option-card:hover .choice-opt-action { background:var(--text); color:var(--bg); }
+
+/* Rooms Navigation Modal Cards */
+.room-nav-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(0,0,0,0.03);
+  border: 1.5px solid rgba(0,0,0,0.06);
+  border-radius: 20px;
+  padding: 16px 18px;
+  transition: all 0.25s ease;
+  text-align: left;
+}
+.room-nav-card:hover {
+  background: rgba(255,255,255,0.95);
+  border-color: var(--warm);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 26px rgba(233,169,144,0.2);
+}
+.room-nav-card.active {
+  border-color: rgba(233,169,144,0.4);
+  background: rgba(233,169,144,0.08);
+}
+.room-nav-pill {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  background: rgba(0,0,0,0.05);
+  padding: 5px 12px;
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+.room-nav-pill.open {
+  color: #d96b43;
+  background: rgba(233,169,144,0.18);
+}
 
 
 

@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>soundtracks — for her</title>
-  <meta name="description" content="A personal soundtracks collection with YouTube audio and synced lyrics." />
+  <title>songs — for her</title>
+  <meta name="description" content="A personal songs collection with YouTube audio and synced lyrics." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet" />
@@ -22,7 +22,7 @@
     <div class="tb">
       <a href="music.html" class="brand-wrap" style="text-decoration:none;">
         <span class="brand-dot"></span>
-        <span class="brand-name">soundtracks</span>
+        <span class="brand-name">songs</span>
       </a>
       
       <div style="flex:1;display:flex;justify-content:center;margin:0 16px;max-width:360px;">
@@ -30,17 +30,23 @@
           <svg class="sico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
           </svg>
-          <input class="si" id="searchInput" type="text" placeholder="Search soundtracks…" />
+          <input class="si" id="searchInput" type="text" placeholder="Search songs…" />
         </div>
       </div>
 
-      <nav class="tbr tbr-nav">
-        <a href="music.html" class="nav-tab active">🎵 Soundtracks</a>
+      <nav class="tbr tbr-nav" style="display:flex;align-items:center;">
+        <a href="home.html" class="nav-tab">Home</a>
+        <button class="nav-tab active" id="openRoomsModalBtn" style="background:none;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;">
+          Navigation
+        </button>
         <button class="btn-s" id="openAddTrackBtn" style="margin-left:6px;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
           Search & Add
+        </button>
+        <button class="btn-s" id="openPageInfoBtn" title="Why This Page?" style="margin-left:6px;width:32px;height:32px;border-radius:50%;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:rgba(233,169,144,0.18);color:#d96b43;border:1px solid rgba(233,169,144,0.3);cursor:pointer;">
+          ⓘ
         </button>
       </nav>
 
@@ -60,7 +66,7 @@
           </span>
           <span style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)">Comfort Audio</span>
         </div>
-        <h1 class="pt">Soundtracks</h1>
+        <h1 class="pt">Songs</h1>
         <p class="ps">The melodies that anchor you — kept close.</p>
       </div>
       <div class="stats">
@@ -91,10 +97,10 @@
       </div>
     </div>
 
-    <!-- Collapsible Header for ALL SOUNDTRACKS -->
+    <!-- Collapsible Header for ALL SONGS -->
     <div class="section-collapse-header" id="allSongsHeader" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;cursor:pointer;user-select:none;">
       <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--text);">All Soundtracks</span>
+        <span style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--text);">All Songs</span>
         <span id="allSongsCountBadge" class="count-badge">0 tracks</span>
       </div>
       <button class="btn-s btn-collapse" id="toggleAllSongsCollapseBtn" style="gap:6px;font-size:12px;height:30px;padding:0 12px;">
@@ -108,7 +114,7 @@
       <div class="grid size-sm" id="songsGrid"></div>
       <div class="empty" id="songsEmpty">
         <div style="font-size:32px;margin-bottom:12px;">🎵</div>
-        <p style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;">No soundtracks added yet</p>
+        <p style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;">No songs added yet</p>
         <p style="font-size:13px;color:var(--muted);">Click 'Search & Add' in the header to search YouTube and build your library.</p>
       </div>
     </section>
@@ -138,7 +144,7 @@
     <!-- Footer -->
     <div class="div-sep"></div>
     <footer style="text-align:center;color:var(--muted);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;padding-bottom:140px;">
-      soundtracks — for her
+      songs — for her
     </footer>
   </main>
 
@@ -365,7 +371,7 @@
           <div class="msh">
             <div class="lyrics-header-title">
               <span>Synced Lyrics</span>
-              <span class="lyrics-header-wave">·||1·</span>
+              <span class="lyrics-header-wave">·|||·</span>
             </div>
             <div class="m-lyrics-w" id="lyricsScroller">
               <div class="m-lyrics-track" id="lyricsTrack">
@@ -393,7 +399,7 @@
           <span class="sm-badge-dot"></span>
           <span>Discover & Curate</span>
         </div>
-        <h2 class="sm-title">Find Your Soundtrack</h2>
+        <h2 class="sm-title">Find Your Song</h2>
         <p class="sm-subtitle">Search YouTube for any song, artist, or direct video URL.</p>
       </div>
 
@@ -443,7 +449,7 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          Add Soundtrack to Library
+          Add Song to Library
         </button>
       </div>
     </div>
@@ -499,7 +505,7 @@
           <div id="plDetailStack" class="pl-detail-stack-wrap"></div>
           <div style="min-width:0;flex:1;">
             <h2 class="pl-edit-title" id="plDetailName" style="margin:0;font-size:24px;line-height:1.2;word-break:break-word;">Playlist Name</h2>
-            <div id="plDetailCount" style="font-size:12px;font-weight:600;color:var(--warm);background:rgba(233,169,144,0.15);padding:3px 10px;border-radius:14px;display:inline-block;margin-top:6px;">0 soundtracks</div>
+            <div id="plDetailCount" style="font-size:12px;font-weight:600;color:var(--warm);background:rgba(233,169,144,0.15);padding:3px 10px;border-radius:14px;display:inline-block;margin-top:6px;">0 songs</div>
           </div>
         </div>
         <button class="mc" id="closePlDetailModalBtn" style="position:static;flex-shrink:0;">✕</button>
@@ -523,9 +529,98 @@
 
       <!-- Tracks List -->
       <div class="pl-edit-section-title">
-        <span>Soundtracks List</span>
+        <span>Songs List</span>
       </div>
       <div id="plDetailTracklist" style="display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto;padding-right:4px;"></div>
+    </div>
+  </div>
+
+  <!-- WHY THIS PAGE INFORMATION MODAL -->
+  <div class="mov" id="pageInfoModal">
+    <div class="ms modal-ambient-card" style="max-width:620px;padding:34px 28px 28px;">
+      <button class="mc" id="closePageInfoModalBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+
+      <div style="text-align:center;margin-bottom:20px;">
+        <span class="sm-badge" style="margin-bottom:10px;display:inline-flex;">
+          <span class="sm-badge-dot"></span>
+          <span>Behind The Music</span>
+        </span>
+        <h2 style="font-family:'Playfair Display',serif;font-size:26px;font-weight:700;color:var(--text);margin:6px 0 0;">Why This Page?</h2>
+      </div>
+
+      <div style="max-height:60vh;overflow-y:auto;padding-right:6px;font-size:14px;line-height:1.7;color:var(--text);display:flex;flex-direction:column;gap:14px;">
+        <p>This is probably the page I spent the most time making.</p>
+        <p>I've wanted to build something like this for a long time, and when I finally got the chance, I decided to give it everything I had.</p>
+        <p>Usually, music apps decide what you listen to through algorithms. They recommend songs based on trends or data.</p>
+        <p>I wanted to do the opposite.</p>
+        <p>Instead of letting an algorithm choose, I tried to build something based on how much I've come to know your taste over time.</p>
+        <p>The songs here aren't randomly selected. They're based on the little things I've noticed—songs you've shared, songs you've called your favourites, your playlists, your reels, artists you enjoy, and even a few recommendations I thought you'd genuinely like.</p>
+        <p>Some of these songs have been sitting in a playlist I made a long time ago. Others were added while building this project.</p>
+        <p>This playlist isn't meant to stay the same forever. I'll keep updating it whenever I discover something that reminds me of you or something I think you'd enjoy.</p>
+        <p>You can also add or remove songs if you want. I wanted this to be something you could actually use instead of just looking at.</p>
+        <p style="font-weight:600;margin-top:4px;color:var(--warm);">One more thing...</p>
+        <p>When you play a song, open the player at the bottom and tap it. That's my favourite part of this page. I spent way too much time tweaking the full-screen player and the synced lyrics.</p>
+        <p>If the music takes a moment to load, don't worry. The current version uses a free API, so it can occasionally be slow. I'll replace it with a faster one in a future update.</p>
+        <p style="font-weight:600;margin-top:4px;">I hope you find at least a few songs that become your new favourites.</p>
+      </div>
+
+      <div style="margin-top:22px;text-align:center;">
+        <button class="btn-s" id="startListeningBtn" style="width:100%;max-width:260px;height:42px;background:var(--warm);color:#fff;font-weight:600;font-size:14px;border:none;border-radius:18px;box-shadow:0 6px 18px rgba(233,169,144,0.35);cursor:pointer;">
+          Start Listening
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAVIGATION ROOMS POPUP MODAL -->
+  <div class="mov" id="roomsNavigationModal">
+    <div class="ms modal-ambient-card" style="max-width:520px;padding:32px 26px;">
+      <button class="mc" id="closeRoomsModalBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+
+      <div style="text-align:center;margin-bottom:22px;">
+        <span class="sm-badge" style="margin-bottom:8px;display:inline-flex;">
+          <span>Explore Experiences ✨</span>
+        </span>
+        <h2 style="font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--text);margin:4px 0 0;">Where would you like to go?</h2>
+        <p style="font-size:13px;color:var(--muted);margin-top:4px;">Choose a page to step into</p>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <a href="music.html" class="room-nav-card active" style="text-decoration:none;">
+          <div style="font-size:28px;">🎵</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);">Songs Page</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Interactive music player, synced lyrics & song library</div>
+          </div>
+          <span class="room-nav-pill">Current Room</span>
+        </a>
+
+        <a href="archive/eleven.html" class="room-nav-card" style="text-decoration:none;">
+          <div style="font-size:28px;">✨</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);">11:11 Page</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Special wish archive, timeline screenshots & memories</div>
+          </div>
+          <span class="room-nav-pill open">Step In →</span>
+        </a>
+
+        <a href="archive/never-said.html" class="room-nav-card" style="text-decoration:none;">
+          <div style="font-size:28px;">💌</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--text);">Final Letter</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;">Things never said out loud — Chapter IV</div>
+          </div>
+          <span class="room-nav-pill open">Read Letter →</span>
+        </a>
+      </div>
     </div>
   </div>
 

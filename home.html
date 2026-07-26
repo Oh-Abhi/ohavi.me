@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>for her</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --paper: #F7F4EF;
+      --ink: #1A1816;
+      --muted: #7A7370;
+      --accent: #B07A5A;
+      --serif: 'EB Garamond', 'Playfair Display', Georgia, serif;
+      --sans: 'Inter', system-ui, sans-serif;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Topbar ── */
+    .bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 48px;
+      background: rgba(247, 244, 239, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(26,24,22,0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      z-index: 100;
+    }
+
+    .bar-brand {
+      font-family: var(--serif);
+      font-size: 14px;
+      font-style: italic;
+      color: var(--ink);
+      letter-spacing: 0.02em;
+      text-decoration: none;
+    }
+
+    .bar-nav {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .bar-nav a {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .bar-nav a:hover, .bar-nav a.active { color: var(--ink); }
+
+    /* ── Page ── */
+    .page-wrap {
+      padding-top: 48px;
+    }
+
+    /* ── Magazine Header ── */
+    .mag-header {
+      text-align: center;
+      padding: 60px 24px 40px;
+      border-bottom: 1px solid rgba(26,24,22,0.1);
+      margin-bottom: 0;
+    }
+
+    .mag-eyebrow {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+    }
+
+    .mag-title {
+      font-family: var(--serif);
+      font-size: clamp(52px, 9vw, 100px);
+      font-weight: 400;
+      line-height: 0.95;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 20px;
+    }
+
+    .mag-title em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .mag-tagline {
+      font-family: var(--serif);
+      font-size: 16px;
+      font-style: italic;
+      color: var(--muted);
+      margin: 0 auto;
+      max-width: 360px;
+      line-height: 1.6;
+    }
+
+    .mag-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 32px;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid rgba(26,24,22,0.1);
+    }
+
+    /* ── Photo Book Spreads ── */
+    .spread {
+      display: grid;
+      border-bottom: 1px solid rgba(26,24,22,0.1);
+    }
+
+    /* Spread type A: 3-col dense */
+    .spread-3col {
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0;
+    }
+
+    /* Spread type B: 2-col with big left */
+    .spread-2col-big {
+      grid-template-columns: 7fr 5fr;
+    }
+
+    /* Spread type C: mixed */
+    .spread-mixed {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .spread-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 40px 36px;
+      border-right: 1px solid rgba(26,24,22,0.1);
+    }
+
+    .spread-photo-block {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .p-cell {
+      overflow: hidden;
+      border-right: 1px solid rgba(26,24,22,0.1);
+      border-bottom: 1px solid rgba(26,24,22,0.1);
+      position: relative;
+    }
+
+    .p-cell:last-child { border-bottom: none; }
+
+    .p-cell img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: contrast(1.02) brightness(0.98);
+      transition: transform 0.6s ease;
+    }
+
+    .p-cell:hover img { transform: scale(1.03); }
+
+    .p-num {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      color: rgba(26,24,22,0.5);
+      background: rgba(247,244,239,0.8);
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+
+    /* Chapter heading inside spread */
+    .chap-eyebrow {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .chap-title {
+      font-family: var(--serif);
+      font-size: clamp(22px, 3vw, 32px);
+      font-weight: 400;
+      line-height: 1.15;
+      color: var(--ink);
+      margin-bottom: 18px;
+    }
+
+    .chap-body {
+      font-size: 13.5px;
+      line-height: 1.85;
+      color: #3A3633;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .chap-body p { margin: 0; }
+
+    .chap-rule {
+      width: 40px;
+      height: 1px;
+      background: var(--accent);
+      margin: 18px 0;
+    }
+
+    .chap-foot {
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 16px;
+    }
+
+    /* Rooms Grid Section */
+    .rooms-section {
+      padding: 60px 32px;
+      border-bottom: 1px solid rgba(26,24,22,0.1);
+    }
+
+    .rooms-section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 32px;
+    }
+
+    .rooms-sec-title {
+      font-family: var(--serif);
+      font-size: 28px;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--ink);
+    }
+
+    .rooms-sec-sub {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .rooms-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      border: 1px solid rgba(26,24,22,0.12);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    @media (max-width: 700px) { .rooms-grid { grid-template-columns: 1fr; } }
+
+    .room-tile {
+      padding: 32px 28px;
+      border-right: 1px solid rgba(26,24,22,0.12);
+      text-decoration: none;
+      color: var(--ink);
+      transition: background 0.25s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 180px;
+    }
+
+    .room-tile:last-child { border-right: none; }
+    .room-tile:hover { background: rgba(176, 122, 90, 0.07); }
+
+    .room-tile-num {
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .room-tile-title {
+      font-family: var(--serif);
+      font-size: 24px;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 10px;
+    }
+
+    .room-tile-desc {
+      font-size: 12.5px;
+      line-height: 1.65;
+      color: var(--muted);
+      flex: 1;
+      margin-bottom: 20px;
+    }
+
+    .room-tile-link {
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    /* Full-width section divider with big quote */
+    .quote-break {
+      padding: 70px 24px;
+      text-align: center;
+      border-bottom: 1px solid rgba(26,24,22,0.1);
+    }
+
+    .quote-text {
+      font-family: var(--serif);
+      font-size: clamp(20px, 3.5vw, 34px);
+      font-style: italic;
+      font-weight: 400;
+      color: var(--ink);
+      max-width: 700px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    .quote-attr {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 20px;
+    }
+
+    /* Footer */
+    .mag-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 32px;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-top: 1px solid rgba(26,24,22,0.1);
+      margin-top: 0;
+    }
+
+    /* Responsive stacking */
+    @media (max-width: 900px) {
+      .spread-3col, .spread-2col-big, .spread-mixed {
+        grid-template-columns: 1fr;
+      }
+      .spread-text { border-right: none; border-bottom: 1px solid rgba(26,24,22,0.1); }
+      .p-cell { height: 240px; border-right: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <nav class="bar">
+    <a href="home.html" class="bar-brand">for her</a>
+    <div class="bar-nav">
+      <a href="home.html" class="active">Home</a>
+      <a href="music.html">Songs</a>
+      <a href="archive/eleven.html">11:11</a>
+      <a href="archive/never-said.html">Final Letter</a>
+    </div>
+  </nav>
+
+  <div class="page-wrap">
+
+    <!-- ── Magazine Header ── -->
+    <div class="mag-header">
+      <div class="mag-eyebrow">A quiet archive &nbsp;·&nbsp; Built with care</div>
+      <h1 class="mag-title">My little<br><em>world</em></h1>
+      <p class="mag-tagline">Some moments of my life, collected and kept for you.</p>
+    </div>
+
+    <div class="mag-meta-row">
+      <span>p. 01</span>
+      <span>for her &nbsp;·&nbsp; Archive Edition</span>
+      <span>p. 02</span>
+    </div>
+
+    <!-- ── SPREAD 1: Dense photo grid left, intro text right ── -->
+    <div class="spread spread-2col-big">
+
+      <!-- Left: 2×2 photo grid -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; border-right:1px solid rgba(26,24,22,0.1);">
+        <div class="p-cell" style="height:260px;">
+          <span class="p-num">01</span>
+          <img src="photos/1781014861379.png" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+        <div class="p-cell" style="height:260px;">
+          <span class="p-num">02</span>
+          <img src="photos/IMG_20260610_225715.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+        <div class="p-cell" style="height:260px; border-bottom:none;">
+          <span class="p-num">03</span>
+          <img src="photos/IMG_20260610_225728.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+        <div class="p-cell" style="height:260px; border-bottom:none; border-right:none;">
+          <span class="p-num">04</span>
+          <img src="photos/IMG_20260610_225840.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+      </div>
+
+      <!-- Right: intro text -->
+      <div class="spread-text">
+        <div class="chap-eyebrow">Introduction</div>
+        <h2 class="chap-title">Welcome to this quiet space.</h2>
+        <div class="chap-rule"></div>
+        <div class="chap-body">
+          <p>You probably had no idea something like this was being made. After your reaction to the first version, I kept thinking—maybe I can make something more meaningful.</p>
+          <p>Nothing here exists just to fill space. Every page, every detail, was thought through and returned to more times than I can count.</p>
+          <p>Explore in any order. The only request is that you save the Final Letter for the end.</p>
+        </div>
+        <div class="chap-foot">Vol. 01 &nbsp;·&nbsp; New Version</div>
+      </div>
+
+    </div>
+
+    <!-- ── SPREAD 2: 3 tall photos side by side ── -->
+    <div class="spread spread-3col">
+      <div class="p-cell" style="height:380px;">
+        <span class="p-num">05</span>
+        <img src="photos/IMG_20260610_225850.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
+      <div class="p-cell" style="height:380px;">
+        <span class="p-num">06</span>
+        <img src="photos/IMG-20260610-WA0015.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
+      <div class="p-cell" style="height:380px; border-right:none;">
+        <span class="p-num">07</span>
+        <img src="photos/IMG_20260610_230008.png" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
+    </div>
+
+    <div class="mag-meta-row">
+      <span>p. 03</span>
+      <span>for her &nbsp;·&nbsp; Photo Archive</span>
+      <span>p. 04</span>
+    </div>
+
+    <!-- ── Quote Break ── -->
+    <div class="quote-break">
+      <p class="quote-text">"Every little detail—from the music, animations, and interactions to the smallest design choices—was thought through and tweaked more times than I can count."</p>
+      <div class="quote-attr">A note from the maker</div>
+    </div>
+
+    <!-- ── SPREAD 3: text left, tall photo right ── -->
+    <div class="spread spread-mixed">
+
+      <div class="spread-text" style="border-right:1px solid rgba(26,24,22,0.1);">
+        <div class="chap-eyebrow">Chapter 01 &nbsp;·&nbsp; Appreciation</div>
+        <h2 class="chap-title">Before anything else</h2>
+        <div class="chap-rule"></div>
+        <div class="chap-body">
+          <p>First of all, thank you. Thank you for taking the time to read through all of this, for making it here, and for being someone worth making this for.</p>
+          <p>Every page before this had a specific reason to exist. None of it was added just to fill space. This entire project is my way of appreciating you and celebrating having you in my life.</p>
+          <p>Thank you for staying. Thank you for reading. Thank you for being exactly who you are.</p>
+        </div>
+        <div class="chap-rule"></div>
+        <a href="archive/never-said.html" style="font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);text-decoration:none;">Read the full letter →</a>
+      </div>
+
+      <!-- tall stacked photos -->
+      <div class="spread-photo-block">
+        <div class="p-cell" style="height:280px; border-right:none;">
+          <span class="p-num">08</span>
+          <img src="photos/IMG_20260610_230029.png" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+        <div class="p-cell" style="height:280px; border-right:none; border-bottom:none;">
+          <span class="p-num">09</span>
+          <img src="photos/IMG-20260610-WA0005.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Rooms Section ── -->
+    <div class="rooms-section">
+      <div class="rooms-section-head">
+        <div class="rooms-sec-title">The Rooms</div>
+        <div class="rooms-sec-sub">Three rooms &nbsp;·&nbsp; Explore freely</div>
+      </div>
+
+      <div class="rooms-grid">
+        <a href="music.html" class="room-tile">
+          <div>
+            <div class="room-tile-num">Room 01</div>
+            <div class="room-tile-title">Songs</div>
+            <p class="room-tile-desc">An interactive music player featuring curated playlists, synced lyrics, and songs chosen based on your personal taste over time.</p>
+          </div>
+          <div class="room-tile-link">Open Room →</div>
+        </a>
+
+        <a href="archive/eleven.html" class="room-tile">
+          <div>
+            <div class="room-tile-num">Room 02</div>
+            <div class="room-tile-title">11:11</div>
+            <p class="room-tile-desc">An archive of moments captured whenever the clock hit 11:11—a collection of quiet thoughts saved over time without planning.</p>
+          </div>
+          <div class="room-tile-link">View Archive →</div>
+        </a>
+
+        <a href="archive/never-said.html" class="room-tile">
+          <div>
+            <div class="room-tile-num">Room 03</div>
+            <div class="room-tile-title">Final Letter</div>
+            <p class="room-tile-desc">The conclusion of everything—unspoken thoughts, apologies, appreciation, and quiet words saved for the very end.</p>
+          </div>
+          <div class="room-tile-link">Read Letter →</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- ── SPREAD 4: More photos ── -->
+    <div class="spread spread-3col" style="border-top:1px solid rgba(26,24,22,0.1);">
+      <div class="p-cell" style="height:300px;">
+        <span class="p-num">10</span>
+        <img src="photos/IMG-20260610-WA0006.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
+      <div class="p-cell" style="height:300px;">
+        <span class="p-num">11</span>
+        <img src="photos/IMG-20260610-WA0007.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
+      <div class="p-cell" style="height:300px; border-right:none;">
+        <span class="p-num">12</span>
+        <img src="photos/1781014866056.png" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
+    </div>
+
+    <div class="mag-meta-row">
+      <span>p. 05</span>
+      <span>for her &nbsp;·&nbsp; Vol. 01</span>
+      <span>p. 06</span>
+    </div>
+
+    <!-- ── Closing quote ── -->
+    <div class="quote-break">
+      <p class="quote-text">"I genuinely hope you enjoy exploring this little world."</p>
+      <div class="quote-attr">— Made for you, with care</div>
+    </div>
+
+    <!-- Footer -->
+    <div class="mag-footer">
+      <span>for her &nbsp;·&nbsp; New Version</span>
+      <span>A quiet space built with care.</span>
+      <span>Vol. 01</span>
+    </div>
+
+  </div>
+
+</body>
+</html>

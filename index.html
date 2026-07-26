@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>soundtracks — for her</title>
+  <title>songs — for her</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet" />
   <style>
@@ -238,6 +238,124 @@
       padding: 6px 14px;
       border-radius: 14px;
     }
+
+    /* Primary Emphasis for New Version */
+    .ch-opt.primary {
+      background: linear-gradient(145deg, rgba(233,169,144,0.12), rgba(255,255,255,0.05));
+      border: 1.5px solid rgba(233,169,144,0.4);
+      box-shadow: 0 8px 20px rgba(233,169,144,0.15);
+    }
+    .ch-opt.primary:hover, .ch-opt.primary:active {
+      background: #fff;
+      border-color: #E9A990;
+      box-shadow: 0 14px 32px rgba(233,169,144,0.3);
+    }
+    .ch-opt.primary .ch-cta {
+      background: #E9A990;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(233,169,144,0.35);
+    }
+
+    /* Intro Modal Overlay */
+    .intro-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      background: rgba(12,12,15,0.85);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .intro-overlay.open { display: flex; }
+
+    .intro-card {
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      background: rgba(255,255,255,0.98);
+      border-radius: 28px;
+      padding: 38px 32px 32px;
+      text-align: center;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.4);
+      animation: popIn .35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .intro-card::-webkit-scrollbar { width: 5px; }
+    .intro-card::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
+
+    .intro-badge {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(233,169,144,0.2);
+      color: #d96b43;
+      padding: 4px 14px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 14px;
+    }
+    .intro-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 20px;
+    }
+    .intro-body {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #333333;
+      margin-bottom: 28px;
+      text-align: left;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .intro-body p {
+      margin: 0;
+    }
+    .intro-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+    }
+    .btn-intro-begin {
+      flex: 1;
+      padding: 13px 22px;
+      border-radius: 16px;
+      background: #E9A990;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(233,169,144,0.4);
+      transition: all 0.2s ease;
+    }
+    .btn-intro-begin:hover {
+      background: #d96b43;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(217,107,67,0.4);
+    }
+    .btn-intro-back {
+      padding: 13px 22px;
+      border-radius: 16px;
+      background: rgba(0,0,0,0.05);
+      color: #666;
+      font-size: 14px;
+      font-weight: 600;
+      border: 1px solid rgba(0,0,0,0.08);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-intro-back:hover {
+      background: rgba(0,0,0,0.1);
+      color: #1a1a1a;
+    }
   </style>
 </head>
 <body>
@@ -245,7 +363,7 @@
   <div class="glow g2"></div>
 
   <div class="pin-wrap" id="pinWrap">
-    <div class="pin-brand">soundtracks · for her</div>
+    <div class="pin-brand">songs · for her</div>
     <div class="pin-card" id="pinCard">
       <div class="pin-icon">🔒</div>
       <h1 class="pin-title">Enter Passcode</h1>
@@ -282,18 +400,39 @@
       <h2 class="ch-title">Where would you like to go?</h2>
       <p class="ch-sub">Choose a room to step into</p>
       <div class="ch-grid">
+        <div class="ch-opt primary" id="goNew">
+          <div class="ch-icon">🎵</div>
+          <div class="ch-name">New Version</div>
+          <div class="ch-desc">Interactive music player, synced lyrics & song library</div>
+          <span class="ch-cta">Explore New Version →</span>
+        </div>
         <div class="ch-opt" id="goOld">
           <div class="ch-icon">🌹</div>
-          <div class="ch-name">Awwnanya's Room</div>
+          <div class="ch-name">Old Version</div>
           <div class="ch-desc">The classic memory room, scrapbook & journal</div>
-          <span class="ch-cta">Explore Classic →</span>
+          <span class="ch-cta">Explore Old Version →</span>
         </div>
-        <div class="ch-opt" id="goNew">
-          <div class="ch-icon">🎵</div>
-          <div class="ch-name">Soundtracks</div>
-          <div class="ch-desc">Music player, synced lyrics & playlist library</div>
-          <span class="ch-cta">Enter Soundtracks →</span>
-        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="intro-overlay" id="introOverlay">
+    <div class="intro-card">
+      <div class="intro-badge">A New Experience ✨</div>
+      <h2 class="intro-title">Before You Begin</h2>
+      <div class="intro-body">
+        <p>First of all, thank you for being here.</p>
+        <p>You probably had no idea I was making something like this. After your reaction to the previous website, I kept thinking, "Maybe I can make something even more meaningful." What started as a small idea slowly turned into this.</p>
+        <p>This isn't a redesigned version of the old website. It's a completely different experience. I wanted every page to have a reason to exist. Nothing here was added just to fill space. Every little detail—from the music, animations, and interactions to the smallest design choices—was thought through and tweaked more times than I can count.</p>
+        <p>You might notice that I didn't use our photos here. That was intentional. I wanted this to feel personal because of the memories, words, and experiences, not because of pictures.</p>
+        <p>I disappeared from Instagram quite a bit while working on this. Whenever I had free time, I found myself coming back here, changing something, improving another thing, or adding one more tiny detail. A lot of ideas never even made it into this version because I wanted to share it with you instead of making you wait forever.</p>
+        <p>You can explore every page in any order you like. There are no rules. The only thing I'd ask is that you save the <strong>final letter</strong> for the very end. Everything else is meant to lead up to it.</p>
+        <p>I genuinely hope you enjoy exploring this little world. Whether you spend five minutes here or an hour, thank you for giving it your time.</p>
+        <p style="font-weight:600;color:#1a1a1a;">Now... enjoy. ♥</p>
+      </div>
+      <div class="intro-actions">
+        <button class="btn-intro-back" id="introBackBtn">Back</button>
+        <button class="btn-intro-begin" id="introBeginBtn">Begin</button>
       </div>
     </div>
   </div>
@@ -347,7 +486,7 @@
 
     // Keyboard support
     document.addEventListener("keydown", e => {
-      if (document.getElementById("choiceOverlay").classList.contains("open")) return;
+      if (document.getElementById("choiceOverlay").classList.contains("open") || document.getElementById("introOverlay").classList.contains("open")) return;
       if (/^[0-9]$/.test(e.key)) pressNum(e.key);
       if (e.key === "Backspace") delNum();
     });
@@ -357,7 +496,15 @@
       window.location.href = "/legacy/index.html";
     });
     document.getElementById("goNew").addEventListener("click", () => {
-      window.location.href = "music.html";
+      document.getElementById("choiceOverlay").classList.remove("open");
+      document.getElementById("introOverlay").classList.add("open");
+    });
+    document.getElementById("introBackBtn").addEventListener("click", () => {
+      document.getElementById("introOverlay").classList.remove("open");
+      document.getElementById("choiceOverlay").classList.add("open");
+    });
+    document.getElementById("introBeginBtn").addEventListener("click", () => {
+      window.location.href = "home.html";
     });
   </script>
 </body>

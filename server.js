@@ -65,36 +65,39 @@ app.delete('/api/songs/:id', (req, res) => {
   }
 });
 
-// Audio Stream URL Extractor — uses yt-dlp (always up to date with YouTube)
+// Audio Stream URL Extractor — multi-stage fallback (ytdl-core, yt-dlp, Piped API)
 const { execFile } = require('child_process');
-app.get('/api/stream/:videoId', (req, res) => {
+
+app.get('/api/stream/:videoId', async (req, res) => {
   const { videoId } = req.params;
   if (!videoId || !/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
     return res.status(400).json({ error: 'Invalid video ID' });
   }
 
-  const url = `https://www.youtube.com/watch?v=${videoId}`;
+  const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
 
-  // Use yt-dlp to get the best audio-only stream URL
-  // -f bestaudio: best audio-only, -g: print URL only, --no-playlist: single video
-  execFile('yt-dlp', ['-f', 'bestaudio', '-g', '--no-playlist', url], (err, stdout, stderr) => {
-    if (err || !stdout.trim()) {
-      console.error('[yt-dlp error]', stderr || err?.message);
+  // 1. Try ytdl-core first
+  try {
+    const info = await ytdl.getInfo(videoId);
+    const audioFormats = ytdl.filterFormats(info.formats, 'audioonly');
+    if (audioFormats && audioFormats.length > 0) {
+      return res.json({ url: audioFormats[0].url, mimeType: audioFormats[0].mimeType || 'audio/webm' });
+    }
+  } catch (err) {
+    console.warn('[ytdl-core stream warning]', err?.message);
+  }
 
-      // Fallback: try any audio-capable format
-      execFile('yt-dlp', ['-f', 'best[ext=mp4]', '-g', '--no-playlist', url], (err2, stdout2) => {
-        if (err2 || !stdout2.trim()) {
-          return res.status(500).json({ error: 'Failed to extract audio stream' });
-        }
-        console.log(`[stream] fallback mp4 for ${videoId}`);
-        res.json({ url: stdout2.trim(), mimeType: 'video/mp4' });
-      });
-      return;
+  // 2. Try yt-dlp binary if available
+  execFile('yt-dlp', ['-f', 'bestaudio', '-g', '--no-playlist', videoUrl], (err, stdout) => {
+    if (!err && stdout && stdout.trim()) {
+      return res.json({ url: stdout.trim(), mimeType: 'audio/webm' });
     }
 
-    const streamUrl = stdout.trim();
-    console.log(`[stream] got audio URL for ${videoId}`);
-    res.json({ url: streamUrl, mimeType: 'audio/webm' });
+    // 3. Public stream proxy API fallback
+    return res.json({
+      url: `https://pipedapi.kavin.rocks/streams/${videoId}`,
+      isProxy: true
+    });
   });
 });
 
@@ -465,7 +468,7 @@ app.get('/', (req, res) => {
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`\n==================================================`);
-    console.log(`  Soundtracks server running on http://localhost:${PORT}`);
+    console.log(`  Songs server running on http://localhost:${PORT}`);
     console.log(`==================================================\n`);
   });
 }

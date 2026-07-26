@@ -90,7 +90,40 @@ function initPurposeModal() {
       modal.classList.add("open");
     });
   }
+
+  if (modal) {
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) modal.classList.remove("open");
+    });
+  }
 }
+
+const FALLBACK_1111 = [
+  { filename: "Screenshot_20260724_231108.jpg", date: "Jul 24, 2026", time: "11:11 PM" },
+  { filename: "Screenshot_20260724_111111.jpg", date: "Jul 24, 2026", time: "11:11 AM" },
+  { filename: "Screenshot_20260724_111105.jpg", date: "Jul 24, 2026", time: "11:11 AM" },
+  { filename: "Screenshot_20260723_111102.jpg", date: "Jul 23, 2026", time: "11:11 AM" },
+  { filename: "Screenshot_20260721_231108.jpg", date: "Jul 21, 2026", time: "11:11 PM" },
+  { filename: "Screenshot_20260719_231105.jpg", date: "Jul 19, 2026", time: "11:11 PM" },
+  { filename: "Screenshot_20260718_231123.jpg", date: "Jul 18, 2026", time: "11:11 PM" },
+  { filename: "Screenshot_20260716_231103.jpg", date: "Jul 16, 2026", time: "11:11 PM" },
+  { filename: "Screenshot_20260713_111110.jpg", date: "Jul 13, 2026", time: "11:11 AM" },
+  { filename: "Screenshot_20260712_231147.jpg", date: "Jul 12, 2026", time: "11:11 PM" },
+  { filename: "Screenshot_20260709_231107.jpg", date: "Jul 09, 2026", time: "11:11 PM" },
+  { filename: "Screenshot_20260707_111106_com.supercell.clashroyale.jpg", date: "Jul 07, 2026", time: "11:11 AM" },
+  { filename: "Screenshot_20260706_231123.jpg", date: "Jul 06, 2026", time: "11:11 PM" },
+  { filename: "Screenshot_20260630_111142.jpg", date: "Jun 30, 2026", time: "11:11 AM" },
+  { filename: "Screenshot_20260628_111122.jpg", date: "Jun 28, 2026", time: "11:11 AM" },
+  { filename: "Screenshot_20260622_231113.jpg", date: "Jun 22, 2026", time: "11:11 PM" },
+  { filename: "Screenshot_20260620_231118.jpg", date: "Jun 20, 2026", time: "11:11 PM" },
+  { filename: "Screenshot_20260619_231134.jpg", date: "Jun 19, 2026", time: "11:11 PM" }
+].map((item, i) => ({
+  id: `1111-${i}`,
+  url: `/111/${item.filename}`,
+  date: item.date,
+  time: item.time,
+  note: "A quiet moment saved at 11:11."
+}));
 
 // Fetch 11:11 Collection from API (/api/11-11)
 async function fetchCollection() {
@@ -107,6 +140,10 @@ async function fetchCollection() {
     }
   } catch (e) {
     console.warn("Could not load /api/11-11:", e);
+  }
+
+  if (!collectionData || collectionData.length === 0) {
+    collectionData = FALLBACK_1111;
   }
 
   if (counter) counter.textContent = collectionData.length;
