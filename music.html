@@ -627,6 +627,14 @@
   <!-- Toast Widget -->
   <div class="toast" id="toastWidget">Track saved!</div>
 
+  <!-- Hidden YouTube IFrame Player -->
+  <div id="ytPlayerWrap" style="position:fixed;bottom:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none;opacity:0;" aria-hidden="true">
+    <div id="ytPlayer"></div>
+  </div>
+
+  <!-- YouTube IFrame API (loads async) -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+
   <!-- App Script -->
   <script src="app.js"></script>
 </body>
