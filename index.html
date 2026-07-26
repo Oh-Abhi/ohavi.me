@@ -416,26 +416,7 @@
     </div>
   </div>
 
-  <div class="intro-overlay" id="introOverlay">
-    <div class="intro-card">
-      <div class="intro-badge">A New Experience ✨</div>
-      <h2 class="intro-title">Before You Begin</h2>
-      <div class="intro-body">
-        <p>First of all, thank you for being here.</p>
-        <p>You probably had no idea I was making something like this. After your reaction to the previous website, I kept thinking, "Maybe I can make something even more meaningful." What started as a small idea slowly turned into this.</p>
-        <p>This isn't a redesigned version of the old website. It's a completely different experience. I wanted every page to have a reason to exist. Nothing here was added just to fill space. Every little detail—from the music, animations, and interactions to the smallest design choices—was thought through and tweaked more times than I can count.</p>
-        <p>You might notice that I didn't use our photos here. That was intentional. I wanted this to feel personal because of the memories, words, and experiences, not because of pictures.</p>
-        <p>I disappeared from Instagram quite a bit while working on this. Whenever I had free time, I found myself coming back here, changing something, improving another thing, or adding one more tiny detail. A lot of ideas never even made it into this version because I wanted to share it with you instead of making you wait forever.</p>
-        <p>You can explore every page in any order you like. There are no rules. The only thing I'd ask is that you save the <strong>final letter</strong> for the very end. Everything else is meant to lead up to it.</p>
-        <p>I genuinely hope you enjoy exploring this little world. Whether you spend five minutes here or an hour, thank you for giving it your time.</p>
-        <p style="font-weight:600;color:#1a1a1a;">Now... enjoy. ♥</p>
-      </div>
-      <div class="intro-actions">
-        <button class="btn-intro-back" id="introBackBtn">Back</button>
-        <button class="btn-intro-begin" id="introBeginBtn">Begin</button>
-      </div>
-    </div>
-  </div>
+
 
   <script>
     const PIN = "1301";
@@ -496,14 +477,6 @@
       window.location.href = "/legacy/index.html";
     });
     document.getElementById("goNew").addEventListener("click", () => {
-      document.getElementById("choiceOverlay").classList.remove("open");
-      document.getElementById("introOverlay").classList.add("open");
-    });
-    document.getElementById("introBackBtn").addEventListener("click", () => {
-      document.getElementById("introOverlay").classList.remove("open");
-      document.getElementById("choiceOverlay").classList.add("open");
-    });
-    document.getElementById("introBeginBtn").addEventListener("click", () => {
       window.location.href = "home.html";
     });
   </script>
