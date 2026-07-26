@@ -5162,6 +5162,23 @@ async function playTrack(track) {
 
   updatePlayerLyric('...');
 
+  // Priority 1: Check local audio file in /audio/ folder
+  const localAudioUrl = `audio/${track.youtubeId}.mp3`;
+  let hasLocalFile = false;
+  try {
+    const checkRes = await fetch(localAudioUrl, { method: 'HEAD' });
+    if (checkRes.ok) hasLocalFile = true;
+  } catch (e) {}
+
+  if (hasLocalFile && audioEl) {
+    activeEngine = 'native';
+    if (ytPlayer && typeof ytPlayer.pauseVideo === 'function') ytPlayer.pauseVideo();
+    audioEl.src = localAudioUrl;
+    audioEl.load();
+    audioEl.play().catch(e => console.warn('Local MP3 play error:', e));
+    return;
+  }
+
   // Primary: Use YouTube IFrame Player (100% reliable everywhere)
   if (ytPlayerReady && ytPlayer && typeof ytPlayer.loadVideoById === 'function') {
     activeEngine = 'yt';
