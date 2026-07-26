@@ -628,8 +628,13 @@ app.get('/', (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`\n==================================================`);
-  console.log(`  Soundtracks server running on http://localhost:${PORT}`);
-  console.log(`==================================================\n`);
-});
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`\n==================================================`);
+    console.log(`  Soundtracks server running on http://localhost:${PORT}`);
+    console.log(`==================================================\n`);
+  });
+}
+
+module.exports = app;
+
