@@ -65,37 +65,36 @@ app.delete('/api/songs/:id', (req, res) => {
   }
 });
 
-// Audio Stream URL Extractor — yt-dlp primary (most reliable for YouTube)
+// Audio Stream URL Extractor — uses yt-dlp (always up to date with YouTube)
 const { execFile } = require('child_process');
-
 app.get('/api/stream/:videoId', (req, res) => {
   const { videoId } = req.params;
   if (!videoId || !/^[a-zA-Z0-9_-]{11}$/.test(videoId)) {
     return res.status(400).json({ error: 'Invalid video ID' });
   }
 
-  const videoUrl = `https://www.youtube.com/watch?v=${videoId}`;
-  console.log(`[stream] Fetching audio stream for: ${videoId}`);
+  const url = `https://www.youtube.com/watch?v=${videoId}`;
 
-  // Primary: yt-dlp with best audio-only format (opus/webm preferred, m4a fallback)
-  const ytdlpArgs = [
-    '-f', 'bestaudio[ext=webm]/bestaudio[ext=m4a]/bestaudio',
-    '-g',
-    '--no-playlist',
-    '--no-warnings',
-    '--socket-timeout', '20',
-    videoUrl
-  ];
+  // Use yt-dlp to get the best audio-only stream URL
+  // -f bestaudio: best audio-only, -g: print URL only, --no-playlist: single video
+  execFile('yt-dlp', ['-f', 'bestaudio', '-g', '--no-playlist', url], (err, stdout, stderr) => {
+    if (err || !stdout.trim()) {
+      console.error('[yt-dlp error]', stderr || err?.message);
 
-  execFile('yt-dlp', ytdlpArgs, { timeout: 30000 }, (err, stdout, stderr) => {
-    if (!err && stdout && stdout.trim()) {
-      const streamUrl = stdout.trim().split('\n')[0]; // get first URL if multiple
-      console.log(`[stream] Got URL for ${videoId}`);
-      return res.json({ url: streamUrl, mimeType: 'audio/webm' });
+      // Fallback: try any audio-capable format
+      execFile('yt-dlp', ['-f', 'best[ext=mp4]', '-g', '--no-playlist', url], (err2, stdout2) => {
+        if (err2 || !stdout2.trim()) {
+          return res.status(500).json({ error: 'Failed to extract audio stream' });
+        }
+        console.log(`[stream] fallback mp4 for ${videoId}`);
+        res.json({ url: stdout2.trim(), mimeType: 'video/mp4' });
+      });
+      return;
     }
 
-    console.error('[yt-dlp error]', stderr || err?.message);
-    return res.status(500).json({ error: 'Failed to extract audio stream', details: stderr || err?.message });
+    const streamUrl = stdout.trim();
+    console.log(`[stream] got audio URL for ${videoId}`);
+    res.json({ url: streamUrl, mimeType: 'audio/webm' });
   });
 });
 

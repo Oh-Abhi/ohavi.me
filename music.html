@@ -624,18 +624,14 @@
     </div>
   </div>
 
+  <!-- Hidden YouTube Audio Engine Container -->
+  <div id="ytPlayerContainer" style="position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;"></div>
+
   <!-- Toast Widget -->
   <div class="toast" id="toastWidget">Track saved!</div>
 
-  <!-- Hidden YouTube IFrame Player -->
-  <div id="ytPlayerWrap" style="position:fixed;bottom:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none;opacity:0;" aria-hidden="true">
-    <div id="ytPlayer"></div>
-  </div>
-
-  <!-- YouTube IFrame API (loads async) -->
+  <!-- YouTube IFrame API & App Script -->
   <script src="https://www.youtube.com/iframe_api"></script>
-
-  <!-- App Script -->
   <script src="app.js"></script>
 </body>
 </html>
