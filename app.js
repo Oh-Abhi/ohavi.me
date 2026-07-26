@@ -469,8 +469,10 @@ function getFilteredSongs() {
 function renderPage() {
   renderSongsGrid();
   renderPlaylists();
+  updateAllSongsCollapseUI();
   if (viewingPlaylistName) renderPlaylistDetailContents();
 }
+
 
 function renderSongsGrid() {
   const grid = document.getElementById("songsGrid");
@@ -587,6 +589,25 @@ function setupTilt(card) {
   });
 }
 
+function getPlaylistOwnerBadge(plName) {
+  const plSongs = catalog.filter(s => s.playlists && s.playlists.includes(plName));
+  if (plSongs.length === 0) return `<span class="pl-owner-badge her">💖 Her Playlist</span>`;
+  
+  let awwnanyaCount = 0;
+  let aviCount = 0;
+  plSongs.forEach(s => {
+    const owner = (s.addedBy || 'Avi').toLowerCase();
+    if (owner.includes('awwnanya') || owner.includes('her')) awwnanyaCount++;
+    else aviCount++;
+  });
+
+  if (awwnanyaCount >= aviCount) {
+    return `<span class="pl-owner-badge her">💖 Her Playlist</span>`;
+  } else {
+    return `<span class="pl-owner-badge my">🎧 Avi's Playlist</span>`;
+  }
+}
+
 function renderPlaylists() {
   const container = document.getElementById("playlistsContainer");
   if (!container) return;
@@ -608,6 +629,7 @@ function renderPlaylists() {
 
       const ytmUrl = `https://music.youtube.com/search?q=${encodeURIComponent(plName)}`;
       const spotifyUrl = `https://open.spotify.com/search/${encodeURIComponent(plName)}`;
+      const ownerBadge = getPlaylistOwnerBadge(plName);
 
       return `
         <div class="pl-card" data-pl="${plName}">
@@ -618,6 +640,9 @@ function renderPlaylists() {
             <div class="pl-card-title-row">
               <span class="pl-card-name">${plName}</span>
               <span class="pl-card-count">${plSongs.length} tracks</span>
+            </div>
+            <div style="margin-top:4px;">
+              ${ownerBadge}
             </div>
           </div>
           <div class="pl-card-actions">
@@ -666,6 +691,7 @@ function renderPlaylists() {
 
 
 
+
 function renderPlaylistsAccordion() {
   const container = document.getElementById("playlistsContainer");
   if (!container) return;
@@ -674,15 +700,18 @@ function renderPlaylistsAccordion() {
     const plSongs = catalog.filter(s => s.playlists && s.playlists.includes(plName));
     const ytmUrl = `https://music.youtube.com/search?q=${encodeURIComponent(plName)}`;
     const spotifyUrl = `https://open.spotify.com/search/${encodeURIComponent(plName)}`;
+    const ownerBadge = getPlaylistOwnerBadge(plName);
 
     return `
       <div class="pl-accordion">
         <div class="pl-acc-header" data-pl="${plName}">
           <div class="pl-acc-left">
-            <div class="pl-acc-title">
+            <div class="pl-acc-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
               <span>${plName}</span>
+              ${ownerBadge}
               <span class="pl-acc-count">(${plSongs.length} tracks)</span>
             </div>
+
             <div class="pl-actions" onclick="event.stopPropagation()">
               <button class="btn-s pl-edit-btn" data-pl="${plName}" style="height:26px;padding:0 10px;font-size:11px;">
                 ✏ Edit
@@ -1753,6 +1782,243 @@ function bindEvents() {
     });
   }
 
+  // Collapsible All Soundtracks Header
+  const allSongsHeader = document.getElementById("allSongsHeader");
+  if (allSongsHeader) {
+    allSongsHeader.addEventListener("click", toggleAllSongsCollapse);
+  }
+
+  // Import Playlist Modal Events
+  const openImportModalBtn = document.getElementById("openImportModalBtn");
+  if (openImportModalBtn) {
+    openImportModalBtn.addEventListener("click", openImportPlaylistModal);
+  }
+
+  const openImportModalHeaderBtn = document.getElementById("openImportModalHeaderBtn");
+  if (openImportModalHeaderBtn) {
+    openImportModalHeaderBtn.addEventListener("click", openImportPlaylistModal);
+  }
+
+  const importModalCloseBtn = document.getElementById("importModalCloseBtn");
+  if (importModalCloseBtn) {
+    importModalCloseBtn.addEventListener("click", closeImportPlaylistModal);
+  }
+
+  const importModal = document.getElementById("importPlaylistModal");
+  if (importModal) {
+    importModal.addEventListener("click", (e) => {
+      if (e.target === importModal) closeImportPlaylistModal();
+    });
+  }
+
+  const startImportBtn = document.getElementById("startImportBtn");
+  if (startImportBtn) {
+    startImportBtn.addEventListener("click", handleImportPlaylist);
+  }
+
+  // In-Playlist Direct Search Events
+  const plInlineSearchBtn = document.getElementById("plInlineSearchBtn");
+  if (plInlineSearchBtn) {
+    plInlineSearchBtn.addEventListener("click", handleInlinePlaylistSearch);
+  }
+
+  const plInlineSearchInput = document.getElementById("plInlineSearchInput");
+  if (plInlineSearchInput) {
+    plInlineSearchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") handleInlinePlaylistSearch();
+    });
+  }
+
   // Initialize View Controls Toolbar
   initViewControlListeners();
 }
+
+// Collapsible Section State
+let isAllSongsCollapsed = localStorage.getItem("forher_allSongsCollapsed") === "true";
+
+function updateAllSongsCollapseUI() {
+  const section = document.getElementById("allSongsSection");
+  const chevron = document.getElementById("allSongsChevron");
+  const label = document.getElementById("allSongsToggleLabel");
+  const countBadge = document.getElementById("allSongsCountBadge");
+
+  const songs = getFilteredSongs();
+  if (countBadge) countBadge.textContent = `${songs.length} track${songs.length === 1 ? '' : 's'}`;
+
+  if (!section) return;
+
+  if (isAllSongsCollapsed) {
+    section.classList.add("collapsed");
+    if (chevron) chevron.style.transform = "rotate(-90deg)";
+    if (label) label.textContent = `Show All (${songs.length})`;
+  } else {
+    section.classList.remove("collapsed");
+    if (chevron) chevron.style.transform = "rotate(0deg)";
+    if (label) label.textContent = "Collapse";
+  }
+}
+
+function toggleAllSongsCollapse() {
+  isAllSongsCollapsed = !isAllSongsCollapsed;
+  localStorage.setItem("forher_allSongsCollapsed", isAllSongsCollapsed ? "true" : "false");
+  updateAllSongsCollapseUI();
+}
+
+// Importer Modal Handlers
+function openImportPlaylistModal() {
+  const modal = document.getElementById("importPlaylistModal");
+  if (modal) modal.classList.add("open");
+}
+
+function closeImportPlaylistModal() {
+  const modal = document.getElementById("importPlaylistModal");
+  if (modal) modal.classList.remove("open");
+}
+
+async function handleImportPlaylist() {
+  const urlInput = document.getElementById("importUrlInput");
+  const nameInput = document.getElementById("importNameInput");
+  const ownerInput = document.getElementById("importOwnerInput");
+  const statusMsg = document.getElementById("importStatusMsg");
+  const btnText = document.getElementById("startImportBtnText");
+  const startBtn = document.getElementById("startImportBtn");
+
+  const url = urlInput ? urlInput.value.trim() : "";
+  const name = nameInput ? nameInput.value.trim() : "";
+  const owner = ownerInput ? ownerInput.value.trim() : "Awwnanya";
+
+  if (!url) {
+    showToast("Please enter a playlist URL");
+    return;
+  }
+  if (!name) {
+    showToast("Please enter a playlist name");
+    return;
+  }
+
+  if (statusMsg) {
+    statusMsg.style.display = "block";
+    statusMsg.textContent = "⏳ Extracting tracks and resolving stream IDs... Please wait.";
+  }
+  if (startBtn) startBtn.disabled = true;
+  if (btnText) btnText.textContent = "Importing...";
+
+  try {
+    const res = await fetch("/api/import-playlist", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url, playlistName: name, addedBy: owner })
+    });
+
+    const data = await res.json();
+    if (res.ok && data.success) {
+      if (statusMsg) {
+        statusMsg.textContent = `✅ Successfully imported ${data.importedCount} tracks into "${name}"!`;
+      }
+      showToast(`Imported ${data.importedCount} tracks into ${name}!`);
+      if (urlInput) urlInput.value = "";
+      if (nameInput) nameInput.value = "";
+
+      await loadData();
+
+      setTimeout(() => {
+        closeImportPlaylistModal();
+        if (statusMsg) statusMsg.style.display = "none";
+        if (startBtn) startBtn.disabled = false;
+        if (btnText) btnText.textContent = "Import All Tracks";
+      }, 1200);
+    } else {
+      if (statusMsg) {
+        statusMsg.textContent = `❌ ${data.error || "Failed to import playlist"}`;
+      }
+      if (startBtn) startBtn.disabled = false;
+      if (btnText) btnText.textContent = "Import All Tracks";
+    }
+  } catch (err) {
+    console.error("Import playlist error:", err);
+    if (statusMsg) statusMsg.textContent = "❌ Server error while importing playlist";
+    if (startBtn) startBtn.disabled = false;
+    if (btnText) btnText.textContent = "Import All Tracks";
+  }
+}
+
+// In-Playlist Inline YouTube Search Handler
+function escapeHtml(str) {
+  return (str || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+async function handleInlinePlaylistSearch() {
+  const input = document.getElementById("plInlineSearchInput");
+  const resultsContainer = document.getElementById("plInlineSearchResults");
+  if (!input || !resultsContainer || !editingPlaylistName) return;
+
+  const query = input.value.trim();
+  if (!query) return;
+
+  resultsContainer.innerHTML = `<div style="font-size:12px;color:var(--muted);padding:8px;">Searching YouTube...</div>`;
+
+  try {
+    const res = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        resultsContainer.innerHTML = data.map(item => `
+          <div class="pl-inline-result-card">
+            <img src="${item.thumbnail}" class="pl-inline-thumb" alt="" />
+            <div class="pl-inline-info">
+              <div class="pl-inline-title">${escapeHtml(item.title)}</div>
+              <div class="pl-inline-artist">${escapeHtml(item.artist)}</div>
+            </div>
+            <button class="btn-s pl-inline-add-btn" data-ytid="${item.youtubeId}" data-title="${escapeHtml(item.title)}" data-artist="${escapeHtml(item.artist)}" data-thumb="${item.thumbnail}" style="height:26px;padding:0 10px;font-size:11px;background:var(--text);color:var(--bg);">
+              + Add
+            </button>
+          </div>
+        `).join("");
+
+        resultsContainer.querySelectorAll(".pl-inline-add-btn").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            const ytid = btn.dataset.ytid;
+            const title = btn.dataset.title;
+            const artist = btn.dataset.artist;
+            const thumb = btn.dataset.thumb;
+
+            let existingTrack = catalog.find(s => s.youtubeId === ytid);
+            if (existingTrack) {
+              if (!existingTrack.playlists) existingTrack.playlists = [];
+              if (!existingTrack.playlists.includes(editingPlaylistName)) {
+                existingTrack.playlists.push(editingPlaylistName);
+              }
+            } else {
+              const lyrics = await fetchTrackLyrics(title, artist);
+              const newTrack = {
+                id: `${ytid}-${Date.now()}`,
+                title,
+                artist,
+                youtubeId: ytid,
+                thumbnail: thumb,
+                personalNote: "",
+                addedBy: "Avi",
+                isFav: false,
+                playlists: [editingPlaylistName],
+                durationStr: "3:30",
+                lyrics
+              };
+              catalog.unshift(newTrack);
+            }
+
+            await saveData();
+            renderPage();
+            renderPlaylistEditContents();
+            showToast(`Added "${title}" to ${editingPlaylistName}`);
+          });
+        });
+        return;
+      }
+    }
+    resultsContainer.innerHTML = `<div style="font-size:12px;color:var(--muted);padding:8px;">No matching tracks found.</div>`;
+  } catch (e) {
+    console.error("Inline search error:", e);
+    resultsContainer.innerHTML = `<div style="font-size:12px;color:var(--muted);padding:8px;">Search failed.</div>`;
+  }
+}
+

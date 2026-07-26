@@ -401,6 +401,168 @@ app.get('/api/search', async (req, res) => {
   }
 });
 
+// IMPORT PLAYLIST API (Spotify & YouTube / YT Music)
+app.post('/api/import-playlist', async (req, res) => {
+  const { url, playlistName, addedBy } = req.body;
+  if (!url || !url.trim() || !playlistName || !playlistName.trim()) {
+    return res.status(400).json({ error: 'Playlist URL and Playlist Name are required' });
+  }
+
+  const cleanUrl = url.trim();
+  const cleanName = playlistName.trim();
+  const owner = addedBy || 'Awwnanya';
+
+  try {
+    let tracksToImport = [];
+
+    // A. Check YouTube / YT Music Playlist
+    if (cleanUrl.includes('list=') || cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) {
+      await new Promise((resolve) => {
+        execFile('yt-dlp', ['-j', '--flat-playlist', cleanUrl], { maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
+          if (err || !stdout.trim()) {
+            console.error('[import-playlist] yt-dlp playlist error:', stderr || err?.message);
+            resolve();
+            return;
+          }
+
+          const lines = stdout.trim().split(/\r?\n/);
+          for (const line of lines) {
+            try {
+              const item = JSON.parse(line);
+              const ytId = item.id || item.url;
+              if (ytId && /^[a-zA-Z0-9_-]{11}$/.test(ytId)) {
+                tracksToImport.push({
+                  title: item.title || 'Untitled Track',
+                  artist: item.uploader || item.channel || 'YouTube Track',
+                  youtubeId: ytId,
+                  thumbnail: `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg`,
+                  durationStr: formatSeconds(item.duration || 210)
+                });
+              }
+            } catch (e) {}
+          }
+          resolve();
+        });
+      });
+    }
+
+    // B. Check Spotify Playlist
+    if (cleanUrl.includes('spotify.com/playlist/')) {
+      const match = cleanUrl.match(/playlist\/([a-zA-Z0-9]+)/);
+      if (match) {
+        const spotifyId = match[1];
+        try {
+          const spRes = await fetch(`https://open.spotify.com/embed/playlist/${spotifyId}`, {
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
+          });
+          if (spRes.ok) {
+            const html = await spRes.text();
+            const jsonMatch = html.match(/<script id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/s) ||
+                              html.match(/<script id="initial-state" type="text\/plain">(.*?)<\/script>/s);
+            let spotifyTracks = [];
+            if (jsonMatch) {
+              try {
+                const rawJson = jsonMatch[1].startsWith('%') ? decodeURIComponent(jsonMatch[1]) : jsonMatch[1];
+                const parsed = JSON.parse(rawJson);
+                const itemsList = parsed?.props?.pageProps?.state?.data?.entity?.trackList ||
+                                  parsed?.embedList || [];
+                for (const it of itemsList) {
+                  const title = it.title || it.name;
+                  const artist = it.subtitle || (it.artists ? it.artists.map(a => a.name).join(', ') : '');
+                  if (title) spotifyTracks.push({ title, artist: artist || 'Spotify Track' });
+                }
+              } catch (e) {}
+            }
+
+            if (spotifyTracks.length === 0) {
+              const trackMatches = Array.from(html.matchAll(/"title":"([^"]+)".*?"subtitle":"([^"]+)"/g));
+              for (const m of trackMatches) {
+                spotifyTracks.push({ title: m[1], artist: m[2] });
+              }
+            }
+
+            for (const spTrack of spotifyTracks.slice(0, 50)) {
+              try {
+                const searchQuery = `${spTrack.artist} ${spTrack.title} audio`;
+                const ytRes = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery)}`, {
+                  headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+                });
+                if (ytRes.ok) {
+                  const ytHtml = await ytRes.text();
+                  const matches = Array.from(ytHtml.matchAll(/"videoId":"([\w-]{11})"/g)).map(m => m[1]);
+                  if (matches.length > 0) {
+                    tracksToImport.push({
+                      title: spTrack.title,
+                      artist: spTrack.artist,
+                      youtubeId: matches[0],
+                      thumbnail: `https://i.ytimg.com/vi/${matches[0]}/hqdefault.jpg`,
+                      durationStr: "3:30"
+                    });
+                  }
+                }
+              } catch (e) {}
+            }
+          }
+        } catch (e) {
+          console.error('[import-playlist] Spotify scrape error:', e);
+        }
+      }
+    }
+
+    if (tracksToImport.length === 0) {
+      return res.status(404).json({ error: 'Could not extract tracks from playlist URL. Please make sure the playlist is public.' });
+    }
+
+    let existingCatalog = [];
+    if (fs.existsSync(songsFilePath)) {
+      try {
+        existingCatalog = JSON.parse(fs.readFileSync(songsFilePath, 'utf8'));
+      } catch (e) {}
+    }
+
+    let addedCount = 0;
+    for (const t of tracksToImport) {
+      const matchIndex = existingCatalog.findIndex(s => s.youtubeId === t.youtubeId || (s.title.toLowerCase() === t.title.toLowerCase() && s.artist.toLowerCase() === t.artist.toLowerCase()));
+      if (matchIndex >= 0) {
+        const existing = existingCatalog[matchIndex];
+        if (!existing.playlists) existing.playlists = [];
+        if (!existing.playlists.includes(cleanName)) {
+          existing.playlists.push(cleanName);
+        }
+      } else {
+        existingCatalog.push({
+          id: `${t.youtubeId}-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
+          title: t.title,
+          artist: t.artist,
+          youtubeId: t.youtubeId,
+          thumbnail: t.thumbnail,
+          personalNote: "",
+          addedBy: owner,
+          isFav: false,
+          playlists: [cleanName],
+          durationStr: t.durationStr || "3:30",
+          lyrics: []
+        });
+        addedCount++;
+      }
+    }
+
+    fs.writeFileSync(songsFilePath, JSON.stringify(existingCatalog, null, 2), 'utf8');
+    res.json({
+      success: true,
+      importedCount: tracksToImport.length,
+      newTracksAdded: addedCount,
+      playlistName: cleanName,
+      addedBy: owner,
+      catalog: existingCatalog
+    });
+  } catch (err) {
+    console.error('Import Playlist API Error:', err);
+    res.status(500).json({ error: 'Failed to import playlist' });
+  }
+});
+
+
 // 11:11 SCREENSHOTS API (Reads from /111 folder or /photos/11-11)
 app.get('/api/11-11', (req, res) => {
   const dirPath111 = path.join(__dirname, '111');
