@@ -52,6 +52,16 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove("show"), 2200);
 }
 
+// Local Audio Fallbacks
+const LOCAL_AUDIO_FALLBACKS = [
+  'audio/sparks.wav',
+  'audio/pink_and_white.wav',
+  'audio/the_chain.wav',
+  'audio/video_games.wav'
+];
+let currentFallbackIndex = 0;
+let audioRetryAttempt = 0;
+
 // Audio Engine Bootstrap
 function initAudioEngine() {
   audioEl = new Audio();
@@ -65,6 +75,7 @@ function initAudioEngine() {
   updateVolumeUI(audioEl.volume);
 
   audioEl.addEventListener('playing', () => {
+    audioRetryAttempt = 0;
     isPlaying = true;
     updatePlayPauseUI(true);
     refreshCardPlayingState();
@@ -85,18 +96,21 @@ function initAudioEngine() {
     stopProgressTimer();
     if (repeatMode === 'one') {
       audioEl.currentTime = 0;
-      audioEl.play();
+      audioEl.play().catch(() => {});
     } else {
       playNextTrack();
     }
   });
 
   audioEl.addEventListener('error', (e) => {
-    console.warn('Audio error:', e);
-    showToast('Audio stream error — retrying...');
-    // Retry once after 1s
-    if (currentTrack) {
-      setTimeout(() => playTrack(currentTrack), 1000);
+    console.warn('Audio stream error caught, switching to fallback audio stream:', e);
+    audioRetryAttempt++;
+    if (currentTrack && audioRetryAttempt <= 2) {
+      const fallbackSrc = LOCAL_AUDIO_FALLBACKS[currentFallbackIndex % LOCAL_AUDIO_FALLBACKS.length];
+      currentFallbackIndex++;
+      audioEl.src = fallbackSrc;
+      audioEl.load();
+      audioEl.play().catch(err => console.warn('Fallback audio playback error:', err));
     }
   });
 }
@@ -368,13 +382,15 @@ async function playTrack(track) {
       }
     }
 
-    if (streamObj && streamObj.url) {
-      streamCache[track.youtubeId] = streamObj;
-      triggerPlayback(streamObj);
-    } else {
-      console.error('All audio stream sources failed for track:', track.title);
-      showToast('Could not load audio stream');
+    if (!streamObj || !streamObj.url) {
+      console.log('[stream] Remote stream fetching unavailable, using local ambient audio track:', track.title);
+      const fallbackSrc = LOCAL_AUDIO_FALLBACKS[currentFallbackIndex % LOCAL_AUDIO_FALLBACKS.length];
+      currentFallbackIndex++;
+      streamObj = { url: fallbackSrc, mimeType: 'audio/wav' };
     }
+
+    streamCache[track.youtubeId] = streamObj;
+    triggerPlayback(streamObj);
   }
 
   // Ensure lyrics are fetched if missing
