@@ -1929,18 +1929,25 @@ async function handleImportPlaylist() {
       }, 1200);
     } else {
       if (statusMsg) {
-        statusMsg.textContent = `❌ ${data.error || "Failed to import playlist"}`;
+        statusMsg.textContent = `❌ ${data.error || "Failed to import playlist. Please check playlist privacy."}`;
       }
       if (startBtn) startBtn.disabled = false;
       if (btnText) btnText.textContent = "Import All Tracks";
     }
   } catch (err) {
     console.error("Import playlist error:", err);
-    if (statusMsg) statusMsg.textContent = "❌ Server error while importing playlist";
+    if (statusMsg) {
+      if (window.location.protocol === 'file:') {
+        statusMsg.textContent = "❌ Server not active! Please run 'npm start' and open http://localhost:3000 to import playlists.";
+      } else {
+        statusMsg.textContent = "❌ Could not reach server. Please ensure Node.js server is running.";
+      }
+    }
     if (startBtn) startBtn.disabled = false;
     if (btnText) btnText.textContent = "Import All Tracks";
   }
 }
+
 
 // In-Playlist Inline YouTube Search Handler
 function escapeHtml(str) {

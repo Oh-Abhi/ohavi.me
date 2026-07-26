@@ -415,38 +415,7 @@ app.post('/api/import-playlist', async (req, res) => {
   try {
     let tracksToImport = [];
 
-    // A. Check YouTube / YT Music Playlist
-    if (cleanUrl.includes('list=') || cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) {
-      await new Promise((resolve) => {
-        execFile('yt-dlp', ['-j', '--flat-playlist', cleanUrl], { maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
-          if (err || !stdout.trim()) {
-            console.error('[import-playlist] yt-dlp playlist error:', stderr || err?.message);
-            resolve();
-            return;
-          }
-
-          const lines = stdout.trim().split(/\r?\n/);
-          for (const line of lines) {
-            try {
-              const item = JSON.parse(line);
-              const ytId = item.id || item.url;
-              if (ytId && /^[a-zA-Z0-9_-]{11}$/.test(ytId)) {
-                tracksToImport.push({
-                  title: item.title || 'Untitled Track',
-                  artist: item.uploader || item.channel || 'YouTube Track',
-                  youtubeId: ytId,
-                  thumbnail: `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg`,
-                  durationStr: formatSeconds(item.duration || 210)
-                });
-              }
-            } catch (e) {}
-          }
-          resolve();
-        });
-      });
-    }
-
-    // B. Check Spotify Playlist
+    // A. Check Spotify Playlist (Must be checked BEFORE YouTube to avoid yt-dlp DRM errors)
     if (cleanUrl.includes('spotify.com/playlist/')) {
       const match = cleanUrl.match(/playlist\/([a-zA-Z0-9]+)/);
       if (match) {
@@ -481,33 +450,68 @@ app.post('/api/import-playlist', async (req, res) => {
               }
             }
 
-            for (const spTrack of spotifyTracks.slice(0, 50)) {
+            const resolvePromises = spotifyTracks.slice(0, 40).map(async (spTrack) => {
               try {
                 const searchQuery = `${spTrack.artist} ${spTrack.title} audio`;
                 const ytRes = await fetch(`https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery)}`, {
-                  headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
+                  headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' }
                 });
                 if (ytRes.ok) {
                   const ytHtml = await ytRes.text();
                   const matches = Array.from(ytHtml.matchAll(/"videoId":"([\w-]{11})"/g)).map(m => m[1]);
                   if (matches.length > 0) {
-                    tracksToImport.push({
+                    return {
                       title: spTrack.title,
                       artist: spTrack.artist,
                       youtubeId: matches[0],
                       thumbnail: `https://i.ytimg.com/vi/${matches[0]}/hqdefault.jpg`,
                       durationStr: "3:30"
-                    });
+                    };
                   }
                 }
               } catch (e) {}
-            }
+              return null;
+            });
+
+            const resolved = await Promise.all(resolvePromises);
+            tracksToImport = resolved.filter(Boolean);
           }
         } catch (e) {
           console.error('[import-playlist] Spotify scrape error:', e);
         }
       }
     }
+    // B. Check YouTube / YT Music Playlist (Only for YouTube URLs)
+    else if (cleanUrl.includes('youtube.com') || cleanUrl.includes('youtu.be')) {
+      await new Promise((resolve) => {
+        execFile('yt-dlp', ['-j', '--flat-playlist', cleanUrl], { maxBuffer: 10 * 1024 * 1024 }, (err, stdout, stderr) => {
+          if (err || !stdout.trim()) {
+            console.error('[import-playlist] yt-dlp playlist error:', stderr || err?.message);
+            resolve();
+            return;
+          }
+
+          const lines = stdout.trim().split(/\r?\n/);
+          for (const line of lines) {
+            try {
+              const item = JSON.parse(line);
+              const ytId = item.id || item.url;
+              if (ytId && /^[a-zA-Z0-9_-]{11}$/.test(ytId)) {
+                tracksToImport.push({
+                  title: item.title || 'Untitled Track',
+                  artist: item.uploader || item.channel || 'YouTube Track',
+                  youtubeId: ytId,
+                  thumbnail: `https://i.ytimg.com/vi/${ytId}/hqdefault.jpg`,
+                  durationStr: formatSeconds(item.duration || 210)
+                });
+              }
+            } catch (e) {}
+          }
+          resolve();
+        });
+      });
+    }
+
 
     if (tracksToImport.length === 0) {
       return res.status(404).json({ error: 'Could not extract tracks from playlist URL. Please make sure the playlist is public.' });
