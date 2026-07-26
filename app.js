@@ -52,14 +52,6 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove("show"), 2200);
 }
 
-// Local Audio Fallbacks
-const LOCAL_AUDIO_FALLBACKS = [
-  'audio/sparks.wav',
-  'audio/pink_and_white.wav',
-  'audio/the_chain.wav',
-  'audio/video_games.wav'
-];
-let currentFallbackIndex = 0;
 let audioRetryAttempt = 0;
 
 // Audio Engine Bootstrap
@@ -103,15 +95,8 @@ function initAudioEngine() {
   });
 
   audioEl.addEventListener('error', (e) => {
-    console.warn('Audio stream error caught, switching to fallback audio stream:', e);
-    audioRetryAttempt++;
-    if (currentTrack && audioRetryAttempt <= 2) {
-      const fallbackSrc = LOCAL_AUDIO_FALLBACKS[currentFallbackIndex % LOCAL_AUDIO_FALLBACKS.length];
-      currentFallbackIndex++;
-      audioEl.src = fallbackSrc;
-      audioEl.load();
-      audioEl.play().catch(err => console.warn('Fallback audio playback error:', err));
-    }
+    console.warn('[audio] Native audio element error — stream may have expired:', e);
+    // Don't retry endlessly — just log it silently
   });
 }
 
@@ -330,67 +315,56 @@ async function playTrack(track) {
 
   // Check if stream is already in cache
   if (streamCache[track.youtubeId] && streamCache[track.youtubeId].url) {
-    console.log('[stream] Playing from instant preloaded cache:', track.title);
+    console.log('[stream] Playing from cache:', track.title);
     triggerPlayback(streamCache[track.youtubeId]);
   } else {
-    // 1. Try server endpoint /api/stream/
     let streamObj = null;
+
+    // 1. Server-side yt-dlp extraction
     try {
       showToast('Loading...');
       const res = await fetch(`/api/stream/${track.youtubeId}`);
       if (res.ok) {
         const data = await res.json();
-        if (data.url && !data.isProxy) {
-          streamObj = data;
-        }
+        if (data.url) streamObj = data;
       }
     } catch (err) {
-      console.warn('Backend stream fetch failed, using fallback stream provider...', err);
+      console.warn('[stream] Server stream fetch failed:', err);
     }
 
-    // 2. Client-side fallback: Cobalt / Piped public audio stream API
+    // 2. Client-side fallback: Piped public instance
     if (!streamObj) {
-      try {
-        const pipedRes = await fetch(`https://pipedapi.kavin.rocks/streams/${track.youtubeId}`);
-        if (pipedRes.ok) {
-          const pipedData = await pipedRes.json();
-          if (pipedData.audioStreams && pipedData.audioStreams.length > 0) {
-            const bestStream = pipedData.audioStreams.find(s => s.mimeType.includes('audio/webm')) || pipedData.audioStreams[0];
-            streamObj = { url: bestStream.url, mimeType: bestStream.mimeType || 'audio/webm' };
-          }
-        }
-      } catch (pipedErr) {
-        console.warn('Piped API stream fallback error:', pipedErr);
-      }
-    }
-
-    // 3. Fallback 3: Invidious stream API
-    if (!streamObj) {
-      try {
-        const invRes = await fetch(`https://invidious.privacyredirect.com/api/v1/videos/${track.youtubeId}`);
-        if (invRes.ok) {
-          const invData = await invRes.json();
-          if (invData.adaptiveFormats && invData.adaptiveFormats.length > 0) {
-            const audioStream = invData.adaptiveFormats.find(f => f.type && f.type.startsWith('audio/'));
-            if (audioStream && audioStream.url) {
-              streamObj = { url: audioStream.url, mimeType: audioStream.type || 'audio/webm' };
+      const pipedInstances = [
+        'https://pipedapi.kavin.rocks',
+        'https://piped-api.garudalinux.org',
+        'https://pipedapi.in'
+      ];
+      for (const base of pipedInstances) {
+        try {
+          const pipedRes = await fetch(`${base}/streams/${track.youtubeId}`);
+          if (pipedRes.ok) {
+            const pipedData = await pipedRes.json();
+            if (pipedData.audioStreams && pipedData.audioStreams.length > 0) {
+              const best = pipedData.audioStreams.find(s => s.mimeType && s.mimeType.includes('audio/webm')) || pipedData.audioStreams[0];
+              if (best && best.url) {
+                streamObj = { url: best.url, mimeType: best.mimeType || 'audio/webm' };
+                break;
+              }
             }
           }
-        }
-      } catch (invErr) {
-        console.warn('Invidious API stream fallback error:', invErr);
+        } catch (_) {}
       }
     }
 
-    if (!streamObj || !streamObj.url) {
-      console.log('[stream] Remote stream fetching unavailable, using local ambient audio track:', track.title);
-      const fallbackSrc = LOCAL_AUDIO_FALLBACKS[currentFallbackIndex % LOCAL_AUDIO_FALLBACKS.length];
-      currentFallbackIndex++;
-      streamObj = { url: fallbackSrc, mimeType: 'audio/wav' };
+    if (streamObj && streamObj.url) {
+      streamCache[track.youtubeId] = streamObj;
+      triggerPlayback(streamObj);
+    } else {
+      console.error('[stream] All sources failed for:', track.title);
+      showToast('Could not load — try again');
+      isPlaying = false;
+      updatePlayPauseUI(false);
     }
-
-    streamCache[track.youtubeId] = streamObj;
-    triggerPlayback(streamObj);
   }
 
   // Ensure lyrics are fetched if missing
