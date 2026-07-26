@@ -1,564 +1,364 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>soundtracks — for her</title>
-  <meta name="description" content="A personal soundtracks collection with YouTube audio and synced lyrics." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: #0c0c0f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      overflow: hidden;
+    }
+
+    /* Ambient glows */
+    .glow {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(90px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .g1 { width: 500px; height: 500px; background: rgba(233,169,144,0.15); top: -100px; right: -100px; }
+    .g2 { width: 400px; height: 400px; background: rgba(180,130,200,0.1); bottom: -80px; left: -80px; }
+
+    /* PIN Card */
+    .pin-wrap {
+      position: relative;
+      z-index: 10;
+      width: 92%;
+      max-width: 340px;
+      text-align: center;
+    }
+
+    .pin-brand {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(233,169,144,0.9);
+      margin-bottom: 28px;
+    }
+
+    .pin-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 28px;
+      padding: 36px 28px 32px;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      color: #fff;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+    }
+
+    .pin-icon { font-size: 40px; margin-bottom: 14px; }
+    .pin-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: #fff;
+    }
+    .pin-sub {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 28px;
+    }
+
+    /* Dots */
+    .pin-dots {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 10px;
+    }
+    .pin-dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.25);
+      transition: all .2s ease;
+    }
+    .pin-dot.filled {
+      background: #E9A990;
+      border-color: #E9A990;
+      box-shadow: 0 0 12px rgba(233,169,144,0.7);
+      transform: scale(1.2);
+    }
+
+    .pin-err {
+      font-size: 12px;
+      font-weight: 600;
+      color: #ff6b6b;
+      height: 22px;
+      margin-bottom: 18px;
+      opacity: 0;
+      transition: opacity .2s;
+    }
+    .pin-err.show { opacity: 1; }
+
+    /* Keypad */
+    .pin-keypad {
+      display: grid;
+      grid-template-columns: repeat(3, 64px);
+      gap: 14px;
+      justify-content: center;
+    }
+    .pin-key {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 24px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .15s ease;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pin-key:active,
+    .pin-key.pressed {
+      background: rgba(233,169,144,0.3);
+      border-color: #E9A990;
+      transform: scale(0.9);
+    }
+    .pin-key.empty { visibility: hidden; pointer-events: none; }
+    .pin-key.del { font-size: 18px; color: rgba(255,255,255,0.6); }
+
+    /* Shake */
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%,60% { transform: translateX(-10px); }
+      40%,80% { transform: translateX(10px); }
+    }
+    .shake { animation: shake 0.4s ease; }
+
+    /* Choice popup */
+    .choice-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      background: rgba(12,12,15,0.8);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .choice-overlay.open { display: flex; }
+
+    .choice-card {
+      width: 100%;
+      max-width: 540px;
+      background: rgba(255,255,255,0.97);
+      border-radius: 30px;
+      padding: 32px 26px;
+      text-align: center;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.35);
+      animation: popIn .35s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    @keyframes popIn {
+      from { opacity:0; transform: scale(0.85); }
+      to   { opacity:1; transform: scale(1); }
+    }
+
+    .ch-badge {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(233,169,144,0.2);
+      color: #d96b43;
+      padding: 4px 14px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 12px;
+    }
+    .ch-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+    .ch-sub { font-size: 13px; color: #888; margin-bottom: 22px; }
+
+    .ch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width:480px) { .ch-grid { grid-template-columns: 1fr; } }
+
+    .ch-opt {
+      background: rgba(0,0,0,0.03);
+      border: 1.5px solid rgba(0,0,0,0.06);
+      border-radius: 20px;
+      padding: 22px 14px;
+      cursor: pointer;
+      transition: all .25s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .ch-opt:hover, .ch-opt:active {
+      transform: translateY(-5px);
+      background: #fff;
+      border-color: #E9A990;
+      box-shadow: 0 12px 28px rgba(233,169,144,0.25);
+    }
+    .ch-icon { font-size: 36px; margin-bottom: 10px; }
+    .ch-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 5px;
+    }
+    .ch-desc { font-size: 11px; color: #999; line-height: 1.5; margin-bottom: 14px; }
+    .ch-cta {
+      font-size: 11px;
+      font-weight: 700;
+      color: #d96b43;
+      background: rgba(233,169,144,0.15);
+      padding: 6px 14px;
+      border-radius: 14px;
+    }
+  </style>
 </head>
 <body>
-  <!-- Background Overlays -->
-  <div class="noise"></div>
   <div class="glow g1"></div>
   <div class="glow g2"></div>
-  <div class="glow g3"></div>
 
-  <!-- PASSCODE LOCK SCREEN OVERLAY (PIN 1301) -->
-  <div class="pin-overlay open" id="pinGateOverlay">
-    <div class="pin-card">
-      <div class="pin-heart-icon">🔒</div>
-      <h2 class="pin-title">Enter Passcode</h2>
-      <p class="pin-subtitle">A quiet space for us</p>
+  <div class="pin-wrap" id="pinWrap">
+    <div class="pin-brand">soundtracks · for her</div>
+    <div class="pin-card" id="pinCard">
+      <div class="pin-icon">🔒</div>
+      <h1 class="pin-title">Enter Passcode</h1>
+      <p class="pin-sub">A quiet space for us</p>
 
-      <div class="pin-dots" id="pinDots">
-        <span class="pin-dot" id="dot0"></span>
-        <span class="pin-dot" id="dot1"></span>
-        <span class="pin-dot" id="dot2"></span>
-        <span class="pin-dot" id="dot3"></span>
+      <div class="pin-dots">
+        <span class="pin-dot" id="d0"></span>
+        <span class="pin-dot" id="d1"></span>
+        <span class="pin-dot" id="d2"></span>
+        <span class="pin-dot" id="d3"></span>
       </div>
-
-      <div class="pin-err" id="pinErrMsg">Incorrect passcode</div>
+      <div class="pin-err" id="pinErr">Incorrect passcode</div>
 
       <div class="pin-keypad">
-        <button class="pin-key" data-num="1">1</button>
-        <button class="pin-key" data-num="2">2</button>
-        <button class="pin-key" data-num="3">3</button>
-        <button class="pin-key" data-num="4">4</button>
-        <button class="pin-key" data-num="5">5</button>
-        <button class="pin-key" data-num="6">6</button>
-        <button class="pin-key" data-num="7">7</button>
-        <button class="pin-key" data-num="8">8</button>
-        <button class="pin-key" data-num="9">9</button>
-        <button class="pin-key pin-key-empty"></button>
-        <button class="pin-key" data-num="0">0</button>
-        <button class="pin-key pin-key-del" id="pinDelBtn">⌫</button>
+        <button class="pin-key" id="k1">1</button>
+        <button class="pin-key" id="k2">2</button>
+        <button class="pin-key" id="k3">3</button>
+        <button class="pin-key" id="k4">4</button>
+        <button class="pin-key" id="k5">5</button>
+        <button class="pin-key" id="k6">6</button>
+        <button class="pin-key" id="k7">7</button>
+        <button class="pin-key" id="k8">8</button>
+        <button class="pin-key" id="k9">9</button>
+        <button class="pin-key empty" aria-hidden="true"></button>
+        <button class="pin-key" id="k0">0</button>
+        <button class="pin-key del" id="kDel">⌫</button>
       </div>
     </div>
   </div>
 
-  <!-- EXPERIENCE SELECTION CHOICE POPUP MODAL -->
-  <div class="choice-modal-overlay" id="choiceModalOverlay">
+  <div class="choice-overlay" id="choiceOverlay">
     <div class="choice-card">
-      <div class="choice-header">
-        <span class="choice-badge">Welcome Back 💖</span>
-        <h2 class="choice-title">Which room would you like to surf?</h2>
-        <p class="choice-subtitle">Select an experience below to enter.</p>
-      </div>
-
-      <div class="choice-options-grid">
-        <!-- Option 1: Awwnanya Old Room -->
-        <div class="choice-option-card" id="choiceOldRoomBtn">
-          <div class="choice-opt-icon">🌹</div>
-          <h3 class="choice-opt-title">Awwnanya's Room</h3>
-          <p class="choice-opt-desc">The original memory room, classic scrapbook & journal</p>
-          <span class="choice-opt-action">Explore Classic →</span>
+      <div class="ch-badge">Welcome Back 💖</div>
+      <h2 class="ch-title">Where would you like to go?</h2>
+      <p class="ch-sub">Choose a room to step into</p>
+      <div class="ch-grid">
+        <div class="ch-opt" id="goOld">
+          <div class="ch-icon">🌹</div>
+          <div class="ch-name">Awwnanya's Room</div>
+          <div class="ch-desc">The classic memory room, scrapbook & journal</div>
+          <span class="ch-cta">Explore Classic →</span>
         </div>
-
-        <!-- Option 2: New Soundtracks Version -->
-        <div class="choice-option-card" id="choiceNewRoomBtn">
-          <div class="choice-opt-icon">🎵</div>
-          <h3 class="choice-opt-title">Soundtracks Collection</h3>
-          <p class="choice-opt-desc">The modern music player, synced lyrics & playlist library</p>
-          <span class="choice-opt-action">Enter Soundtracks →</span>
+        <div class="ch-opt" id="goNew">
+          <div class="ch-icon">🎵</div>
+          <div class="ch-name">Soundtracks</div>
+          <div class="ch-desc">Music player, synced lyrics & playlist library</div>
+          <span class="ch-cta">Enter Soundtracks →</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Minimal Topbar -->
-  <header class="topbar">
-    <div class="tb">
-      <a href="index.html" class="brand-wrap" style="text-decoration:none;">
-        <span class="brand-dot"></span>
-        <span class="brand-name">soundtracks</span>
-      </a>
-      
-      <div style="flex:1;display:flex;justify-content:center;margin:0 16px;max-width:360px;">
-        <div class="sw">
-          <svg class="sico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-          </svg>
-          <input class="si" id="searchInput" type="text" placeholder="Search soundtracks…" />
-        </div>
-      </div>
+  <script>
+    const PIN = "1301";
+    let buf = "";
 
-      <nav class="tbr tbr-nav">
-        <a href="index.html" class="nav-tab active">🎵 Soundtracks</a>
-        <button class="btn-s" id="openAddTrackBtn" style="margin-left:6px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          Search & Add
-        </button>
-      </nav>
-    </div>
-  </header>
+    function dot(i) { return document.getElementById("d" + i); }
+    function updateDots() {
+      for (let i = 0; i < 4; i++) dot(i).classList.toggle("filled", i < buf.length);
+    }
 
-  <!-- Page Main -->
-  <main class="page">
-    <!-- Header Hero -->
-    <div class="hd">
-      <div>
-        <div class="hd-brand">
-          <span class="hd-pulse">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
-            </svg>
-          </span>
-          <span style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)">Comfort Audio</span>
-        </div>
-        <h1 class="pt">Soundtracks</h1>
-        <p class="ps">The melodies that anchor you — kept close.</p>
-      </div>
-      <div class="stats">
-        <div class="st"><div class="st-n" id="statFavorites">0</div><div class="st-l">Favorites</div></div>
-        <div class="st"><div class="st-n" id="statPlaylists">0</div><div class="st-l">Playlists</div></div>
-      </div>
-    </div>
+    function pressNum(n) {
+      if (buf.length >= 4) return;
+      const key = document.getElementById("k" + n);
+      if (key) { key.classList.add("pressed"); setTimeout(() => key.classList.remove("pressed"), 120); }
+      buf += n;
+      updateDots();
+      if (buf.length === 4) checkPin();
+    }
 
-    <!-- Filter & View Controls Toolbar -->
-    <div class="toolbar">
-      <div class="chips">
-        <button class="chip on" data-filter="all">All</button>
-        <button class="chip" data-filter="favorites">Favorites</button>
-      </div>
+    function delNum() {
+      if (buf.length > 0) { buf = buf.slice(0, -1); updateDots(); }
+    }
 
-      <div class="view-controls">
-        <!-- View Mode (Grid vs List) -->
-        <div class="btn-group">
-          <button class="btn-group-btn on" id="viewModeGridBtn" title="Grid View">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-            Grid
-          </button>
-          <button class="btn-group-btn" id="viewModeListBtn" title="List View">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-            List
-          </button>
-        </div>
-      </div>
-    </div>
+    function checkPin() {
+      setTimeout(() => {
+        if (buf === PIN) {
+          document.getElementById("pinWrap").style.display = "none";
+          document.getElementById("choiceOverlay").classList.add("open");
+        } else {
+          const card = document.getElementById("pinCard");
+          card.classList.add("shake");
+          setTimeout(() => card.classList.remove("shake"), 450);
+          const err = document.getElementById("pinErr");
+          err.classList.add("show");
+          setTimeout(() => err.classList.remove("show"), 2000);
+          buf = "";
+          updateDots();
+        }
+      }, 150);
+    }
 
-    <!-- Collapsible Header for ALL SOUNDTRACKS -->
-    <div class="section-collapse-header" id="allSongsHeader" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;cursor:pointer;user-select:none;">
-      <div style="display:flex;align-items:center;gap:10px;">
-        <span style="font-family:'Playfair Display',serif;font-size:20px;font-weight:600;color:var(--text);">All Soundtracks</span>
-        <span id="allSongsCountBadge" class="count-badge">0 tracks</span>
-      </div>
-      <button class="btn-s btn-collapse" id="toggleAllSongsCollapseBtn" style="gap:6px;font-size:12px;height:30px;padding:0 12px;">
-        <span id="allSongsToggleLabel">Collapse</span>
-        <svg id="allSongsChevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.25s ease;"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-    </div>
+    // Wire number keys
+    [0,1,2,3,4,5,6,7,8,9].forEach(n => {
+      const el = document.getElementById("k" + n);
+      if (el) el.addEventListener("click", () => pressNum(String(n)));
+    });
+    document.getElementById("kDel").addEventListener("click", delNum);
 
-    <!-- ALL SONGS Grid (Collapsible Container) -->
-    <section class="lib-section" id="allSongsSection">
-      <div class="grid size-sm" id="songsGrid"></div>
-      <div class="empty" id="songsEmpty">
-        <div style="font-size:32px;margin-bottom:12px;">🎵</div>
-        <p style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;">No soundtracks added yet</p>
-        <p style="font-size:13px;color:var(--muted);">Click 'Search & Add' in the header to search YouTube and build your library.</p>
-      </div>
-    </section>
+    // Keyboard support
+    document.addEventListener("keydown", e => {
+      if (document.getElementById("choiceOverlay").classList.contains("open")) return;
+      if (/^[0-9]$/.test(e.key)) pressNum(e.key);
+      if (e.key === "Backspace") delNum();
+    });
 
-    <div class="div-sep" style="margin:24px 0;"></div>
-
-    <!-- PLAYLISTS Header & Container -->
-    <div class="pl-view-toolbar">
-      <div class="pl-view-title">
-        Playlists
-      </div>
-      <div class="btn-group">
-        <button class="btn-group-btn on" id="plViewCardsBtn" title="Stacked Cards View">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
-          Stacked Cards
-        </button>
-        <button class="btn-group-btn" id="plViewRowBtn" title="Accordion Rows View">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-          Rows
-        </button>
-      </div>
-    </div>
-    <div id="playlistsContainer"></div>
-
-    <!-- Footer -->
-    <div class="div-sep"></div>
-    <footer style="text-align:center;color:var(--muted);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;padding-bottom:140px;">
-      soundtracks — for her
-    </footer>
-  </main>
-
-  <!-- FLOATING CORNER POSTER PLAYER BAR -->
-  <div class="bottom-player" id="bottomPlayer">
-    <div class="p-left">
-      <div class="corner-poster-card" id="cornerPosterCard">
-        <img src="" id="cornerPosterBg" class="cp-bg-blur" alt="" />
-        <div class="cp-overlay-content">
-          <div class="p-thumb" id="playerThumb">
-            <img src="" alt="" id="playerThumbImg" />
-          </div>
-          <div class="cp-text">
-            <div class="p-title" id="playerTitle">Not Playing</div>
-            <div class="p-artist" id="playerArtist">—</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="p-center">
-      <div class="p-lyric-marquee">
-        <span class="p-lyric-text" id="playerLyric">...</span>
-      </div>
-      <div class="p-timeline-w">
-        <span class="p-time" id="playerTimeCurrent">0:00</span>
-        <div class="p-slider-c" id="progressContainer">
-          <div class="p-slider-bg">
-            <div class="p-slider-fill" id="progressFill"></div>
-          </div>
-          <div class="p-slider-thumb" id="progressThumb"></div>
-        </div>
-        <span class="p-time" id="playerTimeTotal">0:00</span>
-      </div>
-    </div>
-
-    <div class="p-right">
-      <button class="p-btn" id="playerPrevBtn" title="Previous Track">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/>
-        </svg>
-      </button>
-      <button class="p-btn p-btn-play" id="playerPlayPauseBtn" title="Play/Pause">
-        <svg viewBox="0 0 24 24" fill="currentColor" id="playPauseIcon">
-          <polygon points="5 3 19 12 5 21 5 3"/>
-        </svg>
-      </button>
-      <button class="p-btn" id="playerNextBtn" title="Next Track">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/>
-        </svg>
-      </button>
-      <button class="p-btn" id="playerShuffleBtn" title="Shuffle">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/>
-          <polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/>
-          <line x1="4" y1="4" x2="9" y2="9"/>
-        </svg>
-      </button>
-      <button class="p-btn" id="playerRepeatBtn" title="Repeat: Off">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/>
-          <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>
-        </svg>
-      </button>
-      
-      <button class="p-btn" id="playerPlaylistBtn" title="Add to / Modify Playlist">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M11 12H3M16 6H3M16 18H3M18 9v6M21 12h-6"/>
-        </svg>
-      </button>
-
-      <div class="playlist-picker-menu" id="playlistPickerMenu">
-        <div class="ppm-header">
-          <span>Manage Playlists</span>
-          <span style="cursor:pointer;" id="closePlaylistPicker">✕</span>
-        </div>
-        <div class="ppm-list" id="playlistPickerList"></div>
-        <div class="ppm-add-wrap">
-          <input type="text" class="ppm-add-input" id="newPlaylistInput" placeholder="Create playlist..." />
-          <button class="ppm-add-btn" id="createNewPlaylistBtn">Add</button>
-        </div>
-      </div>
-
-      <div class="volume-control">
-        <button class="p-btn" style="width:24px;height:24px;" id="volumeMuteBtn">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
-          </svg>
-        </button>
-        <div class="vol-slider-c" id="volumeContainer">
-          <div class="vol-slider-bg"><div class="vol-slider-fill" id="volumeFill"></div></div>
-          <div class="vol-slider-thumb" id="volumeThumb"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- DETAILS MODAL -->
-  <div class="mov" id="detailsModal">
-    <div class="ms modal-ambient-card">
-      <div class="ambient-video-wrapper">
-        <img id="ambientPosterBg" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" />
-        <div class="ambient-video-overlay"></div>
-      </div>
-
-      <button class="mc" id="detailsCloseBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="18" height="18">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-
-      <div class="lyrics-split" style="position:relative;z-index:10;">
-        <div class="mps">
-          <div class="m-cover-wrap">
-            <img src="" alt="" id="mDetailsCover" />
-          </div>
-          <div class="m-track-meta">
-            <div class="m-time-row">
-              <span id="mDetailsTimeCur">0:00</span>
-              <span id="mDetailsDuration">0:00</span>
-            </div>
-            
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
-              <h2 class="mtitle" id="mDetailsTitle" style="margin:0;">Title</h2>
-              <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-                <a href="#" target="_blank" class="dock-pill-btn sp" id="mDetailsSpotifyLink" title="Spotify">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.376 0 0 5.376 0 12s5.376 12 12 12 12-5.376 12-12S18.624 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.48.66.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141 C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.18-1.2-.18-1.38-.72-.18-.6.18-1.2.72-1.38 4.26-1.26 11.28-1.02 15.72 1.62.54.3.72 1.02.42 1.56-.3.42-1.02.6-1.56.3z"/></svg>
-                  <span class="dock-label">Spotify</span>
-                </a>
-                <a href="#" target="_blank" class="dock-pill-btn ytm" id="mDetailsYtMusicLink" title="YouTube Music">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.376 0 0 5.376 0 12s5.376 12 12 12 12-5.376 12-12S18.624 0 12 0zm0 19.2c-3.972 0-7.2-3.228-7.2-7.2s3.228-7.2 7.2-7.2 7.2 3.228 7.2 7.2-3.228 7.2-7.2 7.2zm-2.4-10.8v7.2l6-3.6-6-3.6z"/></svg>
-                  <span class="dock-label">YTM</span>
-                </a>
-              </div>
-            </div>
-
-            <p class="mtagline" id="mDetailsArtist" style="margin-top:4px;">Artist</p>
-            
-            <div class="m-progress-slider" id="mProgressContainer">
-              <div class="m-slider-bg">
-                <div class="m-slider-fill" id="mProgressFill"></div>
-              </div>
-            </div>
-
-            <div class="m-controls-row">
-              <button class="m-ctrl-btn" id="mShuffleBtn" title="Shuffle">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
-              </button>
-              <button class="m-ctrl-btn" id="mPrevBtn" title="Previous">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="19 20 9 12 19 4 19 20"/><line x1="5" y1="19" x2="5" y2="5"/></svg>
-              </button>
-              <button class="m-ctrl-play" id="mPlayPauseBtn" title="Play/Pause">
-                <svg viewBox="0 0 24 24" fill="currentColor" id="mPlayIcon"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              </button>
-              <button class="m-ctrl-btn" id="mNextBtn" title="Next">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 4 15 12 5 20 5 4"/><line x1="19" y1="5" x2="19" y2="19"/></svg>
-              </button>
-              <button class="m-ctrl-btn" id="mRepeatBtn" title="Repeat">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-              </button>
-            </div>
-
-            <div class="m-bottom-dock">
-              <div class="dock-actions">
-                <button class="dock-pill-btn" id="mDetailsFavBtn" title="Favorite">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                  <span class="dock-label">Fav</span>
-                </button>
-                <button class="dock-pill-btn" id="mDetailsPlaylistBtn" title="Playlist">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-                  <span class="dock-label">List</span>
-                </button>
-                <button class="dock-pill-btn" id="mDetailsNoteToggleBtn" title="Memory">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-                  <span class="dock-label">Note</span>
-                </button>
-                <button class="dock-pill-btn del" id="mDetailsDeleteBtn" title="Delete">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                  <span class="dock-label">Del</span>
-                </button>
-              </div>
-
-              <div class="dock-playlist-expand" id="dockPlaylistExpand" style="display:none;margin-top:14px;padding-top:12px;border-top:1px solid var(--border-solid);">
-                <div class="ppm-header" style="margin-bottom:8px;">
-                  <span>Add / Modify Playlists</span>
-                </div>
-                <div class="ppm-list" id="modalPlaylistPickerList" style="max-height:120px;"></div>
-                <div class="ppm-add-wrap">
-                  <input type="text" class="ppm-add-input" id="modalNewPlaylistInput" placeholder="Create playlist..." />
-                  <button class="ppm-add-btn" id="modalCreateNewPlaylistBtn">Add</button>
-                </div>
-              </div>
-
-              <div class="dock-memory-expand" id="dockMemoryExpand" style="display:none;margin-top:12px;">
-                <textarea class="nta" id="mDetailsMemoryInput" placeholder="Write a memory or connection to this song..."></textarea>
-                <div class="sind" id="saveInd"><span class="spin"></span> Saving…</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mi">
-          <div class="msh">
-            <div class="lyrics-header-title">
-              <span>Synced Lyrics</span>
-              <span class="lyrics-header-wave">·||1·</span>
-            </div>
-            <div class="m-lyrics-w" id="lyricsScroller">
-              <div class="m-lyrics-track" id="lyricsTrack">
-                <div style="text-align:center;opacity:0.5;font-size:15px;margin-top:40px;">Loading lyrics...</div>
-              </div>
-            </div>
-            <div class="lyrics-footer-scroll">≡ Scroll for more lyrics</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- SEARCH & CURATE MODAL -->
-  <div class="mov" id="searchModal">
-    <div class="ms search-modal-card">
-      <button class="mc" id="searchModalCloseBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-      
-      <div class="sm-header">
-        <div class="sm-badge">
-          <span class="sm-badge-dot"></span>
-          <span>Discover & Curate</span>
-        </div>
-        <h2 class="sm-title">Find Your Soundtrack</h2>
-        <p class="sm-subtitle">Search YouTube for any song, artist, or direct video URL.</p>
-      </div>
-
-      <div class="sm-search-wrap">
-        <div class="sm-input-capsule">
-          <svg class="sm-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
-          </svg>
-          <input type="text" class="sm-input" id="searchSongInput" placeholder="Enter song title, artist name, or YouTube link..." />
-        </div>
-        <button class="sm-btn-search" id="searchSongBtn">Search</button>
-      </div>
-
-      <div id="searchResultsSection">
-        <div id="searchResultsList" class="sm-results-list"></div>
-      </div>
-
-      <div id="curationEditor" class="curation-editor-card" style="display:none;">
-        <div class="curation-header">
-          <div class="curation-thumb">
-            <img src="" id="curationSelectedThumb" alt="" />
-          </div>
-          <div class="curation-meta">
-            <div id="curationSelectedTitle" class="curation-title">Song Title</div>
-            <div id="curationSelectedArtist" class="curation-artist">Artist Name</div>
-            <div class="curation-badge">Selected Track</div>
-          </div>
-        </div>
-
-        <div class="curation-form-grp">
-          <label>Memory Note <span style="font-weight:400;opacity:0.6;">(Optional)</span></label>
-          <textarea class="curation-textarea" id="curationNote" placeholder="Write a special memory, feeling, or note attached to this song..."></textarea>
-        </div>
-
-        <div class="curation-form-grp">
-          <label>Add to Playlists <span style="font-weight:400;opacity:0.6;">(Select existing or create new)</span></label>
-          <div id="curationPlaylistsList" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:8px;max-height:100px;overflow-y:auto;padding-right:4px;"></div>
-          <input type="text" class="curation-input" id="curationNewPlaylistInput" placeholder="+ Create new playlist name..." />
-        </div>
-
-        <button class="curation-submit-btn" id="saveCurationBtn">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          Add Soundtrack to Library
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- PLAYLIST EDITOR MODAL -->
-  <div class="mov" id="playlistEditModal">
-    <div class="pl-edit-modal-wrap">
-      <div class="pl-edit-header">
-        <h2 class="pl-edit-title">Modify Playlist</h2>
-        <button class="mc" id="closePlEditModalBtn" style="position:static;">✕</button>
-      </div>
-
-      <div class="pl-rename-box">
-        <input type="text" id="plRenameInput" class="pl-rename-input" placeholder="Playlist Name..." />
-        <button class="btn-s" id="plRenameSaveBtn">Save Name</button>
-      </div>
-
-      <div class="pl-edit-section-title" style="margin-top:16px;">
-        <span>🔍 Search & Add Song Directly to this Playlist</span>
-      </div>
-      <div style="display:flex;gap:8px;margin-bottom:10px;">
-        <input type="text" id="plInlineSearchInput" class="pl-rename-input" placeholder="Type song name or YouTube link..." style="flex:1;" />
-        <button class="btn-s" id="plInlineSearchBtn" style="background:var(--text);color:var(--bg);">Search</button>
-      </div>
-      <div id="plInlineSearchResults" style="display:flex;flex-direction:column;gap:6px;max-height:160px;overflow-y:auto;margin-bottom:14px;padding-right:4px;"></div>
-
-      <div class="pl-edit-section-title">
-        <span>Tracks in this Playlist</span>
-        <span id="plEditTrackCount" style="color:var(--warm);">0 tracks</span>
-      </div>
-      <div class="pl-songs-list" id="plEditSongsList"></div>
-
-      <div class="pl-edit-section-title" style="margin-top:16px;">
-        <span>Select / Add Songs from Catalog</span>
-      </div>
-      <div class="pl-picker-list" id="plEditPickerList"></div>
-    </div>
-  </div>
-
-  <!-- PLAYLIST DETAIL VIEW MODAL -->
-  <div class="mov" id="playlistDetailModal">
-    <div class="pl-edit-modal-wrap" style="max-width:720px;">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:16px;">
-        <div style="display:flex;align-items:center;gap:18px;min-width:0;flex:1;">
-          <div id="plDetailStack" class="pl-detail-stack-wrap"></div>
-          <div style="min-width:0;flex:1;">
-            <h2 class="pl-edit-title" id="plDetailName" style="margin:0;font-size:24px;line-height:1.2;word-break:break-word;">Playlist Name</h2>
-            <div id="plDetailCount" style="font-size:12px;font-weight:600;color:var(--warm);background:rgba(233,169,144,0.15);padding:3px 10px;border-radius:14px;display:inline-block;margin-top:6px;">0 soundtracks</div>
-          </div>
-        </div>
-        <button class="mc" id="closePlDetailModalBtn" style="position:static;flex-shrink:0;">✕</button>
-      </div>
-
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid rgba(0,0,0,0.05);flex-wrap:wrap;">
-        <div style="display:flex;gap:8px;align-items:center;">
-          <button class="btn-s" id="plDetailPlayAllBtn" style="background:var(--text);color:var(--bg);height:34px;padding:0 16px;font-size:12px;">
-            ▶ Play All
-          </button>
-          <button class="btn-s" id="plDetailEditBtn" style="background:rgba(0,0,0,0.04);color:var(--text);border:1px solid rgba(0,0,0,0.06);height:34px;padding:0 14px;font-size:12px;">
-            ✏ Edit Playlist
-          </button>
-        </div>
-        <div style="display:flex;gap:6px;align-items:center;">
-          <a id="plDetailYtLink" href="#" target="_blank" class="plat-pill ytm" title="YouTube Music">YT Music</a>
-          <a id="plDetailSpLink" href="#" target="_blank" class="plat-pill sp" title="Spotify">Spotify</a>
-        </div>
-      </div>
-
-      <div class="pl-edit-section-title">
-        <span>Soundtracks List</span>
-      </div>
-      <div id="plDetailTracklist" style="display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto;padding-right:4px;"></div>
-    </div>
-  </div>
-
-  <!-- Toast Widget -->
-  <div class="toast" id="toastWidget">Track saved!</div>
-
-  <!-- App Script -->
-  <script src="app.js"></script>
+    // Choice buttons
+    document.getElementById("goOld").addEventListener("click", () => {
+      window.location.href = "/legacy/index.html";
+    });
+    document.getElementById("goNew").addEventListener("click", () => {
+      window.location.href = "music.html";
+    });
+  </script>
 </body>
 </html>
