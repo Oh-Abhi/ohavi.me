@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Awwnanya</title>
+  <meta name="description" content="A private emotional archive. Handcrafted from quiet attention." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Inter:wght@200;300;400;500&family=Caveat:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500&family=Alex+Brush&family=Dancing+Script:wght@400;700&display=swap"
+    rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/style.css" />
+
+</head>
+
+<body>
+
+  <!-- Cursor -->
+  <div id="cursor-dot" aria-hidden="true"></div>
+  <div id="cursor-ring" aria-hidden="true"></div>
+
+  <!-- Scroll Progress -->
+  <div id="scroll-progress" aria-hidden="true" role="progressbar"></div>
+
+  <!-- Ambient Particles -->
+  <div id="ambient-particles" aria-hidden="true"></div>
+
+  <!-- Loading Screen -->
+  <div id="loading" role="status" aria-label="Loading">
+    <p class="load-logo">Ananya<span>.</span></p>
+    <div class="load-bar-track">
+      <div class="load-bar"></div>
+    </div>
+    <p class="load-text">a small present for u</p>
+  </div>
+
+  <!-- Scattered polaroid collage (built by JS, sits above pages) -->
+  <div class="hero-collage" id="hero-collage" aria-hidden="true"></div>
+
+  <!-- ╔══════════════════════════════════════╗
+       ║  SECTION 1 — HERO (Polaroid Collage) ║
+       ╚══════════════════════════════════════╝ -->
+  <section id="hero">
+    <!-- Scroll hint -->
+    <div class="hero-scroll-hint" aria-hidden="true">
+      <span>scroll</span>
+      <div class="scroll-chevron"></div>
+    </div>
+  </section>
+
+  <!-- ╔══════════════════════════════════════╗
+       ║  SECTION 2 — THE MAIN PAGE (Ananyaa) ║
+       ╚══════════════════════════════════════╝ -->
+  <section id="main-page">
+    <div class="main-inner">
+      <!-- Left: Grid of Polaroid Targets -->
+      <div class="stamp-strip-container reveal left">
+        <div class="stamp-grid">
+          <div id="transition-target-t1" class="transition-target-placeholder"></div>
+          <div id="transition-target-t2" class="transition-target-placeholder"></div>
+          <div id="transition-target-t3" class="transition-target-placeholder"></div>
+          <div id="transition-target-t4" class="transition-target-placeholder"></div>
+          <div id="transition-target-t5" class="transition-target-placeholder"></div>
+          <div id="transition-target-t6" class="transition-target-placeholder"></div>
+          <div id="transition-target-t7" class="transition-target-placeholder"></div>
+          <div id="transition-target-t8" class="transition-target-placeholder"></div>
+          <div id="transition-target-t9" class="transition-target-placeholder"></div>
+          <div id="transition-target-t10" class="transition-target-placeholder"></div>
+          <div id="transition-target-t11" class="transition-target-placeholder"></div>
+          <div id="transition-target-t12" class="transition-target-placeholder"></div>
+          <div id="transition-target-t13" class="transition-target-placeholder"></div>
+          <div id="transition-target-t14" class="transition-target-placeholder"></div>
+          <div id="transition-target-t15" class="transition-target-placeholder"></div>
+          <div id="transition-target-t16" class="transition-target-placeholder"></div>
+          <div id="transition-target-t17" class="transition-target-placeholder"></div>
+          <div id="transition-target-t18" class="transition-target-placeholder"></div>
+          <div id="transition-target-t19" class="transition-target-placeholder"></div>
+          <div id="transition-target-t20" class="transition-target-placeholder"></div>
+        </div>
+      </div>
+
+      <!-- Right: Letter Section -->
+      <div class="letter-section reveal right">
+        <div class="signature-name">Awwnanya</div>
+        <div class="decorative-separator"></div>
+
+        <div class="letter-text">
+          <p>Well hii Ananya,</p>
+          <p>You already knew I was planning something, but I don’t think you were expecting this 😭</p>
+          <p>Maybe an edit or some random surprise, but yeah... this is a little different.</p>
+          <p>There are a few things here I think you’ll genuinely like, so just enjoy everything slowly.</p>
+          <p>I know I’ve already told you many of these things before, but lemme mention it again. And maybe this time,
+            in a better way.</p>
+          <p>Some parts are soft, some are embarrassing, some are random, and some are probably way too emotional... but
+            all of it is real.</p>
+          <p>So yeah, welcome to this little world made for you. I hope you love it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ╔══════════════════════════════════════╗
+       ║  SECTION 3 — FLOWERS (Sticky Slides) ║
+       ╚══════════════════════════════════════╝ -->
+  <section id="flower-section">
+    <div class="slide-container">
+
+      <!-- SLIDE 1 — SUNFLOWER -->
+      <div class="slide sunflower-slide">
+        <div class="slide-bg-wrap">
+          <div class="slide-bg"
+            style="background-image: url('assets/images/backgrounds/ChatGPT Image Jun 11, 2026, 01_06_20 AM.png');">
+          </div>
+        </div>
+
+        <div class="slide-content">
+          <div class="polaroid-wrapper">
+            <div class="polaroid">
+              <div class="polaroid-img-wrap">
+                <!-- Image of her (upright photo) -->
+                <img src="assets/images/her/ChatGPT Image Jun 11, 2026, 01_20_10 PM.png" alt="Sunflower Polaroid" />
+              </div>
+              <div class="polaroid-caption">sunflower <span>♡</span></div>
+            </div>
+          </div>
+
+          <div class="text-wrapper">
+            <h1 class="slide-text">
+              i was confused what you like,<br>
+              <em>lily</em> or <em>sunflower</em>?<br>
+              so here is both <span class="heart">&lt;3</span>
+            </h1>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 2 — LILY (Horizontal Wipe) -->
+      <div class="slide lily-slide">
+        <div class="slide-bg-wrap">
+          <div class="slide-bg"
+            style="background-image: url('assets/images/backgrounds/ChatGPT Image Jun 11, 2026, 12_59_08 AM.png');">
+          </div>
+        </div>
+
+        <div class="slide-content">
+          <div class="polaroid-wrapper">
+            <div class="polaroid">
+              <div class="polaroid-img-wrap">
+                <!-- Image of her (upright photo) -->
+                <img src="assets/images/her/ChatGPT Image Jun 11, 2026, 01_20_07 PM.png" alt="Lily Polaroid" />
+              </div>
+              <div class="polaroid-caption">lily <span>♡</span></div>
+            </div>
+          </div>
+
+          <div class="text-wrapper">
+            <h1 class="slide-text">
+              i was confused what you like,<br>
+              <em>lily</em> or <em>sunflower</em>?<br>
+              so here is both <span class="heart">&lt;3</span>
+            </h1>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ╔══════════════════════════════════════╗
+       ║  SECTION 4 — VIDEO REEL (Scroll)     ║
+       ╚══════════════════════════════════════╝ -->
+  <section id="reel-section">
+    <!-- Sticky viewport that pins while strip scrolls -->
+    <div class="reel-sticky">
+      <!-- Drag label -->
+      <div class="reel-label">
+        <span class="reel-eyebrow">film</span>
+        <span class="reel-line"></span>
+      </div>
+
+      <!-- The moving strip — all videos from memories/ root (no subfolders) -->
+      <div class="reel-track" id="reel-track">
+
+        <!-- 1 -->
+        <div class="reel-item">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/VID_20260108_121716_200.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 2 -->
+        <div class="reel-item">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/VID_20260112_095620_383.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 3 -->
+        <div class="reel-item">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/VID_20260112_095804_517.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 4 -->
+        <div class="reel-item">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/VID_20260112_095810_864.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 5 -->
+        <div class="reel-item">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/VID_20260508_015707_435.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 6 -->
+        <div class="reel-item">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/VID_20260607_101605_560.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 7 -->
+        <div class="reel-item">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/VID_20260607_101607_870.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 8 -->
+        <div class="reel-item">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/VID_20260607_101614_293.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 9 -->
+        <div class="reel-item">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/VID_20260607_101619_989.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 10 -->
+        <div class="reel-item">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/VID_20260607_101628_780.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 11 -->
+        <div class="reel-item">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/VID_20260607_102222_359.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 12 -->
+        <div class="reel-item">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/VID_20260607_102503_563.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 13 -->
+        <div class="reel-item">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/VID_20260607_102519_589.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 14 -->
+        <div class="reel-item">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/VID_20260607_103059_950.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 15 -->
+        <div class="reel-item">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/VID_20260607_103105_735.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 16 -->
+        <div class="reel-item">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/VID_20260608_080351_261.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 17 -->
+        <div class="reel-item">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/us/VID-20260324-WA0027.mp4" type="video/mp4">
+          </video>
+        </div>
+
+        <!-- 18 — hehe.mp4 (upload this file when ready) -->
+        <div class="reel-item reel-placeholder" id="reel-hehe">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/IMG_5283.MOV.mp4" type="video/mp4">
+          </video>
+          <!-- Shown only if video fails to load -->
+          <div class="reel-placeholder-label">hehe 🤍</div>
+        </div>
+
+      </div>
+
+      <!-- Film sprocket holes -->
+      <div class="reel-sprockets top" aria-hidden="true">
+        <div class="reel-sprockets-inner" id="sprockets-top"></div>
+      </div>
+      <div class="reel-sprockets bottom" aria-hidden="true">
+        <div class="reel-sprockets-inner" id="sprockets-bottom"></div>
+      </div>
+
+      <div class="reel-progress-wrap">
+        <div class="reel-progress-fill" id="reel-progress-fill"></div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ╔══════════════════════════════════════╗
+       ║  SECTION 5 — EDITORIAL SPREAD        ║
+       ╚══════════════════════════════════════╝ -->
+  <section id="editorial-section">
+    <div class="editorial-inner">
+      <div class="editorial-text-side">
+        <span class="ed-eyebrow reveal">— about you</span>
+        <h2 class="ed-title reveal">you're<br>something<br><em>else.</em></h2>
+        <div class="ed-rule reveal"></div>
+        <p class="ed-body reveal">
+          There's smth you do idk what but when you talk to me na i litrally get butterfly
+          — and you don’t even realize it — i mean you mean a lot to me ananya
+          thank you so much for being what you are
+        </p>
+        <p class="ed-body reveal">
+          and all these are just for you just for being real and nice to me
+        </p>
+        <p class="ed-small reveal">— omg ilysmm.</p>
+      </div>
+      <div class="editorial-photo-side reveal">
+        <div class="ed-photo-frame">
+          <img src="assets/images/her/IMG_20260610_225850.jpg" alt="" class="ed-photo bw" />
+        </div>
+        <div class="ed-photo-tag">2026</div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ╔══════════════════════════════════════════════════════════╗
+       ║  SECTION 6 — BOOK: Things I Like About You              ║
+       ╚══════════════════════════════════════════════════════════╝ -->
+  <section id="book1-section" class="book-section">
+    <div class="book-outer" id="book1-outer">
+      <div class="book-sticky" id="book1-sticky">
+
+        <!-- ░░ PAGE 0 — COVER ░░ -->
+        <div class="book-page book-cover-page" data-bk-index="0">
+          <div class="bk-cover-inner">
+            <p class="bk-label">book one</p>
+            <h2 class="bk-cover-title">Things I<br><em>Like</em><br>About You</h2>
+            <div class="bk-cover-line"></div>
+            <p class="bk-cover-sub">scroll to read →</p>
+          </div>
+          <span class="bk-cover-ghost">I</span>
+        </div>
+
+        <!-- ░░ PAGE 1 — PHOTO COLLAGE SPREAD ░░ -->
+        <div class="book-page bk-collage-spread" data-bk-index="1">
+          <div class="bk-col-title-strip">
+            <p class="bk-col-eyebrow">a collection of moments</p>
+            <h3 class="bk-col-heading">things<br>I like<br><em>about</em><br>you</h3>
+          </div>
+          <div class="bk-collage-area">
+            <div class="col-p" style="--rot:-7deg; width:19%; top:3%; left:1%"><img
+                src="assets/images/her/IMG-20260610-WA0005.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:4deg; width:16%; top:1%; left:22%"><img
+                src="assets/images/her/IMG-20260610-WA0007.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:-3deg; width:20%; top:4%; left:40%"><img
+                src="assets/images/her/IMG-20260610-WA0009.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:6deg; width:17%; top:2%; left:62%"><img
+                src="assets/images/her/IMG-20260610-WA0011.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:-5deg; width:18%; top:3%; left:81%"><img
+                src="assets/images/her/IMG-20260610-WA0013.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:5deg; width:20%; top:34%; left:0%"><img
+                src="assets/images/her/IMG-20260610-WA0006.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:-9deg; width:26%; top:30%; left:23%"><img
+                src="assets/images/her/IMG_20260607_224640_645.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:7deg; width:21%; top:32%; left:52%"><img
+                src="assets/images/her/IMG_20260607_225253_267.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:-4deg; width:19%; top:29%; left:76%"><img
+                src="assets/images/her/IMG_20260607_225513_386.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:-5deg; width:18%; top:64%; left:2%"><img
+                src="assets/images/her/IMG-20260610-WA0008.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:8deg; width:22%; top:62%; left:23%"><img
+                src="assets/images/her/IMG_20260112_232608_746.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:-3deg; width:20%; top:65%; left:48%"><img
+                src="assets/images/her/IMG_20260610_225715.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:6deg; width:17%; top:62%; left:71%"><img
+                src="assets/images/her/IMG_20260610_225728.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:-6deg; width:16%; top:63%; left:91%"><img
+                src="assets/images/her/IMG-20260610-WA0010.jpg" class="bw"></div>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 2 — YOU'RE MY FAVORITE PERSON ░░ -->
+        <div class="book-page" data-bk-index="2">
+          <div class="bk-spread">
+            <div class="bk-left bk-scrap-cream">
+              <div class="bk-fav-inner">
+                <h3 class="bk-fav-title">YOU'RE<br>MY<br><span class="bk-red">FAVORITE</span><br>PERSON</h3>
+                <div class="bk-fav-scatter">
+                  <img src="assets/images/her/IMG_20260112_232608_746.jpg" class="bk-scat-sm bw" style="--r:-8deg">
+                  <img src="assets/images/her/IMG-20260610-WA0010.jpg" class="bk-scat-sm bw" style="--r:6deg">
+                  <img src="assets/images/her/IMG-20260610-WA0014.jpg" class="bk-scat-sm bw" style="--r:-4deg">
+                </div>
+              </div>
+              <span class="bk-deco-star" style="top:9%;left:9%;font-size:1.4rem;--rot:20deg">★</span>
+              <span class="bk-deco-star" style="top:18%;right:8%;font-size:0.9rem;--rot:-14deg">✦</span>
+              <span class="bk-deco-star" style="bottom:22%;left:12%;font-size:1rem;--rot:8deg">★</span>
+              <span class="bk-deco-star" style="bottom:12%;right:14%;font-size:1.6rem;--rot:-22deg">✦</span>
+              <span class="bk-deco-star" style="top:50%;left:5%;font-size:0.7rem;--rot:12deg">★</span>
+              <div class="bk-tape-label">any day with you</div>
+            </div>
+            <div class="bk-right bk-photo-side">
+              <img src="assets/images/her/IMG_20260610_225850.jpg" alt="" class="bk-photo bw">
+              <div class="bk-photo-overlay"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 3 — B&W PORTRAIT + MINIMAL QUOTE ░░ -->
+        <div class="book-page" data-bk-index="3">
+          <div class="bk-spread" style="background:#0d0d0d">
+            <div class="bk-left bk-photo-side" style="flex:1.4">
+              <img src="assets/images/her/IMG_20260607_224818_140.jpg" alt="" class="bk-photo"
+                style="filter:grayscale(100%) contrast(1.15) brightness(0.82)">
+            </div>
+            <div class="bk-right bk-dark-text">
+              <p class="bk-dark-micro">you &amp; me</p>
+              <h3 class="bk-dark-h">FOREVER</h3>
+              <div class="bk-dark-rule"></div>
+              <p class="bk-dark-body">Well idk what our future is but i really wanna be with you forever
+                you are really one of the best person i ever met you are nice kind and talented lol
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 4 — OUR MEMORIES ░░ -->
+        <div class="book-page bk-mem-page" data-bk-index="4">
+          <div class="bk-mem-badge">OUR MEMORIES</div>
+          <div class="bk-mem-scatter">
+            <div class="bk-mem-photo" style="--r:-8deg;top:18%;left:8%;width:25%"><img
+                src="assets/images/Us/IMG_20250801_182852_179.jpg" class="bw"></div>
+            <div class="bk-mem-photo" style="--r:6deg;top:12%;left:38%;width:26%"><img
+                src="assets/images/Us/IMG_20260401_104548.jpg" class="bw"></div>
+            <div class="bk-mem-photo" style="--r:-4deg;top:22%;left:67%;width:23%"><img
+                src="assets/images/Us/IMG-20251013-WA0178.jpg" class="bw"></div>
+            <div class="bk-mem-photo" style="--r:9deg;top:48%;left:20%;width:0%"><img
+                src="assets/images/her/IMG_20260607_225253_267.jpg" class="bw"></div>
+            <div class="bk-mem-photo" style="--r:-5deg;top:44%;left:55%;width:0%"><img
+                src="assets/images/her/IMG_20260607_224640_645.jpg" class="bw"></div>
+          </div>
+          <p class="bk-mem-quote">you are the best of the best of the best.</p>
+        </div>
+
+        <!-- ░░ PAGE 5 — RED TEXT PAGE ░░ -->
+        <div class="book-page" data-bk-index="5">
+          <div class="bk-spread">
+            <div class="bk-left bk-red-text">
+              <p class="bk-red-micro">YOU</p>
+              <p class="bk-red-para">
+                There is smth like how you make me feel and i litrally have idea tbh why tf am i
+                so obsessed with you but the reality is yes i am and i cant help
+                btwww you are pretty i never told you this but you lookkk sooo so so prettyyyy
+              </p>
+            </div>
+            <div class="bk-right bk-red-cluster" style="background:#a81020">
+              <div class="bk-clust-photo" style="--r:-7deg;top:8%;left:8%;width:58%">
+                <img src="assets/images/her/IMG_20260610_225715.jpg" class="bw">
+              </div>
+              <div class="bk-clust-photo" style="--r:5deg;top:45%;left:32%;width:55%">
+                <img src="assets/images/her/IMG_20260610_225728.jpg" class="bw">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 6 — FILM STRIP + LYRIC ░░ -->
+        <div class="book-page bk-film-page" data-bk-index="6">
+          <div class="bk-film-inner">
+            <p class="bk-film-eyebrow">moments</p>
+            <h3 class="bk-film-lyric">
+              everyday of our lives,<br>
+              i wanna find you there,<br>
+              <em>wanna hold on tight.</em>
+            </h3>
+            <div class="bk-film-strip">
+              <div class="bk-film-frame"><img src="assets/images/her/IMG-20260610-WA0005.jpg" class="bw"></div>
+              <div class="bk-film-frame"><img src="assets/images/her/IMG-20260610-WA0007.jpg" class="bw"></div>
+              <div class="bk-film-frame"><img src="assets/images/her/IMG-20260610-WA0009.jpg" class="bw"></div>
+              <div class="bk-film-frame"><img src="assets/images/her/IMG-20260610-WA0011.jpg" class="bw"></div>
+              <div class="bk-film-frame"><img src="assets/images/her/IMG-20260610-WA0013.jpg" class="bw"></div>
+              <div class="bk-film-frame"><img src="assets/images/her/IMG-20260610-WA0015.jpg" class="bw"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 7 — END ░░ -->
+        <div class="book-page bk-end-page" data-bk-index="7">
+          <div class="bk-end-inner">
+            <p class="bk-label">end of book one</p>
+            <div class="bk-end-rule"></div>
+            <p class="bk-end-quote"><em>"... and there are more."</em></p>
+          </div>
+          <span class="bk-cover-ghost" style="opacity:0.04">fin</span>
+        </div>
+
+        <!-- Progress dots -->
+        <div class="bk-dots" id="book1-dots"></div>
+        <!-- Page counter -->
+        <div class="bk-counter" id="book1-counter">01 / 08</div>
+
+      </div><!-- /book-sticky -->
+    </div><!-- /book-outer -->
+  </section>
+
+  <!-- ╔══════════════════════════════════════════════════════════╗
+       ║  SECTION 7 — BOOK: Let's Talk About Us                  ║
+       ╚══════════════════════════════════════════════════════════╝ -->
+  <section id="book2-section" class="book-section">
+    <div class="book-outer" id="book2-outer">
+      <div class="book-sticky" id="book2-sticky">
+
+        <!-- ░░ PAGE 0 — COVER ░░ -->
+        <div class="book-page book-cover-page b2-cover" data-bk-index="0">
+          <div class="b2-cover-inner">
+            <p class="b2-cover-eyebrow">book two</p>
+            <h2 class="b2-cover-title">Let's Talk<br><span class="b2-script">about us</span></h2>
+            <div class="b2-cover-rule"></div>
+            <p class="b2-cover-hint">scroll to read →</p>
+          </div>
+          <span class="bk-cover-ghost">II</span>
+        </div>
+
+        <!-- ░░ PAGE 1 — CINEMATIC FULL-BLEED PHOTO ░░ -->
+        <div class="book-page b2p1-cinematic" data-bk-index="1">
+          <img src="assets/images/Us/IMG_20260401_104548.jpg" alt="" class="b2p1-img bw">
+          <div class="b2p1-overlay"></div>
+          <div class="b2p1-caption">
+            <p class="b2p1-small">well, you know, I have a lot to say about us</p>
+            <h2 class="b2p1-big">but let's start<br>with something<br><em>funny.</em></h2>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 2 — BARELY ANY PICTURES (video left, text right) ░░ -->
+        <div class="book-page" data-bk-index="2">
+          <div class="bk-spread">
+            <div class="bk-left b2-video-side">
+              <video class="b2-vid" autoplay muted loop playsinline preload="auto">
+                <source src="assets/videos/memories/us/VID-20250801-WA0012.mp4" type="video/mp4">
+              </video>
+              <div class="b2-vid-overlay"></div>
+            </div>
+            <div class="bk-right b2-text-col">
+              <p class="b2-tiny-label">barely any</p>
+              <p class="b2-para">
+                When I was looking for pictures of us together for this website, I realized there were <strong>barely any</strong>.
+                I found a few, but not nearly as many as I expected.
+              </p>
+              <p class="b2-para b2-italic" style="margin-top:1.5rem;">
+                This might sound like a complaint, and honestly... maybe it is a little.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 3 — "SHOULD WE" FULL BLEED ░░ -->
+        <div class="book-page b2p3-question" data-bk-index="3">
+          <div class="b2p3-inner">
+            <p class="b2p3-label">a simple question</p>
+            <h2 class="b2p3-heading">But don't you think<br>we should spend more<br>time together?</h2>
+            <div class="b2p3-rule"></div>
+            <h3 class="b2p3-just">Just us.</h3>
+            <p class="b2p3-note">I've wanted that for so long, but I never really asked because I get nervous.</p>
+          </div>
+          <div class="b2p3-img-strip">
+            <img src="assets/images/Us/IMG-20251013-WA0178.jpg" class="bw">
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 4 — NERVOUS (text left, video right) ░░ -->
+        <div class="book-page" data-bk-index="4">
+          <div class="bk-spread">
+            <div class="bk-left b2-dark-col">
+              <h2 class="b2-dark-name">asking you</h2>
+              <div class="b2-dark-rule"></div>
+              <p class="b2-dark-body">
+                Which is funny because I can make an entire website about you, but asking you to hang out somehow feels harder.
+              </p>
+              <p class="b2-dark-red">Ananya, we really should go out more.</p>
+              <p class="b2-dark-deal">And I promise you won't be bored. I have way too many ideas for things we could do.</p>
+            </div>
+            <div class="bk-right b2-video-side">
+              <video class="b2-vid" autoplay muted loop playsinline preload="auto">
+                <source src="assets/videos/memories/us/VID-20260324-WA0020.mp4" type="video/mp4">
+              </video>
+              <div class="b2-vid-overlay"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 5 — OBSESSION MOVIE (cream diary split) ░░ -->
+        <div class="book-page" data-bk-index="5">
+          <div class="bk-spread">
+            <div class="bk-left b2-diary-col">
+              <p class="b2-diary-label">so here's a deal</p>
+              <p class="b2-diary-text">
+                One day, when you're free, just randomly ask me,<br>
+                <strong>"Let's go somewhere."</strong>
+              </p>
+              <p class="b2-diary-text" style="color:var(--cherry);font-weight:600;">I will not say no.</p>
+              <div class="b2-diary-highlight" style="margin-top:1rem;">
+                Actually, that reminds me of the Obsession movie. When you asked me to go with you, you have no idea how happy I was.
+              </div>
+            </div>
+            <div class="bk-right b2-diary-col" style="background:#fdfaf7;border-left:1px solid rgba(0,0,0,0.05);">
+              <p class="b2-diary-label">the obsession movie</p>
+              <p class="b2-diary-text">
+                The funny part is that I wasn't even interested in the movie itself. I had already watched it. It was never about the movie; it was about going with you.
+              </p>
+              <p class="b2-diary-big" style="margin-top:1rem;font-style:italic;">
+                Okay, the plan wasn't exactly successful, but that's not the point.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 6 — VIDEO COLLAGE (two videos side by side) ░░ -->
+        <div class="book-page b2p6-dual-vid" data-bk-index="6">
+          <div class="b2p6-vid-left">
+            <video autoplay muted loop playsinline preload="auto">
+              <source src="assets/videos/memories/us/VID-20251013-WA0019.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="b2p6-vid-right">
+            <video autoplay muted loop playsinline preload="auto">
+              <source src="assets/videos/memories/us/VID-20260324-WA0021.mp4" type="video/mp4">
+            </video>
+          </div>
+          <div class="b2p6-caption">
+            <p>moments i keep coming back to</p>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 7 — DELHI / FUTURE (split: red + cream + us photo) ░░ -->
+        <div class="book-page" data-bk-index="7">
+          <div class="bk-spread">
+            <div class="bk-left b2-delhi-red">
+              <p class="b2-delhi-label">delhi — shimla</p>
+              <p class="b2-delhi-text">
+                I'm in Delhi until the <em>23rd</em>, and maybe you'll leave for Shimla before that.
+              </p>
+              <p class="b2-delhi-text">So if there's even one free day, just ask me.</p>
+              <p class="b2-delhi-anywhere">Anywhere you want.</p>
+            </div>
+            <div class="bk-right b2-delhi-cream" style="position:relative;overflow:hidden;">
+              <p class="b2-delhi-closing">The point is: let's try again.</p>
+              <p class="b2-delhi-unfinished">Let's make memories that future us will love.</p>
+              <div class="b2-delhi-sig">
+                <div class="b2-sig-line"></div>
+                <span class="b2-sig-name">Us 🤍</span>
+              </div>
+              <img src="assets/images/Us/IMG_20250801_182852_179.jpg" class="bw b2-delhi-photo" alt="">
+            </div>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 8 — VIDEO (VID-20260324-WA0025) full bleed ░░ -->
+        <div class="book-page b2p8-fullvid" data-bk-index="8">
+          <video autoplay muted loop playsinline preload="auto">
+            <source src="assets/videos/memories/us/VID-20260324-WA0025.mp4" type="video/mp4">
+          </video>
+          <div class="b2p8-overlay"></div>
+          <div class="b2p8-text">
+            <p>one more video i couldn't leave out</p>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 9 — END OF BOOK 2 ░░ -->
+        <div class="book-page b2-end" data-bk-index="9">
+          <div class="b2-end-inner">
+            <p class="b2-end-script">Let's write our story...</p>
+            <div class="b2-end-rule"></div>
+            <p class="b2-end-label">end of book two</p>
+          </div>
+        </div>
+
+        <!-- Progress dots -->
+        <div class="bk-dots" id="book2-dots"></div>
+        <!-- Page counter -->
+        <div class="bk-counter" id="book2-counter">01 / 10</div>
+
+      </div><!-- /book-sticky -->
+    </div><!-- /book-outer -->
+  </section>
+
+  <!-- Music Player Pill -->
+  <div class="music-pill" id="music-pill">
+    <div class="music-pill-inner">
+      <span class="music-pill-icon" id="music-pill-icon">♫</span>
+      <div class="music-pill-info">
+        <span class="music-pill-title">Barbaad</span>
+        <span class="music-pill-artist">Vaani × Krish version</span>
+      </div>
+      <button class="music-pill-btn" id="music-toggle-btn" aria-label="Toggle music">
+        <svg id="music-play-svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="music-pause-svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ╔══════════════════════════════════════════════════════════╗
+       ║  SECTION 8 — THE PROPOSAL BOOK                          ║
+       ╚══════════════════════════════════════════════════════════╝ -->
+  <section id="proposal-section" class="book-section">
+    <!-- Barbaad Audio -->
+    <audio id="love-audio" loop preload="auto">
+      <source src="assets/Not ai/𝑩𝒂𝒓𝒃𝒂𝒂𝒅 (𝑽𝒂𝒂𝒏𝒊 𝒙 𝑲𝒓𝒊𝒔𝒉 𝒗𝒆𝒓𝒔𝒊𝒐𝒏)  𝑺𝒂𝒊𝒚𝒂𝒂𝒓𝒂.mp3" type="audio/mpeg">
+    </audio>
+    <!-- Fireworks & Petals Canvas -->
+    <canvas id="fireworks-canvas"></canvas>
+    <canvas id="rose-petals-canvas"></canvas>
+
+    <div class="book-outer" id="proposal-outer">
+      <div class="book-sticky" id="proposal-sticky" style="background:#fffdf9;">
+
+        <!-- ░░ PAGE 0 — COVER ░░ -->
+        <div class="book-page prop-cover-page" data-bk-index="0">
+          <div class="prop-cover-bg"></div>
+          <div class="prop-cover-content">
+            <p class="prop-cover-eyebrow">a letter for you</p>
+            <h1 class="prop-cover-title">let's unwrap<br><em>everything.</em></h1>
+            <div class="prop-cover-rule"></div>
+            <p class="prop-cover-hint">scroll gently →</p>
+          </div>
+          <span class="bk-cover-ghost" style="color:rgba(192,22,42,0.04);font-family:'Playfair Display',serif;">❤</span>
+        </div>
+
+        <!-- ░░ PAGE 1 — THANK YOU ░░ -->
+        <div class="book-page prop-page prop-p1" data-bk-index="1">
+          <div class="prop-page-inner">
+            <p class="prop-eyebrow">01</p>
+            <p class="prop-intro-word">Well...</p>
+            <p class="prop-para">What's the point of all of this? The flowers, the photos, the notes, the memories, the random pages, and this entire website.</p>
+            <p class="prop-para">Honestly Ananya, you already know everything. This is just my way of saying <em>thank you.</em></p>
+            <p class="prop-para">Thank you for every conversation, every reel, every laugh, every memory, every moment you probably don't even realize mattered to me.</p>
+            <div class="prop-divider"></div>
+            <p class="prop-highlight">Because if I'm being real, I am literally happiest when I'm talking to you.</p>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 2 — OBSESSED ░░ -->
+        <div class="book-page prop-page prop-p2-dark" data-bk-index="2">
+          <div class="prop-page-inner">
+            <p class="prop-eyebrow" style="color:rgba(255,255,255,0.3);">02</p>
+            <h2 class="prop-dark-heading">yes, I know<br>I act obsessed.</h2>
+            <p class="prop-para-light">And honestly? Maybe I am. I know it's probably not healthy, but at this point I don't even care.</p>
+            <p class="prop-para-light">Yaar, it's been so long now. Sometimes it genuinely kills me inside that you're not mine already.</p>
+            <div class="prop-divider" style="background:rgba(255,255,255,0.12)"></div>
+            <p class="prop-para-light">I wanted to give this to you in person too. I imagined us somewhere together, laughing, having fun, and then I'd awkwardly hand you this whole thing. But somehow we've rarely even hung out alone.</p>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 3 — JEALOUS / REELS ░░ -->
+        <div class="book-page prop-page prop-p3-cream" data-bk-index="3">
+          <div class="prop-page-inner">
+            <p class="prop-eyebrow">03</p>
+            <p class="prop-para">And yes, I get jealous. Seeing you with someone else still annoys me more than it should. But one thing I'll never forget is how much you've respected that feeling instead of making fun of it.</p>
+            <p class="prop-para"><strong>Thank you for that. I really mean it.</strong></p>
+            <div class="prop-divider"></div>
+            <p class="prop-para">And honestly? I was already in love with you before. But these past few months something happened. I don't know what. All I do is think about you.</p>
+            <p class="prop-aside">Also, can you please send me reels without me asking first? Like damn. 😭</p>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 4 — THE QUOTE PAGE ░░ -->
+        <div class="book-page prop-page prop-p4-quote" data-bk-index="4">
+          <div class="prop-p4-inner">
+            <p class="prop-small-lead">Now comes the part where you're supposed to say:</p>
+            <blockquote class="prop-big-quote">"I FUCKING<br>LOVE YOU<br>TOO BRO."</blockquote>
+            <p class="prop-caveat">And then we start dating. Very simple process. 10/10 plan. Would recommend. 😉</p>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 5 — ASK AGAIN ░░ -->
+        <div class="book-page prop-page prop-p5" data-bk-index="5">
+          <div class="prop-page-inner">
+            <p class="prop-eyebrow">05</p>
+            <p class="prop-para">But jokes aside...</p>
+            <p class="prop-para">You already gave me your answer once. Still, I want to ask again: <em>Is your answer still the same?</em></p>
+            <p class="prop-para">And if it is, I promise nothing changes. Not our friendship. Not whatever this thing between us is. Nothing.</p>
+            <p class="prop-para">Because the truth is, I don't love you just because I want to date you. I love you because you're <em>you.</em></p>
+            <div class="prop-divider"></div>
+            <p class="prop-highlight">If one day you become mine, that's the best possible ending. And if not? I still won't regret loving you. Not even for a second.</p>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 6 — REASONS ░░ -->
+        <div class="book-page prop-page prop-p6-reasons" data-bk-index="6">
+          <div class="prop-reasons-inner">
+            <h3 class="prop-reasons-title">Now for the most important part.</h3>
+            <p class="prop-reasons-sub">Why should you date me?</p>
+            <ul class="prop-reasons-list">
+              <li>I have lots of ideas for soft/hard launching each other.</li>
+              <li>I love you more than anyone, so you'll never have to worry that I'll leave.</li>
+              <li>Our music taste matches.</li>
+              <li>I will never forget any small detail you mention.</li>
+              <li>I will make your edits.</li>
+              <li>I already have a highlight dedicated to you on my ID.</li>
+              <li>Your DOB is already in my bio.</li>
+              <li>I will always be on your side.</li>
+              <li>I will never let you question why we're even together.</li>
+              <li>I will always be proud of you.</li>
+              <li>I will clap soooo hard for you that you'll never notice who didn't.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- ░░ PAGE 7 — THE QUESTION ░░ -->
+        <div class="book-page prop-final-page" data-bk-index="7">
+          <div id="proposal-particles" aria-hidden="true"></div>
+          <div class="prop-final-inner">
+            <h2 class="prop-final-q">So...<br><em>Is this a yes?</em></h2>
+            <p class="prop-final-note">Look at the camera. You are already recording. Just say yes. I really want to post a "she said yes" story.</p>
+            <p class="prop-final-note" style="opacity:0.65;font-size:0.9rem;">Or maybe you need more time. That's okay too. But we're still going on that hangout. And I still reserve the right to flirt with you. So choose carefully.</p>
+
+            <!-- Interactive proposal options -->
+            <div class="proposal-buttons-container">
+              <button class="prop-btn btn-yes" id="prop-btn-yes">YES</button>
+              <div class="evading-btn-wrapper">
+                <button class="prop-btn btn-maybe" id="prop-btn-maybe">I NEED MORE TIME</button>
+              </div>
+              <div class="evading-btn-wrapper">
+                <button class="prop-btn btn-no" id="prop-btn-no">DUDE, FUCK OFF</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress dots -->
+        <div class="bk-dots" id="proposal-dots"></div>
+        <div class="bk-counter" id="proposal-counter">01 / 08</div>
+
+      </div><!-- /book-sticky -->
+    </div><!-- /book-outer -->
+
+    <!-- Custom response cards -->
+    <div class="proposal-response-card" id="prop-response-maybe">
+      <p>Take all the time you need, Ananya. I'm not going anywhere. 🤍</p>
+      <button class="close-response-btn" onclick="document.getElementById('prop-response-maybe').classList.remove('show')">Close</button>
+    </div>
+    <div class="proposal-response-card" id="prop-response-no">
+      <p>Ouch, direct hit! 😂 But hey, I warned you, we're still going on that hangout! 😉</p>
+      <button class="close-response-btn" onclick="document.getElementById('prop-response-no').classList.remove('show')">Close</button>
+    </div>
+
+    <!-- Yes celebration panel -->
+    <div class="proposal-celebration-panel" id="proposal-yes-panel">
+      <div class="celebration-panel-inner">
+        <span class="celebration-heart">❤️</span>
+        <h2 class="celebration-title">I FUCKING LOVE YOU TOO BRO!</h2>
+        <p class="celebration-subtitle">10/10 plan successfully executed! 🎉</p>
+        <p class="celebration-msg">The story starts now. Get ready for that hangout! 🤍</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- BTS Floating Button & Modal -->
+  <button class="bts-btn" id="bts-btn" title="Behind the Scenes">BTS</button>
+
+  <div class="bts-modal" id="bts-modal">
+    <div class="bts-modal-content">
+      <button class="bts-close-btn" id="bts-close-btn">&times;</button>
+      <h2 class="bts-title">Behind the Scenes (BTS) 🎬</h2>
+      <p class="bts-note">
+        Well, I wanna tell you that I worked on this a lot more than 100 hours. So I don't want you to think it's just AI or something. Here are a few examples and inspo of how I worked element-by-element for each effect. Yes, I used AI for research, but I coded it myself! So yes, hope you loved it, thanks for your patience. 🤍
+      </p>
+      <div class="bts-images-grid">
+        <div class="bts-img-wrapper"><img src="b.jpg" alt="Inspo 1"></div>
+        <div class="bts-img-wrapper"><img src="c.jpg" alt="Inspo 2"></div>
+        <div class="bts-img-wrapper"><img src="d.jpg" alt="Inspo 3"></div>
+        <div class="bts-img-wrapper"><img src="e.jpg" alt="Inspo 4"></div>
+        <div class="bts-img-wrapper"><img src="f.jpg" alt="Inspo 5"></div>
+        <div class="bts-img-wrapper"><img src="g.jpg" alt="Inspo 6"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Startup cooking alert popup -->
+  <div class="startup-modal" id="startup-modal">
+    <div class="startup-modal-content">
+      <div class="startup-modal-icon">🍳✨</div>
+      <h2 class="startup-modal-title">Something's <em>Cooking!</em></h2>
+      <p class="startup-modal-text">
+        there is more thing cooking till then surf old one
+      </p>
+      <button class="startup-modal-btn" id="startup-modal-btn">surf old one</button>
+    </div>
+  </div>
+
+  <!-- Script -->
+  <script src="assets/js/main.js"></script>
+</body>
+
+</html>

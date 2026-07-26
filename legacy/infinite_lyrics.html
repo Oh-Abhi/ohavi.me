@@ -1,0 +1,2129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>lines that remind me of you — infinite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg-gradient: radial-gradient(circle at center, #C8102E 0%, #520510 100%); /* Deep Cherry Red canvas background */
+    --text-primary: #1D1D1F;
+    --text-secondary: #6E6E73;
+    --cherry: #C8102E;
+    --glass-bg: rgba(255, 255, 255, 0.88); /* Frosted white Polaroid frame */
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --glass-hover: #FFFFFF;
+  }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: var(--bg-gradient);
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+  }
+
+  /* Noise Overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.025'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 99;
+    opacity: 0.35;
+  }
+
+  /* Fullscreen Viewport */
+  #viewport {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 10;
+  }
+
+  /* Infinite Canvas Container */
+  #canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  /* Outer card wrapper - strictly positioned by JS, no transitions on transform to prevent wrapping glitches */
+  .card {
+    position: absolute;
+    width: 220px; /* compact standard sticky note size */
+    will-change: transform;
+    cursor: pointer;
+    z-index: 10;
+    transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  /* Inner card wrapper - styled as a warm post-it sticky note, NO backdrop blurs to prevent GPU lag */
+  .card-inner {
+    width: 100%;
+    padding: 1rem 1rem 1.1rem;
+    background: #FFF8BE; /* warm sticky note yellow */
+    border: 1px solid rgba(235, 220, 130, 0.5);
+    border-radius: 4px;
+    box-shadow: 
+      2px 6px 15px rgba(0, 0, 0, 0.1),
+      0 1px 3px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    position: relative;
+    transform-style: preserve-3d;
+    will-change: transform;
+    transition: 
+      transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+      border-color 0.4s ease, 
+      box-shadow 0.4s ease,
+      background-color 0.4s ease;
+  }
+
+  /* Tape effect at the top of the sticky note */
+  .card-inner::after {
+    content: '';
+    position: absolute;
+    top: -9px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-1deg);
+    width: 65px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    z-index: 12;
+  }
+
+  /* When mouse is hovering, we disable transitions on transform of .card-inner for real-time mouse follow tilt */
+  .card-inner.hovering {
+    transition: 
+      border-color 0.4s ease, 
+      box-shadow 0.4s ease,
+      background-color 0.4s ease;
+  }
+
+  .card:hover .card-inner {
+    background: #FFF9C9;
+    border-color: rgba(235, 220, 130, 0.8);
+    box-shadow: 
+      4px 12px 25px rgba(0, 0, 0, 0.15),
+      0 0 12px rgba(255, 242, 140, 0.3);
+  }
+
+  /* Card State: Active/Playing with animated shifting background gradient */
+  .card.playing .card-inner {
+    background: #FFFCE5;
+    border-color: var(--cherry);
+    box-shadow: 
+      0 15px 35px rgba(200, 16, 46, 0.15),
+      0 0 20px rgba(255, 242, 140, 0.5);
+  }
+
+  .card-playing-bg {
+    position: absolute;
+    inset: 0;
+    border-radius: 4px;
+    background: linear-gradient(135deg, 
+      rgba(255, 252, 229, 0.95) 0%, 
+      rgba(255, 247, 204, 0.95) 50%, 
+      rgba(255, 250, 215, 0.95) 100%
+    );
+    background-size: 200% 200%;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+    z-index: -2;
+    animation: fluid-shift 8s ease infinite;
+    pointer-events: none;
+  }
+
+  .card.playing .card-playing-bg {
+    opacity: 1;
+  }
+
+  @keyframes fluid-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* Photo/Video nested inside sticky note as taped snapshot */
+  .polaroid-photo {
+    width: 100%;
+    aspect-ratio: 1.1 / 1;
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    padding: 0.3rem 0.3rem 0.9rem; /* Polaroid visual border margins */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    border-radius: 2px;
+    position: relative;
+  }
+
+  .photo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: grayscale(100%); /* B&W by default */
+    transition: filter 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .card:hover .photo-img, .card.playing .photo-img {
+    filter: grayscale(0%); /* Transitions to color on hover/play */
+    transform: scale(1.05);
+  }
+
+  /* Card Glow: Tracking cursor gradient */
+  .card-glow {
+    position: absolute;
+    inset: 0;
+    border-radius: 4px;
+    background: radial-gradient(
+      circle at var(--x, 50%) var(--y, 50%), 
+      rgba(200, 16, 46, 0.05) 0%, 
+      transparent 65%
+    );
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  .card:hover .card-glow, .card.playing .card-glow {
+    opacity: 1;
+  }
+
+  /* Polaroid Size Variants */
+  .card.large {
+    width: 250px;
+  }
+  .card.large .lyric {
+    font-size: 1.25rem;
+  }
+
+  .card.small {
+    width: 190px;
+  }
+  .card.small .lyric {
+    font-size: 0.98rem;
+  }
+
+  /* Sticky Note Accent Styling - Deprecated as all cards are sticky notes */
+  .card.sticky-note {
+    /* Kept for element class check compatibility */
+  }
+
+  /* Lyrics are primary, personal notes are secondary & smaller */
+  .lyric {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 500;
+    font-size: 1.15rem;
+    line-height: 1.4;
+    color: var(--text-primary);
+    text-align: center;
+    letter-spacing: 0.01em;
+    margin-top: 0.2rem;
+    transition: color 0.4s ease, text-shadow 0.4s ease;
+  }
+
+  .lyric em {
+    font-style: italic;
+    color: var(--cherry);
+    font-weight: 600;
+  }
+
+  .lyric .highlight {
+    color: var(--text-primary);
+    font-style: italic;
+    font-weight: 500;
+    border-bottom: 1px dashed rgba(200, 16, 46, 0.4);
+  }
+
+  .card.playing .lyric {
+    color: #000000;
+    font-weight: 600;
+    text-shadow: 0 0 10px rgba(200, 16, 46, 0.15);
+  }
+
+  /* Personal Notes: Smaller and less prominent */
+  .personal-note {
+    font-family: 'Caveat', cursive;
+    font-size: 0.82rem; /* Shrunk down to look elegant and secondary */
+    color: rgba(200, 16, 46, 0.55); /* Less dominant visual color */
+    text-align: center;
+    line-height: 1.25;
+    margin-bottom: 0.1rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    border-top: 1px dashed rgba(0, 0, 0, 0.05);
+    padding-top: 0.5rem;
+    margin-top: 0.2rem;
+  }
+
+  .song-title {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.58rem;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+
+  .song-artist {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.54rem;
+    letter-spacing: 0.04em;
+    color: var(--text-secondary);
+    font-weight: 300;
+    white-space: nowrap;
+  }
+
+  /* Visual music progress bar on card */
+  .card-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(0, 0, 0, 0.02);
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    overflow: hidden;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .card.playing .card-progress {
+    opacity: 1;
+  }
+
+  .card-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--cherry);
+    box-shadow: 0 0 6px var(--cherry);
+    will-change: width;
+  }
+
+  /* Prominent Heart Indicator outline on every card */
+  .listen-indicator {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.7rem;
+    font-size: 2.2rem; /* Substantially increased heart size */
+    color: rgba(200, 16, 46, 0.28); /* Highly visible outline */
+    transition: color 0.4s ease, transform 0.4s ease, filter 0.4s ease;
+    user-select: none;
+    z-index: 10;
+    cursor: pointer;
+  }
+  .card.listened .listen-indicator {
+    color: var(--cherry);
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 10px rgba(200, 16, 46, 0.6));
+  }
+
+  /* Floating Shifting Ambient Glow - White & Red light washes on Red BG */
+  .ambient-glow-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0.4;
+    transition: opacity 2s ease-in-out;
+  }
+
+  .ambient-glow-bg.active {
+    opacity: 0.65;
+  }
+
+  .glow-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(220px);
+    opacity: 0.6;
+    will-change: transform;
+    transition: background-image 2.5s ease-in-out, transform 2.5s ease-in-out;
+  }
+
+  .blob-white {
+    width: 900px;
+    height: 900px;
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 70%);
+    top: -200px;
+    left: -150px;
+    animation: move-blob-1 45s infinite alternate ease-in-out;
+  }
+
+  .blob-cherry {
+    width: 800px;
+    height: 800px;
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0) 70%);
+    bottom: -200px;
+    right: -150px;
+    animation: move-blob-2 50s infinite alternate ease-in-out;
+  }
+
+  .blob-dark {
+    width: 750px;
+    height: 750px;
+    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0) 70%);
+    top: 30%;
+    left: 40%;
+    animation: move-blob-3 55s infinite alternate ease-in-out;
+  }
+
+  @keyframes move-blob-1 {
+    0% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(150px, 120px, 0) scale(1.15); }
+    100% { transform: translate3d(-50px, 250px, 0) scale(0.9); }
+  }
+
+  @keyframes move-blob-2 {
+    0% { transform: translate3d(0, 0, 0) scale(1); }
+    50% { transform: translate3d(-180px, -150px, 0) scale(0.85); }
+    100% { transform: translate3d(-80px, 100px, 0) scale(1.1); }
+  }
+
+  @keyframes move-blob-3 {
+    0% { transform: translate3d(0, 0, 0) scale(0.9); }
+    50% { transform: translate3d(120px, 180px, 0) scale(1.2); }
+    100% { transform: translate3d(-100px, -80px, 0) scale(1); }
+  }
+
+  /* Enter Screen Overlay (Light Mode) */
+  #enter-overlay {
+    position: fixed;
+    inset: 0;
+    background: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 110;
+    transition: opacity 1.5s cubic-bezier(0.25, 1, 0.5, 1), visibility 1.5s;
+  }
+
+  #enter-overlay.fade-out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .enter-content {
+    text-align: center;
+    max-width: 550px;
+    padding: 3rem;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.03);
+    border-radius: 24px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.03);
+  }
+
+  .enter-eyebrow {
+    font-size: 0.65rem;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--cherry);
+  }
+
+  .enter-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
+    line-height: 1.1;
+    color: var(--text-primary);
+  }
+
+  .enter-sub {
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .enter-rule {
+    width: 2.5rem;
+    height: 1px;
+    background: var(--cherry);
+    opacity: 0.6;
+  }
+
+  .enter-btn {
+    margin-top: 1rem;
+    padding: 1rem 2.5rem;
+    background: rgba(200, 16, 46, 0.04);
+    border: 1px solid rgba(200, 16, 46, 0.3);
+    border-radius: 30px;
+    color: var(--text-primary);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: 
+      background-color 0.4s, 
+      border-color 0.4s, 
+      transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+      box-shadow 0.4s;
+  }
+
+  .enter-btn::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(200,16,46,0.15) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .enter-btn:hover {
+    background: rgba(200, 16, 46, 0.08);
+    border-color: var(--cherry);
+    transform: translateY(-2px);
+    box-shadow: 0 0 20px rgba(200, 16, 46, 0.15);
+  }
+
+  .enter-btn:hover::after {
+    opacity: 1;
+  }
+
+  /* Category Navigation Tab Bar (Frosted layout glassmorphism on Red BG) */
+  .category-tabs {
+    position: fixed;
+    top: 2.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 60;
+    display: flex;
+    gap: 0.3rem;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 30px;
+    padding: 0.35rem;
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .tab-btn {
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0.6rem 1.2rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: 
+      background-color 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+      color 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+      box-shadow 0.4s;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+
+  .tab-btn.active {
+    background: #FFFFFF;
+    color: var(--cherry);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .tab-btn:hover:not(.active) {
+    color: #FFFFFF;
+  }
+
+  /* UI HUD Overlay - White text for Red BG */
+  .hud-element {
+    position: fixed;
+    z-index: 50;
+    pointer-events: auto;
+    color: #FFFFFF;
+  }
+
+  header {
+    top: 3.2rem;
+    left: 4vw;
+  }
+
+  .hud-eyebrow {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .hud-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 300;
+    font-style: italic;
+    color: #FFFFFF;
+    margin-top: 0.2rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Exploration Help text */
+  .explore-guide {
+    position: fixed;
+    bottom: 3.2rem;
+    left: 4vw;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .guide-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    box-shadow: 0 0 8px #FFFFFF;
+    animation: pulse 1.5s infinite alternate ease-in-out;
+  }
+
+  footer {
+    bottom: 3.2rem;
+    right: 4vw;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  /* Custom Song/Lyrics Creator Drawer Panel */
+  .add-song-toggle {
+    position: fixed;
+    bottom: 2.2rem;
+    right: 2.2rem;
+    z-index: 60;
+    width: 3.2rem;
+    height: 3.2rem;
+    border-radius: 50%;
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    color: var(--cherry);
+    font-size: 1.8rem;
+    font-weight: 300;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: 
+      transform 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+      box-shadow 0.4s,
+      background-color 0.4s;
+    outline: none;
+  }
+
+  .add-song-toggle:hover {
+    transform: scale(1.08) rotate(90deg);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    background-color: var(--bg-color);
+  }
+
+  .creator-drawer {
+    position: fixed;
+    top: 0;
+    right: -380px;
+    width: 360px;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.9);
+    border-left: 1px solid rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    z-index: 100;
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
+    transition: right 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    display: flex;
+    flex-direction: column;
+    padding: 2.5rem 1.8rem;
+  }
+
+  .creator-drawer.open {
+    right: 0;
+  }
+
+  .drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .drawer-header h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--text-primary);
+  }
+
+  .drawer-close {
+    background: transparent;
+    border: none;
+    font-size: 1.8rem;
+    font-weight: 300;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color 0.3s;
+    outline: none;
+  }
+  .drawer-close:hover {
+    color: var(--cherry);
+  }
+
+  .drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 0.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 1rem;
+  }
+  .form-group.half {
+    flex: 1;
+  }
+
+  .form-group label {
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  .form-group input, .form-group textarea, .form-group select {
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    padding: 0.6rem 0.7rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.3s, background-color 0.3s;
+  }
+
+  .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+    border-color: var(--cherry);
+    background: #FFFFFF;
+  }
+
+  .input-tip {
+    font-size: 0.58rem;
+    color: var(--text-secondary);
+    margin-top: 0.2rem;
+    line-height: 1.4;
+  }
+
+  /* List of existing lyrics/notes in drawer */
+  .existing-songs-container {
+    margin-top: 1.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    padding-top: 1.2rem;
+  }
+
+  .existing-songs-container h3 {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    margin-bottom: 0.8rem;
+  }
+
+  .existing-songs-list {
+    max-height: 180px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding-right: 0.2rem;
+  }
+
+  .existing-song-item {
+    font-size: 0.72rem;
+    color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.015);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    padding: 0.5rem 0.7rem;
+    border-radius: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .existing-song-item span {
+    font-weight: 500;
+  }
+  .existing-song-item em {
+    font-size: 0.65rem;
+    color: var(--text-secondary);
+    font-style: normal;
+  }
+
+  .submit-btn {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.8rem;
+    background: var(--cherry);
+    border: none;
+    border-radius: 8px;
+    color: #FFFFFF;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    transition: 
+      background-color 0.3s, 
+      transform 0.3s cubic-bezier(0.25, 1, 0.5, 1), 
+      box-shadow 0.3s;
+    box-shadow: 0 4px 15px rgba(200, 16, 46, 0.2);
+    outline: none;
+  }
+
+  .submit-btn:hover {
+    background: #B00E25;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(200, 16, 46, 0.3);
+  }
+
+  /* Spotify Modal Dialog (Pop up) */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(8, 8, 8, 0.4);
+    backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.5s;
+  }
+
+  .modal-overlay.open {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .modal-content {
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 24px;
+    width: 90%;
+    max-width: 440px;
+    padding: 2.2rem;
+    text-align: center;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+    position: relative;
+    transform: translateY(40px);
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .modal-overlay.open .modal-content {
+    transform: translateY(0);
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1.2rem;
+    background: transparent;
+    border: none;
+    font-size: 1.6rem;
+    font-weight: 300;
+    color: var(--text-secondary);
+    cursor: pointer;
+    outline: none;
+    transition: color 0.3s;
+  }
+  .modal-close:hover {
+    color: var(--cherry);
+  }
+
+  .modal-emoji {
+    font-size: 2.8rem;
+    display: inline-block;
+    margin-bottom: 0.8rem;
+    animation: float-emoji 2.5s infinite ease-in-out;
+  }
+
+  @keyframes float-emoji {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(5deg); }
+  }
+
+  .modal-content h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.65rem;
+    font-weight: 400;
+    font-style: italic;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .modal-content p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 1.6rem;
+  }
+
+  .playlist-links {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+
+  .playlist-btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.9rem 1.2rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #FFFFFF;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .playlist-btn:hover {
+    transform: translateY(-2px);
+  }
+
+  .spotify-yearning {
+    background: linear-gradient(135deg, #FF4B68, #D81F3E);
+    box-shadow: 0 4px 15px rgba(255, 75, 104, 0.25);
+  }
+  .spotify-with {
+    background: linear-gradient(135deg, #FF7B54, #D83C12);
+    box-shadow: 0 4px 15px rgba(255, 123, 84, 0.25);
+  }
+  .spotify-why {
+    background: linear-gradient(135deg, #8A307F, #601257);
+    box-shadow: 0 4px 15px rgba(138, 48, 127, 0.25);
+  }
+  .spotify-promise {
+    background: linear-gradient(135deg, #1DB954, #191414);
+    box-shadow: 0 4px 15px rgba(29, 185, 84, 0.25);
+  }
+
+  .join-badge {
+    background: rgba(255, 255, 255, 0.18);
+    padding: 0.25rem 0.7rem;
+    border-radius: 10px;
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    backdrop-filter: blur(5px);
+  }
+</style>
+</head>
+<body>
+
+  <!-- Ambient Glow Blobs -->
+  <div class="ambient-glow-bg" id="ambient-glow-bg">
+    <div class="glow-blob blob-white"></div>
+    <div class="glow-blob blob-cherry"></div>
+    <div class="glow-blob blob-dark"></div>
+  </div>
+
+  <!-- Custom Subtle Cursor Follower Glow -->
+  <div id="cursor-glow"></div>
+
+  <!-- Category Selection Tab Bar (4 parts now) -->
+  <div class="category-tabs" id="category-tabs">
+    <button class="tab-btn active" data-category="all">All</button>
+    <button class="tab-btn" data-category="yearning">Yearning for You</button>
+    <button class="tab-btn" data-category="with">With You</button>
+    <button class="tab-btn" data-category="why">Why You</button>
+    <button class="tab-btn" data-category="promise">What I Promise</button>
+  </div>
+
+  <!-- Enter Overlay (Unlocks Web Audio Context) -->
+  <div id="enter-overlay">
+    <div class="enter-content">
+      <span class="enter-eyebrow">a private archive</span>
+      <h1 class="enter-title">lines that remind<br>me of you</h1>
+      <div class="enter-rule"></div>
+      <p class="enter-sub">every song is a letter I didn't know how to send.<br>turn on your volume before starting.</p>
+      <button class="enter-btn" id="enter-btn">enter the space</button>
+    </div>
+  </div>
+
+  <!-- Custom Song Creator Drawer -->
+  <button class="add-song-toggle" id="add-song-toggle" aria-label="Add custom song">
+    <span>+</span>
+  </button>
+  <div class="creator-drawer" id="creator-drawer">
+    <div class="drawer-header">
+      <h2>add custom song</h2>
+      <button class="drawer-close" id="drawer-close">&times;</button>
+    </div>
+    <div class="drawer-body">
+      <form id="creator-form">
+        <div class="form-group">
+          <label for="song-title-input">Song Title</label>
+          <input type="text" id="song-title-input" required placeholder="e.g. Kabira">
+        </div>
+        <div class="form-group">
+          <label for="song-artist-input">Artist Name</label>
+          <input type="text" id="song-artist-input" required placeholder="e.g. Arijit Singh">
+        </div>
+        <div class="form-group">
+          <label for="song-lyrics-input">Lyrics (HTML)</label>
+          <textarea id="song-lyrics-input" required rows="3" placeholder="use &lt;br&gt; for lines, &lt;em&gt; for italics"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="song-note-input">Personal Note</label>
+          <input type="text" id="song-note-input" required placeholder="e.g. This line makes me smile.">
+        </div>
+        <div class="form-group">
+          <label for="song-ytid-input">YouTube Video ID</label>
+          <input type="text" id="song-ytid-input" required placeholder="e.g. j2WWrupMBAE">
+          <span class="input-tip">Tip: Copy the letters after "v=" in a YouTube URL.</span>
+        </div>
+        <div class="form-row">
+          <div class="form-group half">
+            <label for="song-start-input">Start (sec)</label>
+            <input type="number" id="song-start-input" required value="0" min="0">
+          </div>
+          <div class="form-group half">
+            <label for="song-end-input">End (sec)</label>
+            <input type="number" id="song-end-input" required value="20" min="1">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="song-media-input">Photo / Video URL (Optional)</label>
+          <input type="text" id="song-media-input" placeholder="e.g. LOVE/assets/images/her/custom.jpg">
+          <span class="input-tip">Leave empty to randomly assign one of her photos/videos.</span>
+        </div>
+        <div class="form-group">
+          <label for="song-cat-input">Category</label>
+          <select id="song-cat-input" required>
+            <option value="yearning">Yearning for You</option>
+            <option value="with" selected>With You</option>
+            <option value="why">Why You</option>
+            <option value="promise">What I Promise</option>
+          </select>
+        </div>
+        <button type="submit" class="submit-btn">Add Card</button>
+      </form>
+      
+      <!-- Existing Songs Registry -->
+      <div class="existing-songs-container">
+        <h3>Current Playlist (${SONGS_DATA.length})</h3>
+        <div class="existing-songs-list" id="existing-songs-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Spotify Playlist Popup Modal Dialog -->
+  <div id="spotify-modal" class="modal-overlay">
+    <div class="modal-content">
+      <button class="modal-close" id="modal-close-btn">&times;</button>
+      <span class="modal-emoji">🎵</span>
+      <h2>Wanna listen to all this?</h2>
+      <p>I have made Spotify playlists specially for you. Choose a mood and join the vibe.</p>
+      <div class="playlist-links">
+        <a href="https://open.spotify.com/playlist/37i9dQZF1DX1s9knjPjn1S" target="_blank" class="playlist-btn spotify-yearning">
+          <span>Yearning for You</span>
+          <span class="join-badge">Join</span>
+        </a>
+        <a href="https://open.spotify.com/playlist/37i9dQZF1DX4p52tq36tUj" target="_blank" class="playlist-btn spotify-with">
+          <span>With You</span>
+          <span class="join-badge">Join</span>
+        </a>
+        <a href="https://open.spotify.com/playlist/37i9dQZF1DX3YSRsnsu3UI" target="_blank" class="playlist-btn spotify-why">
+          <span>Why You</span>
+          <span class="join-badge">Join</span>
+        </a>
+        <a href="https://open.spotify.com/playlist/37i9dQZF1DX10zKjJ27ZOb" target="_blank" class="playlist-btn spotify-promise">
+          <span>What I Promise</span>
+          <span class="join-badge">Join</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- HUD Interface Elements -->
+  <header class="hud-element">
+    <span class="hud-eyebrow">interactive field</span>
+    <h1 class="hud-title">letters in code.</h1>
+  </header>
+
+  <div class="explore-guide hud-element">
+    <div class="guide-dot"></div>
+    <span id="guide-text">move cursor to corners to explore · hover cards to hear them</span>
+  </div>
+
+  <footer class="hud-element">
+    <span>for you, always</span>
+  </footer>
+
+  <!-- Viewport window -->
+  <div id="viewport">
+    <div id="canvas"></div>
+  </div>
+
+  <!-- Hidden YT Player -->
+  <div id="yt-player-container">
+    <div id="yt-player"></div>
+  </div>
+
+  <script>
+    // 1. Song Lyrics Data with YouTube IDs & Timestamps (Categorized with Custom Notes)
+    const SONGS_DATA = [
+      {
+        title: "Tum Se Hi",
+        artist: "Mohit Chauhan",
+        lyric: "tum se hi din hota hai,<br><em>tum se hi raat hoti hai</em>",
+        note: "My days start with you and my nights are filled with your thoughts.",
+        youtubeId: "V7S3_Z4k4L8",
+        start: 59,
+        end: 74,
+        size: "large",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.15)",
+        category: "yearning"
+      },
+      {
+        title: "Kuch Toh Hua Hai",
+        artist: "Sonu Nigam",
+        lyric: "<em>kuch toh hua hai, kuch ho raha hai</em>",
+        note: "Something has definitely changed since we met, and I love it.",
+        youtubeId: "b-y1AeaA_pU",
+        start: 85,
+        end: 97,
+        size: "small",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.12)",
+        category: "with",
+        sticky: true // yellow sticky note!
+      },
+      {
+        title: "Samjhawan",
+        artist: "Arijit Singh",
+        lyric: "main tenu samjhawan ki,<br>na tere bina lagda ji",
+        note: "I really don't know what to do without you. It's that simple.",
+        youtubeId: "H2fC4r67hy0",
+        start: 48,
+        end: 63,
+        size: "normal",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.12)",
+        category: "yearning"
+      },
+      {
+        title: "Tujhe Bhula Diya",
+        artist: "Mohit Chauhan · Shilpa Rao",
+        lyric: "tujhe bhula diya,<br><em>toh kya khoya kya paya</em><br>tujhe yaad kiya",
+        note: "Even when I try to distract myself, everything leads back to you.",
+        youtubeId: "co4T4UvN-F0",
+        start: 95,
+        end: 111,
+        size: "normal",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.15)",
+        category: "yearning"
+      },
+      {
+        title: "Teri Aankhon Mein",
+        artist: "Darshan Raval",
+        lyric: "<span class=\"highlight\">teri aankhon mein</span> kuch aisa hai<br><em>jo bhar aata hai</em>",
+        note: "Your eyes have this soft magic that makes me look away, nervous.",
+        youtubeId: "nE1cT9Q3b_M",
+        start: 80,
+        end: 98,
+        size: "large",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.15)",
+        category: "yearning"
+      },
+      {
+        title: "Dil Dhadakne Do",
+        artist: "Farhan Akhtar",
+        lyric: "<em>dil dhadakne do</em>",
+        note: "Let's just let go of everything and enjoy being together.",
+        youtubeId: "1_Z4T2G_t-w",
+        start: 65,
+        end: 78,
+        size: "small",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.1)",
+        category: "with",
+        sticky: true // yellow sticky note!
+      },
+      {
+        title: "Aaj Jaane Ki Zid Na Karo",
+        artist: "Farida Khanum",
+        lyric: "aaj jaane ki<br>zid na karo,<br><em>yun hi pehlu mein baithe raho</em>",
+        note: "I never want our conversations to end. Just stay a bit longer?",
+        youtubeId: "8t3r-mU4mH0",
+        start: 105,
+        end: 129,
+        size: "normal",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.15)",
+        category: "why"
+      },
+      {
+        title: "Laila",
+        artist: "Atif Aslam",
+        lyric: "o meri laila,<br>tu aaja zara<br><em>bin tere ye zindagi adhoori lagti hai</em>",
+        note: "My life genuinely feels incomplete when you are not around.",
+        youtubeId: "r_Npe7k1Uqg",
+        start: 65,
+        end: 80,
+        size: "normal",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.12)",
+        category: "yearning"
+      },
+      {
+        title: "Ek Ladki Ko Dekha",
+        artist: "Kumar Sanu",
+        lyric: "<em>ek ladki ko dekha toh aisa laga,</em><br>jaise khilta gulab,<br>jaise shayar ka khwaab",
+        note: "Seeing you just brightens up my entire world instantly.",
+        youtubeId: "Diw8Jv3b7aQ",
+        start: 50,
+        end: 69,
+        size: "large",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.15)",
+        category: "with"
+      },
+      {
+        title: "Channa Mereya",
+        artist: "Arijit Singh",
+        lyric: "<em>channa mereya, channa mereya</em>",
+        note: "Even in the emotional lines, it's always you that I find.",
+        youtubeId: "z-diRlyLGzo",
+        start: 64,
+        end: 77,
+        size: "small",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.12)",
+        category: "yearning"
+      },
+      {
+        title: "Tu Jo Mila",
+        artist: "K.K.",
+        lyric: "tu jo mila,<br><em>toh lagta hai ke sab mil gaya</em><br>kuch bhi nahin tha mujhe,<br>tere bina teri tarah",
+        note: "Meeting you was the best thing that could've happened to me.",
+        youtubeId: "8y42W9s6T8U",
+        start: 65,
+        end: 82,
+        size: "normal",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.12)",
+        category: "with"
+      },
+      {
+        title: "Sochta Hoon",
+        artist: "Atif Aslam",
+        lyric: "sochta hoon ke woh<br><em>kya sochti hogi,</em><br>mere baare mein",
+        note: "I often wonder what runs through your mind when you think of me.",
+        youtubeId: "Gf7Q1S-3c1w",
+        start: 52,
+        end: 70,
+        size: "normal",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.12)",
+        category: "yearning"
+      },
+      {
+        title: "Bekhayali",
+        artist: "Sachet Tandon",
+        lyric: "<em>bekhayali mein bhi tera</em><br>khayal aata hai",
+        note: "You are in my mind even in my quietest, most random moments.",
+        youtubeId: "vdK2n30vW_g",
+        start: 58,
+        end: 73,
+        size: "large",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.15)",
+        category: "yearning"
+      },
+      {
+        title: "Agar Tum Saath Ho",
+        artist: "Arijit Singh · Alka Yagnik",
+        lyric: "agar tum saath ho,<br><em>agar tum saath ho</em>",
+        note: "As long as you are with me, everything else feels easy.",
+        youtubeId: "sK7riqg2mr4",
+        start: 60,
+        end: 77,
+        size: "normal",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.12)",
+        category: "with"
+      },
+      {
+        title: "Khairiyat",
+        artist: "Arijit Singh",
+        lyric: "<em>khairiyat poochh lo</em>,<br>kabhi to",
+        note: "I always hope you are doing well, wherever you are.",
+        youtubeId: "hoNb6HuNmUY",
+        start: 55,
+        end: 71,
+        size: "small",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.1)",
+        category: "with",
+        sticky: true // yellow sticky note!
+      },
+      {
+        title: "Jo Bhi Main",
+        artist: "Rabbi Shergill · Mohit Chauhan",
+        lyric: "jo bhi main kehna chahoon,<br><em>barbaad kare alfaaz mere</em>",
+        note: "Sometimes words fail to express how much you actually mean to me.",
+        youtubeId: "hP4iS9s4qH0",
+        start: 105,
+        end: 121,
+        size: "normal",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.15)",
+        category: "why"
+      },
+      {
+        title: "Tere Bina",
+        artist: "Lata Mangeshkar · R.D. Burman",
+        lyric: "tere bina zindagi se koi<br><em>shikwa toh nahin,</em><br>shikwa nahin, gila nahin",
+        note: "No complaints, no regrets. Just a simple wish to be with you.",
+        youtubeId: "kL6L3QG3b_M",
+        start: 75,
+        end: 93,
+        size: "large",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.15)",
+        category: "why"
+      },
+      {
+        title: "Pehli Nazar Mein",
+        artist: "Atif Aslam",
+        lyric: "<em>pehli nazar mein</em><br>kaisa jaadu kar diya,<br>tera ban baitha hoon",
+        note: "From the very first moment, you captured my attention completely.",
+        youtubeId: "B3eYvO1wG6w",
+        start: 60,
+        end: 77,
+        size: "normal",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.15)",
+        category: "with"
+      },
+      // Promise Section Songs
+      {
+        title: "Iktara",
+        artist: "Kavita Seth",
+        lyric: "o re manwa tu to bawra hai,<br><em>tu hi jaane tu kya sochta hai</em>",
+        note: "I promise to always listen to your quiet thoughts.",
+        youtubeId: "H2fC4r67hy0",
+        start: 30,
+        end: 50,
+        size: "normal",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.12)",
+        category: "promise"
+      },
+      {
+        title: "Tum Mile",
+        artist: "Neeraj Shridhar",
+        lyric: "tum mile toh mil gaya sab mujhe,<br><em>ab na koi tamanna hai meri</em>",
+        note: "I promise to be there for you, through everything.",
+        youtubeId: "8y42W9s6T8U",
+        start: 35,
+        end: 55,
+        size: "normal",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.12)",
+        category: "promise"
+      },
+      {
+        title: "Main Agar Kahoon",
+        artist: "Sonu Nigam",
+        lyric: "main agar kahoon tumsa haseen,<br><em>kainat mein nahi hai kahin</em>",
+        note: "I promise to remind you how special you are, every single day.",
+        youtubeId: "mt9xg0powEs",
+        start: 140,
+        end: 160,
+        size: "large",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.15)",
+        category: "promise"
+      }
+    ];
+
+    // 2. Photos & Videos Lists mapped from her/ and memories/ assets folders (excluding New folder)
+    const PHOTOS_LIST = [
+      "LOVE/assets/images/her/1781014822480.png",
+      "LOVE/assets/images/her/1781014830273.png",
+      "LOVE/assets/images/her/1781014842250.png",
+      "LOVE/assets/images/her/1781014861379.png",
+      "LOVE/assets/images/her/1781014866056.png",
+      "LOVE/assets/images/her/ChatGPT Image Jun 11, 2026, 01_20_07 PM.png",
+      "LOVE/assets/images/her/ChatGPT Image Jun 11, 2026, 01_20_10 PM.png",
+      "LOVE/assets/images/her/IMG-20260610-WA0005.jpg",
+      "LOVE/assets/images/her/IMG-20260610-WA0006.jpg",
+      "LOVE/assets/images/her/IMG-20260610-WA0007.jpg",
+      "LOVE/assets/images/her/IMG-20260610-WA0008.jpg",
+      "LOVE/assets/images/her/IMG-20260610-WA0009.jpg",
+      "LOVE/assets/images/her/IMG-20260610-WA0010.jpg",
+      "LOVE/assets/images/her/IMG-20260610-WA0011.jpg",
+      "LOVE/assets/images/her/IMG-20260610-WA0012.jpg",
+      "LOVE/assets/images/her/IMG-20260610-WA0013.jpg",
+      "LOVE/assets/images/her/IMG-20260610-WA0014.jpg",
+      "LOVE/assets/images/her/IMG-20260610-WA0015.jpg",
+      "LOVE/assets/images/her/IMG_20251014_223629_171.jpg",
+      "LOVE/assets/images/her/IMG_20260112_232608_746.jpg",
+      "LOVE/assets/images/her/IMG_20260112_232614_708.jpg",
+      "LOVE/assets/images/her/IMG_20260112_232616_719.jpg",
+      "LOVE/assets/images/her/IMG_20260112_232759_510.jpg",
+      "LOVE/assets/images/her/IMG_20260112_232801_437.jpg",
+      "LOVE/assets/images/her/IMG_20260607_224640_645.jpg",
+      "LOVE/assets/images/her/IMG_20260607_224818_140.jpg",
+      "LOVE/assets/images/her/IMG_20260607_225253_267.jpg",
+      "LOVE/assets/images/her/IMG_20260607_225513_386.jpg",
+      "LOVE/assets/images/her/IMG_20260610_225715.jpg",
+      "LOVE/assets/images/her/IMG_20260610_225728.jpg",
+      "LOVE/assets/images/her/IMG_20260610_225840.jpg",
+      "LOVE/assets/images/her/IMG_20260610_225850.jpg",
+      "LOVE/assets/images/her/IMG_20260610_230008.png",
+      "LOVE/assets/images/her/Screenshot_20260610_003345.jpg",
+      "LOVE/assets/images/her/Screenshot_2026_0112_220908.png",
+      "LOVE/assets/images/her/Screenshot_2026_0112_220930.png",
+      "LOVE/assets/images/her/Screenshot_2026_0524_004252.png",
+      "LOVE/assets/images/her/Screenshot_2026_0524_004258.png",
+      "LOVE/assets/images/her/Screenshot_2026_0524_004305.png",
+      "LOVE/assets/images/her/TempDragFile_20260610_225404.png",
+      "LOVE/assets/images/her/TempDragFile_20260610_225424.png",
+      "LOVE/assets/images/her/TempDragFile_20260610_225443.png",
+      "LOVE/assets/images/her/file_00000000c7e4720799004e37df31c513.png"
+    ];
+
+    const VIDEOS_LIST = [
+      "LOVE/assets/videos/memories/IMG_5283.MOV.mp4",
+      "LOVE/assets/videos/memories/VID_20260108_121716_200.mp4",
+      "LOVE/assets/videos/memories/VID_20260112_095620_383.mp4",
+      "LOVE/assets/videos/memories/VID_20260112_095804_517.mp4",
+      "LOVE/assets/videos/memories/VID_20260112_095810_864.mp4",
+      "LOVE/assets/videos/memories/VID_20260508_015707_435.mp4",
+      "LOVE/assets/videos/memories/VID_20260607_101605_560.mp4",
+      "LOVE/assets/videos/memories/VID_20260607_101607_870.mp4",
+      "LOVE/assets/videos/memories/VID_20260607_101614_293.mp4",
+      "LOVE/assets/videos/memories/VID_20260607_101619_989.mp4",
+      "LOVE/assets/videos/memories/VID_20260607_101628_780.mp4",
+      "LOVE/assets/videos/memories/VID_20260607_102222_359.mp4",
+      "LOVE/assets/videos/memories/VID_20260607_102503_563.mp4",
+      "LOVE/assets/videos/memories/VID_20260607_102519_589.mp4",
+      "LOVE/assets/videos/memories/VID_20260607_103059_950.mp4",
+      "LOVE/assets/videos/memories/VID_20260607_103105_735.mp4",
+      "LOVE/assets/videos/memories/VID_20260608_080351_261.mp4",
+      "LOVE/assets/videos/memories/us/VID-20250801-WA0012.mp4",
+      "LOVE/assets/videos/memories/us/VID-20251013-WA0019.mp4",
+      "LOVE/assets/videos/memories/us/VID-20260324-WA0020.mp4",
+      "LOVE/assets/videos/memories/us/VID-20260324-WA0021.mp4",
+      "LOVE/assets/videos/memories/us/VID-20260324-WA0025.mp4",
+      "LOVE/assets/videos/memories/us/VID-20260324-WA0027.mp4"
+    ];
+
+    // 3. State & Variables Setup
+    const canvas = document.getElementById('canvas');
+    const ambientBg = document.getElementById('ambient-glow-bg');
+    const enterOverlay = document.getElementById('enter-overlay');
+    const enterBtn = document.getElementById('enter-btn');
+    const cursorGlow = document.getElementById('cursor-glow');
+    
+    // Creator Drawer
+    const creatorDrawer = document.getElementById('creator-drawer');
+    const addSongToggle = document.getElementById('add-song-toggle');
+    const drawerClose = document.getElementById('drawer-close');
+    const creatorForm = document.getElementById('creator-form');
+    const existingSongsList = document.getElementById('existing-songs-list');
+
+    // Spotify Popup Modal
+    const spotifyModal = document.getElementById('spotify-modal');
+    const modalCloseBtn = document.getElementById('modal-close-btn');
+
+    let vw = window.innerWidth;
+    let vh = window.innerHeight;
+    
+    // Safety dimensions: packed close coordinates (Pinterest visual board density)
+    let boxW = Math.max(2000, vw + 600);
+    let boxH = Math.max(1500, vh + 400);
+    const Buffer = 350; // tight safety buffer for card sizes of max 250px // larger safety buffer ensures elements wrap fully offscreen
+
+    let camX = boxW / 2 - vw / 2; // Center initial view
+    let camY = boxH / 2 - vh / 2;
+    let targetCamX = camX;
+    let targetCamY = camY;
+
+    // Drifting & Panning speeds
+    let driftSpeedX = 0.35;
+    let driftSpeedY = 0.12;
+    let mouseSpeedX = 0;
+    let mouseSpeedY = 0;
+    
+    // Zoom state
+    let zoom = 1.0;
+    let targetZoom = 1.0;
+    
+    // Mouse coords for tracking edge scrolling
+    let mouseX = vw / 2;
+    let mouseY = vh / 2;
+    
+    let activeCard = null;
+    let currentCategory = 'all';
+    
+    // Track Listened Cards Set
+    const listenedSongs = new Set();
+    let hasShownModal = false;
+
+    // 4. Audio & YouTube Integration
+    let player = null;
+    let playerReady = false;
+    let volumeInterval = null;
+    let progressInterval = null;
+    
+    // Load YT Player API
+    window.onYouTubeIframeAPIReady = function() {
+      player = new YT.Player('yt-player', {
+        height: '100',
+        width: '100',
+        videoId: '',
+        playerVars: {
+          autoplay: 0,
+          controls: 0,
+          disablekb: 1,
+          fs: 0,
+          modestbranding: 1,
+          rel: 0,
+          showinfo: 0,
+          iv_load_policy: 3
+        },
+        events: {
+          onReady: () => {
+            playerReady = true;
+          }
+        }
+      });
+    };
+
+    // 5. Generate Cards & Pinterest Masonry Layout (Collision Prevention)
+    const cards = [];
+    const numCols = 6;
+    let colWidth = boxW / numCols;
+    let columnHeights = Array(numCols).fill(40); // 40px top padding
+
+    function getCardWidth(song) {
+      return song.size === 'large' ? 250 : (song.size === 'small' ? 190 : 220);
+    }
+
+    function estimateCardHeight(song) {
+      const w = getCardWidth(song);
+      const photoH = w / 1.1; // aspect-ratio is 1.1/1
+      const text = song.lyric || '';
+      const lines = (text.match(/<br/gi) || []).length + 1;
+      const lyricH = lines * 22 + 15;
+      const noteH = 45;
+      const metaH = 50;
+      return photoH + lyricH + noteH + metaH;
+    }
+
+    function getMinColumnIndex(heights) {
+      let minIdx = 0;
+      let minVal = heights[0];
+      for (let i = 1; i < heights.length; i++) {
+        if (heights[i] < minVal) {
+          minVal = heights[i];
+          minIdx = i;
+        }
+      }
+      return minIdx;
+    }
+
+    function initLayout() {
+      // Re-calculate col width based on actual active boxW
+      colWidth = boxW / numCols;
+      columnHeights = Array(numCols).fill(40);
+
+      // Distribute default songs across columns using masonry packing
+      SONGS_DATA.forEach((song, idx) => {
+        const colIdx = getMinColumnIndex(columnHeights);
+        
+        // Center card horizontally inside column slot, plus minor organic wiggle
+        const cWidth = getCardWidth(song);
+        const posX = colIdx * colWidth + (colWidth - cWidth) / 2 + (Math.random() - 0.5) * 15;
+        const posY = columnHeights[colIdx];
+        
+        const cardH = estimateCardHeight(song);
+
+        // Randomly select whether card gets a photo or a video of her
+        const isVideo = Math.random() < 0.35 && !song.sticky;
+        const mediaPath = isVideo 
+          ? VIDEOS_LIST[idx % VIDEOS_LIST.length] 
+          : PHOTOS_LIST[idx % PHOTOS_LIST.length];
+
+        createCardElement(song, posX, posY, mediaPath, isVideo, cardH);
+
+        // Update column height with card height + 35px vertical padding
+        columnHeights[colIdx] = posY + cardH + 35;
+      });
+
+      // Load user added custom songs from local storage
+      loadCustomSongs();
+
+      // Adjust boxH dynamically based on maximum column height + bottom offset
+      const maxColH = Math.max(...columnHeights);
+      boxH = Math.max(1500, maxColH + 120);
+      
+      // Populate lists in creator drawer
+      renderSongsRegistry();
+    }
+
+    // Helper to create and position card in DOM
+    function createCardElement(song, posX, posY, mediaPath, isVideo, cardH) {
+      const cardEl = document.createElement('div');
+      cardEl.className = `card ${song.size}`;
+      if (song.sticky) cardEl.classList.add('sticky-note');
+
+      // Setup photo vs video html elements
+      const mediaHtml = isVideo 
+        ? `<video src="${mediaPath}" autoplay muted loop playsinline class="photo-img"></video>`
+        : `<img src="${mediaPath}" alt="" class="photo-img">`;
+
+      cardEl.innerHTML = `
+        <div class="card-inner">
+          <div class="card-playing-bg"></div>
+          <span class="listen-indicator">♡</span>
+          <div class="card-glow"></div>
+          
+          <div class="polaroid-photo">
+            ${mediaHtml}
+          </div>
+          
+          <p class="lyric">${song.lyric}</p>
+          <p class="personal-note">"${song.note}"</p>
+          
+          <div class="card-meta">
+            <span class="song-title">${song.title}</span>
+            <span class="song-artist">${song.artist}</span>
+          </div>
+          <div class="card-progress">
+            <div class="card-progress-fill"></div>
+          </div>
+        </div>
+      `;
+      
+      canvas.appendChild(cardEl);
+
+      const cardObject = {
+        ...song,
+        x: posX,
+        y: posY,
+        height: cardH,
+        element: cardEl,
+        progressFill: cardEl.querySelector('.card-progress-fill'),
+        indicator: cardEl.querySelector('.listen-indicator')
+      };
+
+      bindCardEvents(cardObject);
+      cards.push(cardObject);
+
+      // Hide card if it does not match current filtered category
+      const inner = cardEl.querySelector('.card-inner');
+      const baseRotation = song.sticky ? 'rotate(2deg)' : '';
+      if (currentCategory !== 'all' && song.category !== currentCategory) {
+        cardEl.style.opacity = '0';
+        cardEl.style.pointerEvents = 'none';
+        if (inner) {
+          inner.style.transform = `scale3d(0, 0, 0) ${baseRotation}`;
+        }
+      }
+    }
+
+    // 6. Card Interactions (3D tilt, hover-to-play)
+    function bindCardEvents(card) {
+      const el = card.element;
+      const inner = el.querySelector('.card-inner');
+
+      // 3D Tilt rotation
+      el.addEventListener('mousemove', (e) => {
+        if (currentCategory !== 'all' && card.category !== currentCategory) return;
+        
+        inner.classList.add('hovering');
+        
+        const rect = el.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const xc = rect.width / 2;
+        const yc = rect.height / 2;
+        
+        const rotateX = ((yc - y) / yc) * 8.5; // tilt angle max 8.5deg
+        const rotateY = ((x - xc) / xc) * 8.5;
+        
+        const baseRotation = card.sticky ? 'rotate(2deg)' : '';
+        inner.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05) ${baseRotation}`;
+        
+        // Update glow positions
+        const px = (x / rect.width) * 100;
+        const py = (y / rect.height) * 100;
+        el.style.setProperty('--x', `${px}%`);
+        el.style.setProperty('--y', `${py}%`);
+      });
+
+      // Smooth reset transition when mouse leaves
+      el.addEventListener('mouseleave', () => {
+        inner.classList.remove('hovering');
+        const baseRotation = card.sticky ? 'rotate(2deg)' : '';
+        inner.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1) ${baseRotation}`;
+      });
+
+      // Play on hover
+      el.addEventListener('mouseenter', () => {
+        if (currentCategory !== 'all' && card.category !== currentCategory) return;
+        playSong(card);
+      });
+
+      el.addEventListener('mouseleave', () => {
+        if (currentCategory !== 'all' && card.category !== currentCategory) return;
+        stopSong(card);
+      });
+    }
+
+    function playSong(card) {
+      if (activeCard === card) return;
+      
+      // Stop previously playing card
+      if (activeCard) {
+        stopSong(activeCard);
+      }
+
+      activeCard = card;
+      card.element.classList.add('playing');
+      card.element.classList.add('listened'); // Mark as listened
+      if (card.indicator) {
+        card.indicator.textContent = '♥'; // Toggle to filled heart
+      }
+      
+      // Track Listened Sets
+      markAsListened(card);
+      
+      // Visuals: Active glow colors
+      ambientBg.classList.add('active');
+
+      if (player && playerReady) {
+        // Load & Play YT audio segment instantly
+        player.loadVideoById({
+          videoId: card.youtubeId,
+          startSeconds: card.start
+        });
+        player.setVolume(100);
+        player.playVideo();
+
+        // Progress bar updates
+        clearInterval(progressInterval);
+        progressInterval = setInterval(() => {
+          const t = player.getCurrentTime();
+          const duration = card.end - card.start;
+          const progress = ((t - card.start) / duration) * 100;
+          card.progressFill.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+          
+          // Loop video clip when it hits endSecond boundary
+          if (t >= card.end) {
+            player.seekTo(card.start);
+          }
+        }, 100);
+      }
+    }
+
+    function stopSong(card) {
+      if (activeCard !== card) return;
+      
+      card.element.classList.remove('playing');
+      ambientBg.classList.remove('active');
+      activeCard = null;
+
+      if (player && playerReady) {
+        player.pauseVideo();
+        card.progressFill.style.width = '0%';
+        clearInterval(progressInterval);
+      } else {
+        card.progressFill.style.width = '0%';
+        clearInterval(progressInterval);
+      }
+    }
+
+    // 7. Camera Animation & Edge Panning Loop
+    function updateCamera() {
+      // 1. Zoom calculation (if cursor is near corners, zoom out to reveal scale)
+      const isCornerX = mouseX < 200 || mouseX > vw - 200;
+      const isCornerY = mouseY < 200 || mouseY > vh - 200;
+      
+      if (isCornerX && isCornerY) {
+        targetZoom = 0.55; // scale down to reveal entire Pinterest board
+      } else {
+        targetZoom = 1.05;  // slightly zoomed in for detailed sticky notes reading
+      }
+      
+      zoom += (targetZoom - zoom) * 0.08;
+
+      // 2. Camera movement update based on drifting + edge panning velocity
+      targetCamX += driftSpeedX + mouseSpeedX;
+      targetCamY += driftSpeedY + mouseSpeedY;
+
+      // Interpolated dampening movement
+      camX += (targetCamX - camX) * 0.09;
+      camY += (targetCamY - camY) * 0.09;
+
+      // Apply transform with scaling
+      canvas.style.transform = `scale(${zoom}) translate3d(${-camX}px, ${-camY}px, 0)`;
+
+      // 3. Dynamic Wrapping logic for cards (seamless 2D looping field)
+      cards.forEach(card => {
+        let rx = card.x - camX;
+        let ry = card.y - camY;
+
+        // Wrap coordinates to dynamic bounding box [-Buffer, boxW - Buffer]
+        let wrappedX = ((rx + Buffer) % boxW + boxW) % boxW - Buffer;
+        let wrappedY = ((ry + Buffer) % boxH + boxH) % boxH - Buffer;
+
+        // Absolute rendering coordinates on canvas plane
+        const finalX = wrappedX + camX;
+        const finalY = wrappedY + camY;
+
+        // Apply outer positioning instantly
+        card.element.style.transform = `translate3d(${finalX}px, ${finalY}px, 0)`;
+
+        const inner = card.element.querySelector('.card-inner');
+        const baseRotation = card.sticky ? 'rotate(2deg)' : '';
+
+        // Only scale card down to 0 if it is filtered out
+        if (currentCategory !== 'all' && card.category !== currentCategory) {
+          card.element.style.opacity = '0';
+          card.element.style.pointerEvents = 'none';
+          if (inner) {
+            inner.style.transform = `scale3d(0, 0, 0) ${baseRotation}`;
+          }
+        } else {
+          card.element.style.opacity = '1';
+          card.element.style.pointerEvents = 'auto';
+          // Only force default scale if we are NOT currently hovering/tilting the inner card
+          if (inner && !inner.classList.contains('hovering') && activeCard !== card) {
+            inner.style.transform = `scale3d(1, 1, 1) ${baseRotation}`;
+          }
+        }
+      });
+
+      requestAnimationFrame(updateCamera);
+    }
+
+    // 8. Dynamic Category Filtering Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentCategory = btn.dataset.category;
+        
+        cards.forEach(card => {
+          if (currentCategory === 'all' || card.category === currentCategory) {
+            card.element.style.opacity = '1';
+            card.element.style.pointerEvents = 'auto';
+          } else {
+            card.element.style.opacity = '0';
+            card.element.style.pointerEvents = 'none';
+            if (activeCard === card) {
+              stopSong(card);
+            }
+          }
+        });
+      });
+    });
+
+    // 9. Custom Song Creator logic (Form & Persistence)
+    addSongToggle.addEventListener('click', () => {
+      creatorDrawer.classList.add('open');
+    });
+
+    drawerClose.addEventListener('click', () => {
+      creatorDrawer.classList.remove('open');
+    });
+
+    creatorForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById('song-title-input').value;
+      const artist = document.getElementById('song-artist-input').value;
+      const lyric = document.getElementById('song-lyrics-input').value;
+      const note = document.getElementById('song-note-input').value;
+      const youtubeId = document.getElementById('song-ytid-input').value;
+      const start = parseInt(document.getElementById('song-start-input').value);
+      const end = parseInt(document.getElementById('song-end-input').value);
+      const category = document.getElementById('song-cat-input').value;
+      const customMedia = document.getElementById('song-media-input').value.trim();
+
+      let isVideo = false;
+      let mediaPath = '';
+
+      if (customMedia) {
+        mediaPath = customMedia;
+        isVideo = /\.(mp4|mov|webm|avi|m4v)$/i.test(customMedia);
+      } else {
+        isVideo = Math.random() < 0.35;
+        mediaPath = isVideo 
+          ? VIDEOS_LIST[Math.floor(Math.random() * VIDEOS_LIST.length)] 
+          : PHOTOS_LIST[Math.floor(Math.random() * PHOTOS_LIST.length)];
+      }
+
+      const newSong = {
+        title: title,
+        artist: artist,
+        lyric: lyric,
+        note: note,
+        youtubeId: youtubeId,
+        start: start,
+        end: end,
+        category: category,
+        size: "normal",
+        accent: false,
+        glow: "rgba(255, 255, 255, 0.12)",
+        isCustom: true,
+        mediaPath: mediaPath,
+        isVideo: isVideo
+      };
+
+      const colIdx = getMinColumnIndex(columnHeights);
+      const cWidth = getCardWidth(newSong);
+      const posX = colIdx * colWidth + (colWidth - cWidth) / 2 + (Math.random() - 0.5) * 15;
+      const posY = columnHeights[colIdx];
+      
+      const cardH = estimateCardHeight(newSong);
+
+      createCardElement(newSong, posX, posY, mediaPath, isVideo, cardH);
+
+      // Update column height
+      columnHeights[colIdx] = posY + cardH + 35;
+      
+      // Expand boxH dynamically
+      const maxColH = Math.max(...columnHeights);
+      boxH = Math.max(boxH, maxColH + 120);
+
+      // Save to localStorage
+      const saved = JSON.parse(localStorage.getItem('custom_lyrics_songs') || '[]');
+      saved.push(newSong);
+      localStorage.setItem('custom_lyrics_songs', JSON.stringify(saved));
+
+      // Re-populate songs list in drawer
+      renderSongsRegistry();
+
+      // Reset & close drawer
+      creatorForm.reset();
+      creatorDrawer.classList.remove('open');
+    });
+
+    function loadCustomSongs() {
+      const saved = JSON.parse(localStorage.getItem('custom_lyrics_songs') || '[]');
+      saved.forEach((song, idx) => {
+        const colIdx = getMinColumnIndex(columnHeights);
+        const cWidth = getCardWidth(song);
+        const posX = colIdx * colWidth + (colWidth - cWidth) / 2 + (Math.random() - 0.5) * 15;
+        const posY = columnHeights[colIdx];
+        
+        const cardH = estimateCardHeight(song);
+        
+        let mediaPath = song.mediaPath;
+        let isVideo = song.isVideo;
+
+        if (!mediaPath) {
+          isVideo = Math.random() < 0.35;
+          mediaPath = isVideo 
+            ? VIDEOS_LIST[idx % VIDEOS_LIST.length] 
+            : PHOTOS_LIST[idx % PHOTOS_LIST.length];
+        }
+
+        createCardElement(song, posX, posY, mediaPath, isVideo, cardH);
+        
+        columnHeights[colIdx] = posY + cardH + 35;
+      });
+    }
+
+    // Populate Current Playlist Section inside creator drawer
+    function renderSongsRegistry() {
+      existingSongsList.innerHTML = '';
+      
+      const customSongs = JSON.parse(localStorage.getItem('custom_lyrics_songs') || '[]');
+      const allSongs = [...SONGS_DATA, ...customSongs];
+      
+      allSongs.forEach((song, idx) => {
+        const item = document.createElement('div');
+        item.className = 'existing-song-item';
+        item.style.display = 'flex';
+        item.style.flexDirection = 'column';
+        item.style.gap = '0.2rem';
+        item.style.alignItems = 'flex-start';
+        item.style.padding = '0.6rem 0.8rem';
+        
+        item.innerHTML = `
+          <div style="display: flex; justify-content: space-between; width: 100%; font-size: 0.75rem;">
+            <span style="font-weight: 600; color: var(--text-primary);">${idx + 1}. ${song.title}</span>
+            <span style="font-size: 0.65rem; color: var(--text-secondary);">${song.artist}</span>
+          </div>
+          <div style="font-size: 0.65rem; color: var(--cherry); font-style: italic; line-height: 1.3;">
+            "${song.lyric.replace(/<br\s*\/?>/gi, ' ')}"
+          </div>
+          <div style="font-size: 0.6rem; color: var(--text-secondary); line-height: 1.2;">
+            Note: ${song.note}
+          </div>
+        `;
+        existingSongsList.appendChild(item);
+      });
+    }
+
+    // 10. Listened Tracking & Spotify popup modal trigger (90% threshold)
+    function markAsListened(card) {
+      if (!listenedSongs.has(card.title)) {
+        listenedSongs.add(card.title);
+
+        const guideText = document.getElementById('guide-text');
+        if (guideText) {
+          guideText.textContent = `move cursor to corners to explore · hover cards to hear them (${listenedSongs.size}/${SONGS_DATA.length} heard)`;
+        }
+        
+        const threshold = Math.ceil(SONGS_DATA.length * 0.9);
+        if (listenedSongs.size >= threshold && !hasShownModal) {
+          setTimeout(() => {
+            showSpotifyModal();
+          }, 800); // short delay for visual transition
+        }
+      }
+    }
+
+    function showSpotifyModal() {
+      spotifyModal.classList.add('open');
+      hasShownModal = true;
+    }
+
+    modalCloseBtn.addEventListener('click', () => {
+      spotifyModal.classList.remove('open');
+    });
+
+    // Close modal on background click
+    spotifyModal.addEventListener('click', (e) => {
+      if (e.target === spotifyModal) {
+        spotifyModal.classList.remove('open');
+      }
+    });
+
+    // 11. Window and Mouse Event handlers
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      // Cursor follower position styling
+      cursorGlow.style.left = `${mouseX}px`;
+      cursorGlow.style.top = `${mouseY}px`;
+
+      // Edge Panning Velocity calculations
+      const threshold = 180; // trigger range from viewport borders
+      const maxSpeed = 10.0; // maximum scrolling speed
+
+      if (mouseX < threshold) {
+        mouseSpeedX = -((threshold - mouseX) / threshold) * maxSpeed;
+      } else if (mouseX > vw - threshold) {
+        mouseSpeedX = ((mouseX - (vw - threshold)) / threshold) * maxSpeed;
+      } else {
+        mouseSpeedX = 0;
+      }
+
+      if (mouseY < threshold) {
+        mouseSpeedY = -((threshold - mouseY) / threshold) * maxSpeed;
+      } else if (mouseY > vh - threshold) {
+        mouseSpeedY = ((mouseY - (vh - threshold)) / threshold) * maxSpeed;
+      } else {
+        mouseSpeedY = 0;
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      vw = window.innerWidth;
+      vh = window.innerHeight;
+      boxW = Math.max(2000, vw + 600);
+      boxH = Math.max(1500, vh + 400);
+    });
+
+    // Enter Button trigger (hides loader & starts loops)
+    enterBtn.addEventListener('click', () => {
+      enterOverlay.classList.add('fade-out');
+      
+      // Play a silent trigger to initialize audio for iOS/browsers
+      if (player && playerReady) {
+        player.playVideo();
+        player.pauseVideo();
+      }
+    });
+
+    // 12. Initialization
+    initLayout();
+    updateCamera();
+  </script>
+</body>
+</html>

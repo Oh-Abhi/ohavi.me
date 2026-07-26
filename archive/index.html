@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>home — for her</title>
+  <meta name="description" content="A personal home hub to navigate all collections and soundtracks." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=20" />
+</head>
+<body>
+  <!-- Background Overlays -->
+  <div class="noise"></div>
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+  <div class="glow g3"></div>
+
+  <!-- Minimal Topbar -->
+  <header class="topbar">
+    <div class="tb">
+      <a href="index.html" class="brand-wrap" style="text-decoration:none;">
+        <span class="brand-dot"></span>
+        <span class="brand-name">for her</span>
+      </a>
+
+      <nav class="tbr tbr-nav">
+        <a href="index.html" class="nav-tab active">🏠 Home</a>
+        <a href="music.html" class="nav-tab">🎵 Soundtracks</a>
+        <a href="movies.html" class="nav-tab">🎬 Movies</a>
+        <a href="never-said.html" class="nav-tab">📖 Chapter IV</a>
+        <a href="eleven.html" class="nav-tab">✨ 11:11</a>
+        <a href="/legacy" target="_blank" class="nav-tab nav-tab-legacy">💌 1301 Archive</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Page Main -->
+  <main class="page">
+    <section class="hub-hero">
+      <div class="hub-badge">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        </svg>
+        Personal Collections & Archives
+      </div>
+      <h1 class="hub-title">Every story, song & moment — saved for you.</h1>
+      <p class="hub-subtitle">Welcome home. Choose any chapter or collection below to explore soundtrack libraries, movie watchlists, personal notes, timeline screenshots, and memories.</p>
+    </section>
+
+    <div class="hub-grid">
+      <!-- CARD 1: MUSIC SITE -->
+      <a href="music.html" class="hub-card">
+        <div class="hub-card-bg-gradient" style="background:radial-gradient(circle at top right, rgba(233,169,144,0.18), transparent 70%);"></div>
+        <div class="hub-card-top">
+          <div class="hub-icon-box">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+            </svg>
+          </div>
+          <h2 class="hub-card-title">Soundtracks</h2>
+          <p class="hub-card-desc">Your custom music player featuring YouTube streaming, playlists, synced lyrics, card sizing controls, and stacked playlists.</p>
+        </div>
+        <div class="hub-card-bottom">
+          <span class="hub-link-text">Open Music Library</span>
+          <div class="hub-arrow-circle">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </a>
+
+      <!-- CARD 2: MOVIE ROOM -->
+      <a href="movies.html" class="hub-card">
+        <div class="hub-card-bg-gradient" style="background:radial-gradient(circle at top right, rgba(233,169,144,0.22), transparent 70%);"></div>
+        <div class="hub-card-top">
+          <div class="hub-icon-box" style="background:rgba(233,169,144,0.2);color:var(--warm);">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/>
+            </svg>
+          </div>
+          <h2 class="hub-card-title">Movie Room</h2>
+          <p class="hub-card-desc">Cinema watchlist, date-night recommendations, movie collections, star ratings, trailer theater, and memories.</p>
+        </div>
+        <div class="hub-card-bottom">
+          <span class="hub-link-text">Explore Movie Room</span>
+          <div class="hub-arrow-circle">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </a>
+
+      <!-- CARD 3: NEVER SAID -->
+      <a href="never-said.html" class="hub-card">
+        <div class="hub-card-bg-gradient" style="background:radial-gradient(circle at top right, rgba(196,184,232,0.18), transparent 70%);"></div>
+        <div class="hub-card-top">
+          <div class="hub-icon-box" style="background:rgba(196,184,232,0.15);color:#8B7BB8;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+            </svg>
+          </div>
+          <h2 class="hub-card-title">Things Never Said</h2>
+          <p class="hub-card-desc">Chapter stories, bucket list items, private notes, glassmorphic reply cards, and quiet thoughts written from the heart.</p>
+        </div>
+        <div class="hub-card-bottom">
+          <span class="hub-link-text">Read Chapters</span>
+          <div class="hub-arrow-circle">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </a>
+
+      <!-- CARD 4: 11:11 TIMELINE -->
+      <a href="eleven.html" class="hub-card">
+        <div class="hub-card-bg-gradient" style="background:radial-gradient(circle at top right, rgba(250,224,167,0.22), transparent 70%);"></div>
+        <div class="hub-card-top">
+          <div class="hub-icon-box" style="background:rgba(250,224,167,0.25);color:#B38C34;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <h2 class="hub-card-title">11:11 Timeline</h2>
+          <p class="hub-card-desc">A curated timeline collection of 11:11 screenshot moments, memory lightbox previews, and time stamps.</p>
+        </div>
+        <div class="hub-card-bottom">
+          <span class="hub-link-text">Explore 11:11 Moments</span>
+          <div class="hub-arrow-circle">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </a>
+
+      <!-- CARD 5: LEGACY ARCHIVE -->
+      <a href="legacy/index.html" target="_blank" class="hub-card">
+        <div class="hub-card-bg-gradient" style="background:radial-gradient(circle at top right, rgba(233,169,144,0.12), transparent 70%);"></div>
+        <div class="hub-card-top">
+          <div class="hub-icon-box" style="background:rgba(0,0,0,0.05);color:var(--text);">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/>
+            </svg>
+          </div>
+          <h2 class="hub-card-title">Awwnanya (Legacy)</h2>
+          <p class="hub-card-desc">The original legacy project archive, photos, polaroid stack interactive components, and historic book edition.</p>
+        </div>
+        <div class="hub-card-bottom">
+          <span class="hub-link-text">Visit Legacy Archive</span>
+          <div class="hub-arrow-circle">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- Separator & Footer -->
+    <div class="div-sep"></div>
+    <footer style="text-align:center;color:var(--muted);font-size:11px;letter-spacing:0.08em;text-transform:uppercase;padding-bottom:60px;">
+      for her — home hub
+    </footer>
+  <script>
+    document.querySelectorAll('.hub-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width;
+        const py = (e.clientY - r.top) / r.height;
+        card.style.transform = `perspective(1000px) rotateX(${(0.5 - py) * 10}deg) rotateY(${(px - 0.5) * 10}deg) translateY(-6px) scale(1.02)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+# System files
+.DS_Store
+Thumbs.db
+
+# Gemini / IDE files
+.gemini/
+.vscode/
+.idea/
+
+# Local server config
+node_modules/
+.vercel
+dist/
+out/
+.env
+*.log
+

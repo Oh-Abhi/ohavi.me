@@ -1,0 +1,132 @@
+{
+  "movies": [
+    {
+      "id": "movie-obsession-2023",
+      "title": "Obsession",
+      "director": "Richard Armitage & Charlie Murphy",
+      "year": "2023",
+      "genre": "Drama / Thriller",
+      "rating": 5,
+      "poster": "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?q=80&w=800&auto=format&fit=crop",
+      "overview": "An intense personal favorite — remembered from the moment we watched it together.",
+      "previewUrl": "https://www.youtube.com/watch?v=kYJzXv6QkYg",
+      "youtubeId": "kYJzXv6QkYg",
+      "favorite": true,
+      "watched": true,
+      "recommendedBy": "Our Special Memory",
+      "review": "It was never about the movie itself; it was about going with you.",
+      "addedAt": 1700000000000,
+      "playlists": ["Date Night Classics", "Watched Together"]
+    },
+    {
+      "id": "movie-lala-land-2016",
+      "title": "La La Land",
+      "director": "Damien Chazelle",
+      "year": "2016",
+      "genre": "Romance / Musical",
+      "rating": 5,
+      "poster": "https://is1-ssl.mzstatic.com/image/thumb/Video128/v4/74/4b/32/744b3211-137a-4286-63e8-5b4d9600bd5b/mza_8432356262916962061.jpg/600x600bb.jpg",
+      "overview": "While navigating their careers in Los Angeles, a pianist and an actress fall in love while attempting to reconcile their aspirations for the future.",
+      "previewUrl": "https://www.youtube.com/watch?v=0pdqf4P9MB8",
+      "youtubeId": "0pdqf4P9MB8",
+      "favorite": true,
+      "watched": true,
+      "recommendedBy": "Her Favorite",
+      "review": "Here's to the fools who dream. Magical score and colors.",
+      "addedAt": 1700000001000,
+      "playlists": ["Date Night Classics", "Comfort & Cozy Films"]
+    },
+    {
+      "id": "movie-about-time-2013",
+      "title": "About Time",
+      "director": "Richard Curtis",
+      "year": "2013",
+      "genre": "Romance / Fantasy",
+      "rating": 5,
+      "poster": "https://is1-ssl.mzstatic.com/image/thumb/Video113/v4/f4/10/d4/f410d486-13d8-57f4-d2e4-98448f2191dd/mza_543997193309503463.jpg/600x600bb.jpg",
+      "overview": "At the age of 21, Tim discovers he can travel in time and change what happens and has happened in his own life. His decision to make his world a better place by getting a girlfriend turns out not to be as easy as you might think.",
+      "previewUrl": "https://www.youtube.com/watch?v=7OIFWr2PlZg",
+      "youtubeId": "7OIFWr2PlZg",
+      "favorite": true,
+      "watched": true,
+      "recommendedBy": "Watch Together",
+      "review": "We're all travelling through time together, every day of our lives.",
+      "addedAt": 1700000002000,
+      "playlists": ["Date Night Classics", "Comfort & Cozy Films"]
+    },
+    {
+      "id": "movie-before-sunrise-1995",
+      "title": "Before Sunrise",
+      "director": "Richard Linklater",
+      "year": "1995",
+      "genre": "Romance / Drama",
+      "rating": 5,
+      "poster": "https://is1-ssl.mzstatic.com/image/thumb/Video114/v4/d5/43/33/d543336d-ce3b-9a84-9382-774f76ca0968/pr_source.lsr/600x600bb.jpg",
+      "overview": "A young man and woman meet on a train in Europe, and wind up spending one evening together in Vienna. Unfortunately, both know that this will probably be their only night together.",
+      "previewUrl": "https://www.youtube.com/watch?v=6MUcuqbujzc",
+      "youtubeId": "6MUcuqbujzc",
+      "favorite": true,
+      "watched": false,
+      "recommendedBy": "Late Night Watch",
+      "review": "A conversation that never ends.",
+      "addedAt": 1700000003000,
+      "playlists": ["Date Night Classics"]
+    },
+    {
+      "id": "movie-spirited-away-2001",
+      "title": "Spirited Away",
+      "director": "Hayao Miyazaki",
+      "year": "2001",
+      "genre": "Animation / Fantasy",
+      "rating": 5,
+      "poster": "https://is1-ssl.mzstatic.com/image/thumb/Video113/v4/80/7e/61/807e61a4-9271-6cbb-0a71-6c2e4f0d2c0b/mza_1079549301908906669.jpg/600x600bb.jpg",
+      "overview": "During her family's move to the suburbs, a sullen 10-year-old girl wanders into a world ruled by gods, witches, and spirits, and where humans are changed into beasts.",
+      "previewUrl": "https://www.youtube.com/watch?v=ByXuk9QqQkk",
+      "youtubeId": "ByXuk9QqQkk",
+      "favorite": false,
+      "watched": true,
+      "recommendedBy": "Cozy Night",
+      "review": "Pure magic and nostalgia.",
+      "addedAt": 1700000004000,
+      "playlists": ["Comfort & Cozy Films"]
+    },
+    {
+      "id": "movie-interstellar-2014",
+      "title": "Interstellar",
+      "director": "Christopher Nolan",
+      "year": "2014",
+      "genre": "Sci-Fi / Adventure",
+      "rating": 5,
+      "poster": "https://is1-ssl.mzstatic.com/image/thumb/Video114/v4/6f/1d/1d/6f1d1d88-410a-360d-6e46-5b4d8ecb16e7/mza_11674488814526315570.jpg/600x600bb.jpg",
+      "overview": "When Earth becomes uninhabitable in the future, a farmer and ex-NASA pilot, Joseph Cooper, is tasked to pilot a spacecraft, along with a team of researchers, to find a new planet for humans.",
+      "previewUrl": "https://www.youtube.com/watch?v=zSWdZVtXT7E",
+      "youtubeId": "zSWdZVtXT7E",
+      "favorite": true,
+      "watched": true,
+      "recommendedBy": "Must Watch",
+      "review": "Love is the one thing that transcends time and space.",
+      "addedAt": 1700000005000,
+      "playlists": ["Watched Together"]
+    }
+  ],
+  "playlists": [
+    {
+      "id": "pl-date-night",
+      "name": "Date Night Classics",
+      "description": "Romantic, unforgettable movies to watch side-by-side.",
+      "movieIds": ["movie-obsession-2023", "movie-lala-land-2016", "movie-about-time-2013", "movie-before-sunrise-1995"]
+    },
+    {
+      "id": "pl-comfort-cozy",
+      "name": "Comfort & Cozy Films",
+      "description": "Warm, peaceful movies for quiet rainy evenings.",
+      "movieIds": ["movie-lala-land-2016", "movie-about-time-2013", "movie-spirited-away-2001"]
+    },
+    {
+      "id": "pl-watched-together",
+      "name": "Watched Together",
+      "description": "Films we've already experienced together.",
+      "movieIds": ["movie-obsession-2023", "movie-interstellar-2014"]
+    }
+  ]
+}

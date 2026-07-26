@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>11:11 — Silent Wishes</title>
+  <meta name="description" content="Every 11:11 screenshot saved for the same person." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=21" />
+  <style>
+    /* 11:11 Premium Warm Light Glassmorphism Enhancements */
+    body {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .stars-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.55;
+    }
+
+    .hero-1111 {
+      text-align: center;
+      padding: 70px 20px 40px;
+      position: relative;
+      z-index: 2;
+      animation: fadeInHero 1.2s var(--ease) forwards;
+    }
+
+    @keyframes fadeInHero {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 30px;
+      background: rgba(233, 169, 144, 0.18);
+      border: 1px solid rgba(233, 169, 144, 0.35);
+      color: #D67A5A;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .hero-title-1111 {
+      font-family: var(--serif);
+      font-size: clamp(54px, 8vw, 96px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text);
+      margin-bottom: 16px;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    }
+
+    .hero-subtitle-1111 {
+      font-size: clamp(15px, 2vw, 18px);
+      color: var(--muted);
+      max-width: 580px;
+      margin: 0 auto 28px;
+      line-height: 1.6;
+      font-weight: 400;
+    }
+
+    .wishes-counter-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 24px;
+      border-radius: 40px;
+      background: var(--card);
+      border: 1px solid var(--border-solid);
+      backdrop-filter: blur(20px);
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 500;
+      box-shadow: var(--sh);
+    }
+
+    .wishes-count-num {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--warm);
+    }
+
+    /* Scroll Reveal Text */
+    .scroll-text-banner {
+      text-align: center;
+      margin: 60px 0 40px;
+      font-family: var(--serif);
+      font-size: 24px;
+      font-style: italic;
+      color: var(--text);
+      letter-spacing: 0.04em;
+      opacity: 0;
+      transform: translateY(15px);
+      transition: all 0.8s var(--ease);
+    }
+    .scroll-text-banner.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* 5 Per Row Grid Distribution (5, 5, 5, 2) */
+    .timeline-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-top: 28px;
+    }
+
+    @media (max-width: 1200px) { .timeline-grid { grid-template-columns: repeat(4, 1fr); } }
+    @media (max-width: 900px) { .timeline-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 600px) { .timeline-grid { grid-template-columns: repeat(2, 1fr); } }
+
+    .shot-card {
+      background: var(--card);
+      border: 1px solid var(--border-solid);
+      border-radius: 18px;
+      padding: 10px;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow: var(--sh);
+      cursor: pointer;
+      transition: all 0.35s var(--ease);
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+
+
+    .shot-card.appear {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .shot-card:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow: var(--sh2);
+      border-color: var(--accent);
+    }
+
+    .shot-preview-wrap {
+      width: 100%;
+      border-radius: 16px;
+      overflow: hidden;
+      background: rgba(0,0,0,0.03);
+      position: relative;
+    }
+
+    .shot-preview-wrap img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+      border-radius: 16px;
+      transition: transform 0.6s var(--ease);
+    }
+
+
+
+    .shot-card:hover .shot-preview-wrap img {
+      transform: scale(1.04);
+    }
+
+    .shot-meta {
+      margin-top: 14px;
+      padding: 4px 6px;
+    }
+
+    .shot-date-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .shot-date {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .shot-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: #D67A5A;
+      padding: 4px 10px;
+      border-radius: 14px;
+      background: rgba(233, 169, 144, 0.18);
+      border: 1px solid rgba(233, 169, 144, 0.3);
+    }
+
+    .shot-note {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+      font-weight: 400;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Fullscreen Lightbox Modal */
+    .lightbox-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(247, 245, 242, 0.88);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.4s var(--ease);
+      padding: 30px;
+    }
+
+    .lightbox-modal.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .lightbox-content {
+      max-width: 900px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: minmax(280px, 380px) 1fr;
+      gap: 32px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--border-solid);
+      border-radius: 36px;
+      padding: 28px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.12);
+      position: relative;
+      transform: scale(0.92);
+      transition: transform 0.4s var(--spring);
+    }
+
+    .lightbox-modal.open .lightbox-content {
+      transform: scale(1);
+    }
+
+    @media (max-width: 768px) {
+      .lightbox-content { grid-template-columns: 1fr; max-height: 85vh; overflow-y: auto; }
+    }
+
+    .lightbox-img-wrap {
+      width: 100%;
+      aspect-ratio: 9/16;
+      max-height: 520px;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #EAE6DF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--sh);
+    }
+
+    .lightbox-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+
+    .lightbox-info {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .lightbox-clock-big {
+      font-family: var(--serif);
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .lightbox-date-txt {
+      font-size: 15px;
+      color: #D67A5A;
+      font-weight: 700;
+    }
+
+    .lightbox-note-txt {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.7;
+      font-weight: 400;
+      background: var(--bg);
+      padding: 18px;
+      border-radius: 18px;
+      border: 1px solid var(--border-solid);
+    }
+
+    .lightbox-close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--border-solid);
+      background: var(--bg);
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .lightbox-close-btn:hover {
+      color: var(--text);
+      background: #fff;
+      transform: scale(1.05);
+    }
+
+    /* Purpose Modal */
+    .purpose-modal-card {
+      max-width: 520px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--border-solid);
+      border-radius: 32px;
+      padding: 36px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.12);
+      backdrop-filter: blur(30px);
+      text-align: center;
+      color: var(--text);
+    }
+
+    .purpose-icon {
+      font-size: 36px;
+      margin-bottom: 14px;
+    }
+
+    .purpose-title {
+      font-family: var(--serif);
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    .purpose-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-weight: 400;
+      margin-bottom: 24px;
+    }
+
+    .purpose-btn {
+      height: 44px;
+      padding: 0 28px;
+      border-radius: 30px;
+      border: none;
+      background: var(--text);
+      color: var(--bg);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s var(--ease);
+    }
+
+    .purpose-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--sh2);
+    }
+  </style>
+</head>
+<body>
+  <!-- Ambient Floating Stars Canvas -->
+  <canvas id="starsCanvas" class="stars-canvas"></canvas>
+
+  <!-- Background Overlays -->
+  <div class="noise"></div>
+  <div class="glow g1"></div>
+  <div class="glow g2"></div>
+
+  <!-- Minimal Topbar -->
+  <header class="topbar">
+    <div class="tb">
+      <a href="index.html" class="brand-wrap" style="text-decoration:none;">
+        <span class="brand-dot" style="background:#E9A990;"></span>
+        <span class="brand-name">11:11 Collection</span>
+      </a>
+      
+      <nav class="tbr tbr-nav">
+        <button class="chip" id="openPurposeBtn" title="About this page" style="height:32px;padding:0 12px;font-size:11px;">
+          ℹ️ Page Info
+        </button>
+        <a href="index.html" class="nav-tab">🏠 Home</a>
+        <a href="music.html" class="nav-tab">🎵 Soundtracks</a>
+        <a href="movies.html" class="nav-tab">🎬 Movies</a>
+        <a href="never-said.html" class="nav-tab">📖 Chapter IV</a>
+        <a href="eleven.html" class="nav-tab active">✨ 11:11</a>
+        <a href="/legacy" target="_blank" class="nav-tab nav-tab-legacy">💌 1301 Archive</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Page Main Content -->
+  <main class="page">
+    <!-- Hero Section -->
+    <section class="hero-1111">
+      <div class="hero-tag">Intimate Moments</div>
+      <h1 class="hero-title-1111">11:11</h1>
+      <p class="hero-subtitle-1111">
+        "Some people collect photographs. I collected moments when time stood still."
+      </p>
+
+      <div class="wishes-counter-badge">
+        <span>Total Wishes Recorded:</span>
+        <span class="wishes-count-num" id="totalWishesCount">0</span>
+      </div>
+    </section>
+
+    <!-- Scroll Reveal Text Banner -->
+    <div class="scroll-text-banner" id="scrollTextBanner">
+      "111 wishes. One person."
+    </div>
+
+    <!-- Timeline Grid Section -->
+    <section class="timeline-grid" id="timelineGrid"></section>
+
+    <!-- Emotional Bottom Footer Quote -->
+    <div class="div-sep" style="margin-top:80px;"></div>
+    <footer style="text-align:center;color:var(--muted);font-size:14px;font-family:var(--serif);font-style:italic;padding-bottom:120px;">
+      "Maybe one day these won't just be wishes."
+    </footer>
+  </main>
+
+  <!-- Fullscreen Lightbox Modal -->
+  <div class="lightbox-modal" id="lightboxModal">
+    <div class="lightbox-content">
+      <button class="lightbox-close-btn" id="closeLightboxBtn">✕</button>
+      <div class="lightbox-img-wrap" id="lightboxImgWrap"></div>
+      <div class="lightbox-info">
+        <div class="lightbox-clock-big" id="lightboxClock">11:11 PM</div>
+        <div class="lightbox-date-txt" id="lightboxDate">November 11, 2024</div>
+        <div class="lightbox-note-txt" id="lightboxNote">
+          A moment frozen in time — a quiet wish made silently for you.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- First-Time Welcome & Purpose Modal -->
+  <div class="mov" id="purposeModal">
+    <div class="purpose-modal-card">
+      <div class="purpose-icon">✨</div>
+      <h2 class="purpose-title">About 11:11</h2>
+      <p class="purpose-desc">
+        Every screenshot in this archive was captured at exactly 11:11. Not because of superstition, but because every single time the clock struck 11:11, my thoughts silently turned to the exact same person.
+      </p>
+      <button class="purpose-btn" id="closePurposeModalBtn">
+        Explore Collection
+      </button>
+    </div>
+  </div>
+
+  <script src="eleven.js"></script>
+</body>
+</html>

@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>awwnanya.</title>
+  <meta name="description" content="A private archive. Made with intent.">
+
+  <!-- Fonts (shared) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Inter:wght@200;300;400;500&family=Caveat:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@300;400;500&family=Alex+Brush&family=Dancing+Script:wght@400;700&family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+
+  <!-- Old site CSS -->
+  <link rel="stylesheet" href="assets/css/style.css" id="old-css" disabled>
+  <!-- New site CSS -->
+  <link rel="stylesheet" href="assets/css/book.css" id="new-css" disabled>
+
+  <style>
+    /* ══════════════════════════════════════
+       GATEWAY LAYER — Version Selector
+       (shows first, hides when world loads)
+    ══════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red:    #C8102E;
+      --dark:   #0D0B09;
+      --cream:  #F5F0E8;
+      --paper:  #FAF7F2;
+      --dust:   #7A7268;
+      --ink:    #1C1915;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--dark);
+      font-family: 'Cormorant Garamond', serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Film grain overlay — always on */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.72' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9998; mix-blend-mode: overlay;
+    }
+
+    /* ── GATEWAY WRAPPER ── */
+    #gateway {
+      position: fixed; inset: 0;
+      background: var(--dark);
+      z-index: 9990;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1);
+    }
+    #gateway.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.97);
+    }
+
+    /* Ghost images in gateway background */
+    .gw-ghost {
+      position: absolute;
+      object-fit: cover;
+      filter: grayscale(1) contrast(1.1);
+      opacity: 0;
+      animation: ghostIn 1s ease forwards;
+    }
+    @keyframes ghostIn {
+      from { opacity: 0; transform: translateY(12px) rotate(var(--rot)); }
+      to   { opacity: var(--op); transform: translateY(0) rotate(var(--rot)); }
+    }
+    .gw-tape {
+      position: absolute;
+      background: rgba(200,16,46,0.55);
+      border-radius: 1px;
+      pointer-events: none;
+      opacity: 0;
+      animation: ghostIn 0.8s ease forwards;
+    }
+
+    /* ── POPUP CARD ── */
+    #gateway-popup {
+      position: relative;
+      width: min(540px, 93vw);
+      opacity: 0;
+      animation: popIn 0.7s cubic-bezier(0.16,1,0.3,1) 0.25s forwards;
+    }
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(16px) scale(0.94); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .gw-tape-top {
+      position: absolute;
+      top: -11px; left: 50%;
+      transform: translateX(-50%) rotate(-1.5deg);
+      width: 82px; height: 22px;
+      background: rgba(255,255,255,0.65);
+      border: 1px solid rgba(0,0,0,0.06);
+      z-index: 5;
+    }
+
+    .gw-paper {
+      background: var(--paper);
+      border: 1px solid rgba(0,0,0,0.07);
+      box-shadow: 0 40px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.02);
+      position: relative;
+      overflow: hidden;
+    }
+    .gw-stripe { width: 100%; height: 4px; background: linear-gradient(90deg, var(--red), #8A0519); }
+
+    .gw-body { padding: 2.2rem 2.6rem 1.8rem; position: relative; }
+
+    .gw-eyebrow {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.56rem; letter-spacing: 0.28em; text-transform: uppercase;
+      color: var(--dust); display: block; margin-bottom: 1.3rem;
+    }
+    .gw-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.7rem; letter-spacing: 0.04em;
+      color: var(--ink); line-height: 0.95; margin-bottom: 0.45rem;
+    }
+    .gw-title span { color: var(--red); }
+    .gw-sub {
+      font-family: 'IM Fell English', serif; font-style: italic;
+      font-size: 0.93rem; color: var(--dust); margin-bottom: 2.2rem; line-height: 1.5;
+    }
+
+    /* ── VERSION TOGGLE ── */
+    .ver-row {
+      display: flex; border: 1px solid rgba(0,0,0,0.1); border-radius: 2px;
+      overflow: hidden; margin-bottom: 1.8rem; background: rgba(0,0,0,0.03);
+    }
+    .ver-btn {
+      flex: 1; padding: 0.95rem 1.1rem; border: none; background: transparent;
+      cursor: pointer; text-align: left; transition: background 0.22s, color 0.22s;
+      position: relative;
+    }
+    .ver-btn + .ver-btn { border-left: 1px solid rgba(0,0,0,0.09); }
+    .ver-btn-tag {
+      display: block; font-family: 'Space Mono', monospace;
+      font-size: 0.49rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--dust); margin-bottom: 0.25rem;
+    }
+    .ver-btn-name {
+      display: block; font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem; font-weight: 600; font-style: italic;
+      color: var(--ink); margin-bottom: 0.18rem;
+    }
+    .ver-btn-desc {
+      display: block; font-family: 'Space Mono', monospace;
+      font-size: 0.47rem; letter-spacing: 0.1em; color: var(--dust); opacity: 0.7;
+    }
+    .ver-btn.active-old { background: var(--ink); }
+    .ver-btn.active-old .ver-btn-tag,
+    .ver-btn.active-old .ver-btn-name,
+    .ver-btn.active-old .ver-btn-desc { color: var(--cream); }
+    .ver-btn.active-new { background: var(--red); }
+    .ver-btn.active-new .ver-btn-tag,
+    .ver-btn.active-new .ver-btn-name,
+    .ver-btn.active-new .ver-btn-desc { color: white; }
+
+    /* ── DIVIDER ── */
+    .gw-divider { border: none; border-top: 1px solid rgba(0,0,0,0.08); margin: 1.5rem 0; }
+
+    /* ── PRIVACY ROW ── */
+    .privacy-row {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 1.2rem; margin-bottom: 1.6rem;
+    }
+    .privacy-lbl { flex: 1; }
+    .privacy-title-txt {
+      display: block; font-family: 'Space Mono', monospace;
+      font-size: 0.58rem; font-weight: 700; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--ink); margin-bottom: 0.22rem;
+    }
+    .privacy-desc-txt {
+      display: block; font-family: 'IM Fell English', serif; font-style: italic;
+      font-size: 0.8rem; color: var(--dust); line-height: 1.38;
+    }
+    .toggle-wrap { display: flex; align-items: center; gap: 0.65rem; flex-shrink: 0; }
+    .toggle-label {
+      font-family: 'Space Mono', monospace; font-size: 0.5rem;
+      letter-spacing: 0.1em; text-transform: uppercase; color: var(--dust); white-space: nowrap;
+    }
+    .toggle-label.on { color: var(--red); }
+    .toggle-pill {
+      position: relative; width: 42px; height: 22px; border-radius: 11px;
+      background: rgba(0,0,0,0.12); border: 1px solid rgba(0,0,0,0.1);
+      cursor: pointer; transition: background 0.28s; flex-shrink: 0;
+    }
+    .toggle-pill.on { background: var(--red); border-color: var(--red); }
+    .toggle-pill::after {
+      content: ''; position: absolute; top: 2px; left: 2px;
+      width: 16px; height: 16px; border-radius: 50%; background: white;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+      transition: transform 0.28s cubic-bezier(0.16,1,0.3,1);
+    }
+    .toggle-pill.on::after { transform: translateX(20px); }
+
+    /* Privacy notice */
+    .privacy-notice {
+      display: none; background: rgba(200,16,46,0.05);
+      border: 1px solid rgba(200,16,46,0.15); border-radius: 2px;
+      padding: 0.7rem 0.9rem; margin-bottom: 1.5rem;
+      font-family: 'IM Fell English', serif; font-style: italic;
+      font-size: 0.83rem; color: var(--red); line-height: 1.4;
+    }
+    .privacy-notice.show { display: block; }
+
+    /* ── CTA ── */
+    .gw-cta {
+      width: 100%; padding: 1rem; border: none;
+      background: var(--ink); color: var(--cream);
+      font-family: 'Space Mono', monospace; font-size: 0.63rem;
+      font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase;
+      cursor: pointer; border-radius: 2px;
+      transition: background 0.22s, transform 0.18s;
+    }
+    .gw-cta.v-new { background: var(--red); }
+    .gw-cta:hover { transform: translateY(-1px); }
+
+    .gw-foot {
+      padding: 0.8rem 2.6rem; display: flex; justify-content: space-between;
+      align-items: center; border-top: 1px solid rgba(0,0,0,0.06);
+      font-family: 'Space Mono', monospace; font-size: 0.48rem;
+      letter-spacing: 0.1em; color: rgba(0,0,0,0.22); text-transform: uppercase;
+    }
+
+    /* ══════════════════════════════════════
+       PRIVACY BLUR SYSTEM
+       When body.privacy-on, blur .private-text
+    ══════════════════════════════════════ */
+    body.privacy-on .private-text {
+      filter: blur(7px);
+      user-select: none;
+      position: relative;
+    }
+    body.privacy-on .private-text::after {
+      content: '🔒';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      filter: none;
+    }
+
+    /* Floating privacy lock badge */
+    #privacy-badge {
+      position: fixed;
+      top: 1.2rem; right: 1.4rem;
+      z-index: 9980;
+      display: none;
+      gap: 0.5rem;
+      align-items: center;
+      background: rgba(10,8,6,0.8);
+      border: 1px solid rgba(200,16,46,0.3);
+      border-radius: 2rem;
+      padding: 0.45rem 0.9rem;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.5rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cream);
+      cursor: pointer;
+      transition: background 0.2s;
+      backdrop-filter: blur(10px);
+    }
+    #privacy-badge.visible { display: flex; }
+    #privacy-badge:hover { background: rgba(200,16,46,0.25); }
+    #privacy-badge .pb-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--red); flex-shrink: 0;
+    }
+
+    /* ══════════════════════════════════════
+       WORLD CONTAINERS
+    ══════════════════════════════════════ */
+    #old-world, #new-world {
+      position: fixed; inset: 0;
+      display: none;
+      overflow: auto;
+    }
+    #old-world.active { display: block; }
+    #new-world.active { display: block; }
+
+    /* Override old world overflow for scroll-based site */
+    #old-world { overflow-y: auto; overflow-x: hidden; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     PRIVACY BADGE (floating, shown after launch)
+══════════════════════════════════════════════ -->
+<div id="privacy-badge" onclick="togglePrivacyLive()" title="Toggle privacy mode">
+  <div class="pb-dot"></div>
+  <span id="pb-label">privacy on</span>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     GATEWAY — Version Selector
+══════════════════════════════════════════════ -->
+<div id="gateway">
+  <!-- Scattered ghost photos -->
+  <img class="gw-ghost" src="assets/images/her/IMG-20260610-WA0007.jpg"
+    style="--rot:-11deg;--op:0.17;width:118px;height:158px;top:6%;left:3%;animation-delay:0.5s;object-fit:cover;" alt="">
+  <img class="gw-ghost" src="assets/images/her/IMG-20260610-WA0009.jpg"
+    style="--rot:8deg;--op:0.14;width:105px;height:142px;bottom:8%;right:4%;animation-delay:0.7s;object-fit:cover;" alt="">
+  <img class="gw-ghost" src="assets/images/her/IMG_20260607_224640_645.jpg"
+    style="--rot:-4deg;--op:0.12;width:92px;height:122px;top:13%;right:6%;animation-delay:0.9s;object-fit:cover;" alt="">
+  <img class="gw-ghost" src="assets/images/her/IMG-20260610-WA0005.jpg"
+    style="--rot:6deg;--op:0.13;width:98px;height:132px;bottom:14%;left:5%;animation-delay:0.65s;object-fit:cover;" alt="">
+  <img class="gw-ghost" src="assets/images/her/IMG_20260607_225253_267.jpg"
+    style="--rot:-7deg;--op:0.1;width:82px;height:110px;top:42%;left:1%;animation-delay:1.1s;object-fit:cover;" alt="">
+  <img class="gw-ghost" src="assets/images/her/IMG_20260607_224818_140.jpg"
+    style="--rot:5deg;--op:0.11;width:88px;height:118px;top:46%;right:2%;animation-delay:0.85s;object-fit:cover;" alt="">
+
+  <!-- Red tape accents -->
+  <div class="gw-tape" style="--rot:2deg;--op:1;width:68px;height:12px;top:43%;left:0;animation-delay:1.3s;transform:rotate(2deg);"></div>
+  <div class="gw-tape" style="--rot:-3deg;--op:1;width:52px;height:10px;bottom:33%;right:0;animation-delay:1.5s;transform:rotate(-3deg);"></div>
+
+  <!-- Popup -->
+  <div id="gateway-popup">
+    <div class="gw-tape-top"></div>
+    <div class="gw-paper">
+      <div class="gw-stripe"></div>
+      <div class="gw-body">
+
+        <span class="gw-eyebrow">awwnanya &nbsp;·&nbsp; a private archive &nbsp;·&nbsp; june 2026</span>
+        <div class="gw-title">choose <span>your</span><br>experience.</div>
+        <p class="gw-sub">Two versions of the same feeling. Pick one to open.</p>
+
+        <!-- Version selector -->
+        <div class="ver-row">
+          <button class="ver-btn" id="btn-old" onclick="selectVer('old')">
+            <span class="ver-btn-tag">version I</span>
+            <span class="ver-btn-name">The Original</span>
+            <span class="ver-btn-desc">Flowers · film reel · letters · proposal</span>
+          </button>
+          <button class="ver-btn active-new" id="btn-new" onclick="selectVer('new')">
+            <span class="ver-btn-tag">version II</span>
+            <span class="ver-btn-name">The Archive</span>
+            <span class="ver-btn-desc">Lyrics · intentions · letter · proposal</span>
+          </button>
+        </div>
+
+        <hr class="gw-divider">
+
+        <!-- Privacy toggle -->
+        <div class="privacy-row">
+          <div class="privacy-lbl">
+            <span class="privacy-title-txt">🔒 &nbsp;privacy mode</span>
+            <span class="privacy-desc-txt" id="gw-privacy-desc">For my eyes only — everything visible.</span>
+          </div>
+          <div class="toggle-wrap">
+            <span class="toggle-label" id="tgl-for">for me</span>
+            <div class="toggle-pill" id="gw-toggle" onclick="togglePrivacy()"></div>
+            <span class="toggle-label" id="tgl-show">showing</span>
+          </div>
+        </div>
+
+        <div class="privacy-notice" id="gw-notice">
+          <strong>Privacy mode ON.</strong> Text content will be blurred. Only visuals show. Tap the 🔒 badge anytime to toggle.
+        </div>
+
+        <!-- Launch -->
+        <button class="gw-cta v-new" id="gw-cta" onclick="launch()">
+          open the archive &nbsp;→
+        </button>
+
+      </div><!-- /gw-body -->
+      <div class="gw-foot">
+        <span>awwnanya. · june 2026</span>
+        <span>made with intent ♡</span>
+      </div>
+    </div>
+  </div><!-- /gateway-popup -->
+</div><!-- /gateway -->
+
+
+<!-- ══════════════════════════════════════════════
+     OLD WORLD — The Original Site
+     (sections from original index.html)
+══════════════════════════════════════════════ -->
+<div id="old-world">
+
+  <!-- Cursor -->
+  <div id="cursor-dot" aria-hidden="true"></div>
+  <div id="cursor-ring" aria-hidden="true"></div>
+
+  <!-- Scroll Progress -->
+  <div id="scroll-progress" aria-hidden="true" role="progressbar"></div>
+
+  <!-- Ambient Particles -->
+  <div id="ambient-particles" aria-hidden="true"></div>
+
+  <!-- Loading Screen -->
+  <div id="loading" role="status" aria-label="Loading">
+    <p class="load-logo">Ananya<span>.</span></p>
+    <div class="load-bar-track">
+      <div class="load-bar"></div>
+    </div>
+    <p class="load-text">a small present for u</p>
+  </div>
+
+  <!-- Hero Collage -->
+  <div class="hero-collage" id="hero-collage" aria-hidden="true"></div>
+
+  <!-- SECTION 1 — HERO -->
+  <section id="hero">
+    <div class="hero-scroll-hint" aria-hidden="true">
+      <span>scroll</span>
+      <div class="scroll-chevron"></div>
+    </div>
+  </section>
+
+  <!-- SECTION 2 — MAIN PAGE -->
+  <section id="main-page">
+    <div class="main-inner">
+      <div class="stamp-strip-container reveal left">
+        <div class="stamp-grid">
+          <div id="transition-target-t1" class="transition-target-placeholder"></div>
+          <div id="transition-target-t2" class="transition-target-placeholder"></div>
+          <div id="transition-target-t3" class="transition-target-placeholder"></div>
+          <div id="transition-target-t4" class="transition-target-placeholder"></div>
+          <div id="transition-target-t5" class="transition-target-placeholder"></div>
+          <div id="transition-target-t6" class="transition-target-placeholder"></div>
+          <div id="transition-target-t7" class="transition-target-placeholder"></div>
+          <div id="transition-target-t8" class="transition-target-placeholder"></div>
+          <div id="transition-target-t9" class="transition-target-placeholder"></div>
+          <div id="transition-target-t10" class="transition-target-placeholder"></div>
+          <div id="transition-target-t11" class="transition-target-placeholder"></div>
+          <div id="transition-target-t12" class="transition-target-placeholder"></div>
+          <div id="transition-target-t13" class="transition-target-placeholder"></div>
+          <div id="transition-target-t14" class="transition-target-placeholder"></div>
+          <div id="transition-target-t15" class="transition-target-placeholder"></div>
+          <div id="transition-target-t16" class="transition-target-placeholder"></div>
+          <div id="transition-target-t17" class="transition-target-placeholder"></div>
+          <div id="transition-target-t18" class="transition-target-placeholder"></div>
+          <div id="transition-target-t19" class="transition-target-placeholder"></div>
+          <div id="transition-target-t20" class="transition-target-placeholder"></div>
+        </div>
+      </div>
+      <div class="letter-section reveal right">
+        <div class="signature-name">Awwnanya</div>
+        <div class="decorative-separator"></div>
+        <div class="letter-text private-text">
+          <p>Well hii Ananya,</p>
+          <p>You already knew I was planning something, but I don't think you were expecting this 😭</p>
+          <p>Maybe an edit or some random surprise, but yeah... this is a little different.</p>
+          <p>There are a few things here I think you'll genuinely like, so just enjoy everything slowly.</p>
+          <p>I know I've already told you many of these things before, but lemme mention it again. And maybe this time, in a better way.</p>
+          <p>Some parts are soft, some are embarrassing, some are random, and some are probably way too emotional... but all of it is real.</p>
+          <p>So yeah, welcome to this little world made for you. I hope you love it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 3 — FLOWERS -->
+  <section id="flower-section">
+    <div class="slide-container">
+      <div class="slide sunflower-slide">
+        <div class="slide-bg-wrap">
+          <div class="slide-bg" style="background-image: url('assets/images/backgrounds/ChatGPT Image Jun 11, 2026, 01_06_20 AM.png');"></div>
+        </div>
+        <div class="slide-content">
+          <div class="polaroid-wrapper">
+            <div class="polaroid">
+              <div class="polaroid-img-wrap">
+                <img src="assets/images/her/ChatGPT Image Jun 11, 2026, 01_20_10 PM.png" alt="Sunflower Polaroid">
+              </div>
+              <div class="polaroid-caption">sunflower <span>♡</span></div>
+            </div>
+          </div>
+          <div class="text-wrapper">
+            <h1 class="slide-text">
+              i was confused what you like,<br>
+              <em>lily</em> or <em>sunflower</em>?<br>
+              so here is both <span class="heart">&lt;3</span>
+            </h1>
+          </div>
+        </div>
+      </div>
+      <div class="slide lily-slide">
+        <div class="slide-bg-wrap">
+          <div class="slide-bg" style="background-image: url('assets/images/backgrounds/ChatGPT Image Jun 11, 2026, 12_59_08 AM.png');"></div>
+        </div>
+        <div class="slide-content">
+          <div class="polaroid-wrapper">
+            <div class="polaroid">
+              <div class="polaroid-img-wrap">
+                <img src="assets/images/her/ChatGPT Image Jun 11, 2026, 01_20_07 PM.png" alt="Lily Polaroid">
+              </div>
+              <div class="polaroid-caption">lily <span>♡</span></div>
+            </div>
+          </div>
+          <div class="text-wrapper">
+            <h1 class="slide-text">
+              i was confused what you like,<br>
+              <em>lily</em> or <em>sunflower</em>?<br>
+              so here is both <span class="heart">&lt;3</span>
+            </h1>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4 — VIDEO REEL -->
+  <section id="reel-section">
+    <div class="reel-sticky">
+      <div class="reel-label">
+        <span class="reel-eyebrow">film</span>
+        <span class="reel-line"></span>
+      </div>
+      <div class="reel-track" id="reel-track">
+        <div class="reel-item"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/VID_20260108_121716_200.mp4" type="video/mp4"></video></div>
+        <div class="reel-item"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/VID_20260112_095620_383.mp4" type="video/mp4"></video></div>
+        <div class="reel-item"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/VID_20260112_095804_517.mp4" type="video/mp4"></video></div>
+        <div class="reel-item"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/VID_20260112_095810_864.mp4" type="video/mp4"></video></div>
+        <div class="reel-item"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/VID_20260508_015707_435.mp4" type="video/mp4"></video></div>
+        <div class="reel-item"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/VID_20260607_101605_560.mp4" type="video/mp4"></video></div>
+        <div class="reel-item"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/VID_20260607_101607_870.mp4" type="video/mp4"></video></div>
+        <div class="reel-item"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/VID_20260607_101614_293.mp4" type="video/mp4"></video></div>
+        <div class="reel-item"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/VID_20260607_101619_989.mp4" type="video/mp4"></video></div>
+        <div class="reel-item"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/VID_20260607_101628_780.mp4" type="video/mp4"></video></div>
+        <div class="reel-item"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/VID_20260607_102222_359.mp4" type="video/mp4"></video></div>
+        <div class="reel-item"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/VID_20260607_102503_563.mp4" type="video/mp4"></video></div>
+        <div class="reel-item"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/VID_20260607_102519_589.mp4" type="video/mp4"></video></div>
+        <div class="reel-item"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/VID_20260607_103059_950.mp4" type="video/mp4"></video></div>
+        <div class="reel-item"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/VID_20260607_103105_735.mp4" type="video/mp4"></video></div>
+        <div class="reel-item"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/VID_20260608_080351_261.mp4" type="video/mp4"></video></div>
+        <div class="reel-item"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/us/VID-20260324-WA0027.mp4" type="video/mp4"></video></div>
+        <div class="reel-item reel-placeholder" id="reel-hehe">
+          <video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/IMG_5283.MOV.mp4" type="video/mp4"></video>
+          <div class="reel-placeholder-label">hehe 🤍</div>
+        </div>
+      </div>
+      <div class="reel-sprockets top" aria-hidden="true"><div class="reel-sprockets-inner" id="sprockets-top"></div></div>
+      <div class="reel-sprockets bottom" aria-hidden="true"><div class="reel-sprockets-inner" id="sprockets-bottom"></div></div>
+      <div class="reel-progress-wrap"><div class="reel-progress-fill" id="reel-progress-fill"></div></div>
+    </div>
+  </section>
+
+  <!-- SECTION 5 — EDITORIAL -->
+  <section id="editorial-section">
+    <div class="editorial-inner">
+      <div class="editorial-text-side">
+        <span class="ed-eyebrow reveal">— about you</span>
+        <h2 class="ed-title reveal">you're<br>something<br><em>else.</em></h2>
+        <div class="ed-rule reveal"></div>
+        <p class="ed-body reveal private-text">There's smth you do idk what but when you talk to me na i litrally get butterfly — and you don't even realize it — i mean you mean a lot to me ananya thank you so much for being what you are</p>
+        <p class="ed-body reveal private-text">and all these are just for you just for being real and nice to me</p>
+        <p class="ed-small reveal">— omg ilysmm.</p>
+      </div>
+      <div class="editorial-photo-side reveal">
+        <div class="ed-photo-frame">
+          <img src="assets/images/her/IMG_20260610_225850.jpg" alt="" class="ed-photo bw">
+        </div>
+        <div class="ed-photo-tag">2026</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 6 — BOOK 1: Things I Like About You -->
+  <section id="book1-section" class="book-section">
+    <div class="book-outer" id="book1-outer">
+      <div class="book-sticky" id="book1-sticky">
+        <!-- PAGE 0 — COVER -->
+        <div class="book-page book-cover-page" data-bk-index="0">
+          <div class="bk-cover-inner">
+            <p class="bk-label">book one</p>
+            <h2 class="bk-cover-title">Things I<br><em>Like</em><br>About You</h2>
+            <div class="bk-cover-line"></div>
+            <p class="bk-cover-sub">scroll to read →</p>
+          </div>
+          <span class="bk-cover-ghost">I</span>
+        </div>
+        <!-- PAGE 1 — COLLAGE -->
+        <div class="book-page bk-collage-spread" data-bk-index="1">
+          <div class="bk-col-title-strip">
+            <p class="bk-col-eyebrow">a collection of moments</p>
+            <h3 class="bk-col-heading">things<br>I like<br><em>about</em><br>you</h3>
+          </div>
+          <div class="bk-collage-area">
+            <div class="col-p" style="--rot:-7deg;width:19%;top:3%;left:1%"><img src="assets/images/her/IMG-20260610-WA0005.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:4deg;width:16%;top:1%;left:22%"><img src="assets/images/her/IMG-20260610-WA0007.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:-3deg;width:20%;top:4%;left:40%"><img src="assets/images/her/IMG-20260610-WA0009.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:6deg;width:17%;top:2%;left:62%"><img src="assets/images/her/IMG-20260610-WA0011.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:-5deg;width:18%;top:3%;left:81%"><img src="assets/images/her/IMG-20260610-WA0013.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:5deg;width:20%;top:34%;left:0%"><img src="assets/images/her/IMG-20260610-WA0006.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:-9deg;width:26%;top:30%;left:23%"><img src="assets/images/her/IMG_20260607_224640_645.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:7deg;width:21%;top:32%;left:52%"><img src="assets/images/her/IMG_20260607_225253_267.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:-4deg;width:19%;top:29%;left:76%"><img src="assets/images/her/IMG_20260607_225513_386.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:-5deg;width:18%;top:64%;left:2%"><img src="assets/images/her/IMG-20260610-WA0008.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:8deg;width:22%;top:62%;left:23%"><img src="assets/images/her/IMG_20260112_232608_746.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:-3deg;width:20%;top:65%;left:48%"><img src="assets/images/her/IMG_20260610_225715.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:6deg;width:17%;top:62%;left:71%"><img src="assets/images/her/IMG_20260610_225728.jpg" class="bw"></div>
+            <div class="col-p" style="--rot:-6deg;width:16%;top:63%;left:91%"><img src="assets/images/her/IMG-20260610-WA0010.jpg" class="bw"></div>
+          </div>
+        </div>
+        <!-- PAGE 2 -->
+        <div class="book-page" data-bk-index="2">
+          <div class="bk-spread">
+            <div class="bk-left bk-scrap-cream">
+              <div class="bk-fav-inner">
+                <h3 class="bk-fav-title">YOU'RE<br>MY<br><span class="bk-red">FAVORITE</span><br>PERSON</h3>
+                <div class="bk-fav-scatter">
+                  <img src="assets/images/her/IMG_20260112_232608_746.jpg" class="bk-scat-sm bw" style="--r:-8deg">
+                  <img src="assets/images/her/IMG-20260610-WA0010.jpg" class="bk-scat-sm bw" style="--r:6deg">
+                  <img src="assets/images/her/IMG-20260610-WA0014.jpg" class="bk-scat-sm bw" style="--r:-4deg">
+                </div>
+              </div>
+              <span class="bk-deco-star" style="top:9%;left:9%;font-size:1.4rem;--rot:20deg">★</span>
+              <span class="bk-deco-star" style="top:18%;right:8%;font-size:0.9rem;--rot:-14deg">✦</span>
+              <span class="bk-deco-star" style="bottom:22%;left:12%;font-size:1rem;--rot:8deg">★</span>
+              <span class="bk-deco-star" style="bottom:12%;right:14%;font-size:1.6rem;--rot:-22deg">✦</span>
+              <div class="bk-tape-label private-text">any day with you</div>
+            </div>
+            <div class="bk-right bk-photo-side">
+              <img src="assets/images/her/IMG_20260610_225850.jpg" alt="" class="bk-photo bw">
+              <div class="bk-photo-overlay"></div>
+            </div>
+          </div>
+        </div>
+        <!-- PAGE 3 -->
+        <div class="book-page" data-bk-index="3">
+          <div class="bk-spread" style="background:#0d0d0d">
+            <div class="bk-left bk-photo-side" style="flex:1.4">
+              <img src="assets/images/her/IMG_20260607_224818_140.jpg" alt="" class="bk-photo" style="filter:grayscale(100%) contrast(1.15) brightness(0.82)">
+            </div>
+            <div class="bk-right bk-dark-text">
+              <p class="bk-dark-micro">you &amp; me</p>
+              <h3 class="bk-dark-h">FOREVER</h3>
+              <div class="bk-dark-rule"></div>
+              <p class="bk-dark-body private-text">Well idk what our future is but i really wanna be with you forever you are really one of the best person i ever met you are nice kind and talented lol</p>
+            </div>
+          </div>
+        </div>
+        <!-- PAGE 4 -->
+        <div class="book-page bk-mem-page" data-bk-index="4">
+          <div class="bk-mem-badge">OUR MEMORIES</div>
+          <div class="bk-mem-scatter">
+            <div class="bk-mem-photo" style="--r:-8deg;top:18%;left:8%;width:25%"><img src="assets/images/us/IMG_20250801_182852_179.jpg" class="bw"></div>
+            <div class="bk-mem-photo" style="--r:6deg;top:12%;left:38%;width:26%"><img src="assets/images/us/IMG_20260401_104548.jpg" class="bw"></div>
+            <div class="bk-mem-photo" style="--r:-4deg;top:22%;left:67%;width:23%"><img src="assets/images/us/IMG-20251013-WA0178.jpg" class="bw"></div>
+          </div>
+          <p class="bk-mem-quote private-text">you are the best of the best of the best.</p>
+        </div>
+        <!-- PAGE 5 -->
+        <div class="book-page" data-bk-index="5">
+          <div class="bk-spread">
+            <div class="bk-left bk-red-text">
+              <p class="bk-red-micro">YOU</p>
+              <p class="bk-red-para private-text">There is smth like how you make me feel and i litrally have idea tbh why tf am i so obsessed with you but the reality is yes i am and i cant help btwww you are pretty i never told you this but you lookkk sooo so so prettyyyy</p>
+            </div>
+            <div class="bk-right bk-red-cluster" style="background:#a81020">
+              <div class="bk-clust-photo" style="--r:-7deg;top:8%;left:8%;width:58%"><img src="assets/images/her/IMG_20260610_225715.jpg" class="bw"></div>
+              <div class="bk-clust-photo" style="--r:5deg;top:45%;left:32%;width:55%"><img src="assets/images/her/IMG_20260610_225728.jpg" class="bw"></div>
+            </div>
+          </div>
+        </div>
+        <!-- PAGE 6 -->
+        <div class="book-page bk-film-page" data-bk-index="6">
+          <div class="bk-film-inner">
+            <p class="bk-film-eyebrow">moments</p>
+            <h3 class="bk-film-lyric private-text">everyday of our lives,<br>i wanna find you there,<br><em>wanna hold on tight.</em></h3>
+            <div class="bk-film-strip">
+              <div class="bk-film-frame"><img src="assets/images/her/IMG-20260610-WA0005.jpg" class="bw"></div>
+              <div class="bk-film-frame"><img src="assets/images/her/IMG-20260610-WA0007.jpg" class="bw"></div>
+              <div class="bk-film-frame"><img src="assets/images/her/IMG-20260610-WA0009.jpg" class="bw"></div>
+              <div class="bk-film-frame"><img src="assets/images/her/IMG-20260610-WA0011.jpg" class="bw"></div>
+              <div class="bk-film-frame"><img src="assets/images/her/IMG-20260610-WA0013.jpg" class="bw"></div>
+              <div class="bk-film-frame"><img src="assets/images/her/IMG-20260610-WA0015.jpg" class="bw"></div>
+            </div>
+          </div>
+        </div>
+        <!-- PAGE 7 — END -->
+        <div class="book-page bk-end-page" data-bk-index="7">
+          <div class="bk-end-inner">
+            <p class="bk-label">end of book one</p>
+            <div class="bk-end-rule"></div>
+            <p class="bk-end-quote"><em>"... and there are more."</em></p>
+          </div>
+          <span class="bk-cover-ghost" style="opacity:0.04">fin</span>
+        </div>
+        <div class="bk-dots" id="book1-dots"></div>
+        <div class="bk-counter" id="book1-counter">01 / 08</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 7 — BOOK 2: Let's Talk About Us -->
+  <section id="book2-section" class="book-section">
+    <div class="book-outer" id="book2-outer">
+      <div class="book-sticky" id="book2-sticky">
+        <!-- PAGE 0 — COVER -->
+        <div class="book-page book-cover-page b2-cover" data-bk-index="0">
+          <div class="b2-cover-inner">
+            <p class="b2-cover-eyebrow">book two</p>
+            <h2 class="b2-cover-title">Let's Talk<br><span class="b2-script">about us</span></h2>
+            <div class="b2-cover-rule"></div>
+            <p class="b2-cover-hint">scroll to read →</p>
+          </div>
+          <span class="bk-cover-ghost">II</span>
+        </div>
+        <!-- PAGE 1 -->
+        <div class="book-page b2p1-cinematic" data-bk-index="1">
+          <img src="assets/images/Us/IMG_20260401_104548.jpg" alt="" class="b2p1-img bw">
+          <div class="b2p1-overlay"></div>
+          <div class="b2p1-caption">
+            <p class="b2p1-small">well, you know, I have a lot to say about us</p>
+            <h2 class="b2p1-big">but let's start<br>with something<br><em>funny.</em></h2>
+          </div>
+        </div>
+        <!-- PAGE 2 -->
+        <div class="book-page" data-bk-index="2">
+          <div class="bk-spread">
+            <div class="bk-left b2-video-side">
+              <video class="b2-vid" autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/us/VID-20250801-WA0012.mp4" type="video/mp4"></video>
+              <div class="b2-vid-overlay"></div>
+            </div>
+            <div class="bk-right b2-text-col">
+              <p class="b2-tiny-label">barely any</p>
+              <p class="b2-para private-text">When I was looking for pictures of us together for this website, I realized there were <strong>barely any</strong>. I found a few, but not nearly as many as I expected.</p>
+              <p class="b2-para b2-italic private-text" style="margin-top:1.5rem;">This might sound like a complaint, and honestly... maybe it is a little.</p>
+            </div>
+          </div>
+        </div>
+        <!-- PAGE 3 -->
+        <div class="book-page b2p3-question" data-bk-index="3">
+          <div class="b2p3-inner">
+            <p class="b2p3-label">a simple question</p>
+            <h2 class="b2p3-heading private-text">But don't you think<br>we should spend more<br>time together?</h2>
+            <div class="b2p3-rule"></div>
+            <h3 class="b2p3-just">Just us.</h3>
+            <p class="b2p3-note private-text">I've wanted that for so long, but I never really asked because I get nervous.</p>
+          </div>
+          <div class="b2p3-img-strip"><img src="assets/images/Us/IMG-20251013-WA0178.jpg" class="bw"></div>
+        </div>
+        <!-- PAGE 4 -->
+        <div class="book-page" data-bk-index="4">
+          <div class="bk-spread">
+            <div class="bk-left b2-dark-col">
+              <h2 class="b2-dark-name">asking you</h2>
+              <div class="b2-dark-rule"></div>
+              <p class="b2-dark-body private-text">Which is funny because I can make an entire website about you, but asking you to hang out somehow feels harder.</p>
+              <p class="b2-dark-red private-text">Ananya, we really should go out more.</p>
+              <p class="b2-dark-deal private-text">And I promise you won't be bored. I have way too many ideas for things we could do.</p>
+            </div>
+            <div class="bk-right b2-video-side">
+              <video class="b2-vid" autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/us/VID-20260324-WA0020.mp4" type="video/mp4"></video>
+              <div class="b2-vid-overlay"></div>
+            </div>
+          </div>
+        </div>
+        <!-- PAGE 5 -->
+        <div class="book-page" data-bk-index="5">
+          <div class="bk-spread">
+            <div class="bk-left b2-diary-col">
+              <p class="b2-diary-label">so here's a deal</p>
+              <p class="b2-diary-text private-text">One day, when you're free, just randomly ask me,<br><strong>"Let's go somewhere."</strong></p>
+              <p class="b2-diary-text private-text" style="color:var(--cherry);font-weight:600;">I will not say no.</p>
+              <div class="b2-diary-highlight private-text" style="margin-top:1rem;">Actually, that reminds me of the Obsession movie. When you asked me to go with you, you have no idea how happy I was.</div>
+            </div>
+            <div class="bk-right b2-diary-col" style="background:#fdfaf7;border-left:1px solid rgba(0,0,0,0.05);">
+              <p class="b2-diary-label">the obsession movie</p>
+              <p class="b2-diary-text private-text">The funny part is that I wasn't even interested in the movie itself. I had already watched it. It was never about the movie; it was about going with you.</p>
+              <p class="b2-diary-big private-text" style="margin-top:1rem;font-style:italic;">Okay, the plan wasn't exactly successful, but that's not the point.</p>
+            </div>
+          </div>
+        </div>
+        <!-- PAGE 6 -->
+        <div class="book-page b2p6-dual-vid" data-bk-index="6">
+          <div class="b2p6-vid-left"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/us/VID-20251013-WA0019.mp4" type="video/mp4"></video></div>
+          <div class="b2p6-vid-right"><video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/us/VID-20260324-WA0021.mp4" type="video/mp4"></video></div>
+          <div class="b2p6-caption"><p>moments i keep coming back to</p></div>
+        </div>
+        <!-- PAGE 7 -->
+        <div class="book-page" data-bk-index="7">
+          <div class="bk-spread">
+            <div class="bk-left b2-delhi-red">
+              <p class="b2-delhi-label">delhi — shimla</p>
+              <p class="b2-delhi-text private-text">I'm in Delhi until the <em>23rd</em>, and maybe you'll leave for Shimla before that.</p>
+              <p class="b2-delhi-text private-text">So if there's even one free day, just ask me.</p>
+              <p class="b2-delhi-anywhere private-text">Anywhere you want.</p>
+            </div>
+            <div class="bk-right b2-delhi-cream" style="position:relative;overflow:hidden;">
+              <p class="b2-delhi-closing private-text">The point is: let's try again.</p>
+              <p class="b2-delhi-unfinished private-text">Let's make memories that future us will love.</p>
+              <div class="b2-delhi-sig"><div class="b2-sig-line"></div><span class="b2-sig-name">Us 🤍</span></div>
+              <img src="assets/images/Us/IMG_20250801_182852_179.jpg" class="bw b2-delhi-photo" alt="">
+            </div>
+          </div>
+        </div>
+        <!-- PAGE 8 -->
+        <div class="book-page b2p8-fullvid" data-bk-index="8">
+          <video autoplay muted loop playsinline preload="auto"><source src="assets/videos/memories/us/VID-20260324-WA0025.mp4" type="video/mp4"></video>
+          <div class="b2p8-overlay"></div>
+          <div class="b2p8-text"><p>one more video i couldn't leave out</p></div>
+        </div>
+        <!-- PAGE 9 — END -->
+        <div class="book-page b2-end" data-bk-index="9">
+          <div class="b2-end-inner">
+            <p class="b2-end-script private-text">Let's write our story...</p>
+            <div class="b2-end-rule"></div>
+            <p class="b2-end-label">end of book two</p>
+          </div>
+        </div>
+        <div class="bk-dots" id="book2-dots"></div>
+        <div class="bk-counter" id="book2-counter">01 / 10</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Music Player Pill -->
+  <div class="music-pill" id="music-pill">
+    <div class="music-pill-inner">
+      <span class="music-pill-icon" id="music-pill-icon">♫</span>
+      <div class="music-pill-info">
+        <span class="music-pill-title">Barbaad</span>
+        <span class="music-pill-artist">Vaani × Krish version</span>
+      </div>
+      <button class="music-pill-btn" id="music-toggle-btn" aria-label="Toggle music">
+        <svg id="music-play-svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style="display:none"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="music-pause-svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- SECTION 8 — PROPOSAL -->
+  <section id="proposal-section" class="book-section">
+    <audio id="love-audio" loop preload="auto">
+      <source src="assets/Not ai/𝑩𝒂𝒓𝒃𝒂𝒂𝒅 (𝑽𝒂𝒂𝒏𝒊 𝒙 𝑲𝒓𝒊𝒔𝒉 𝒗𝒆𝒓𝒔𝒊𝒐𝒏)  𝑺𝒂𝒊𝒚𝒂𝒂𝒓𝒂.mp3" type="audio/mpeg">
+    </audio>
+    <canvas id="fireworks-canvas"></canvas>
+    <canvas id="rose-petals-canvas"></canvas>
+    <div class="book-outer" id="proposal-outer">
+      <div class="book-sticky" id="proposal-sticky" style="background:#fffdf9;">
+        <!-- PAGE 0 — COVER -->
+        <div class="book-page prop-cover-page" data-bk-index="0">
+          <div class="prop-cover-bg"></div>
+          <div class="prop-cover-content">
+            <p class="prop-cover-eyebrow">a letter for you</p>
+            <h1 class="prop-cover-title">let's unwrap<br><em>everything.</em></h1>
+            <div class="prop-cover-rule"></div>
+            <p class="prop-cover-hint">scroll gently →</p>
+          </div>
+          <span class="bk-cover-ghost" style="color:rgba(192,22,42,0.04);font-family:'Playfair Display',serif;">❤</span>
+        </div>
+        <!-- PAGE 1 -->
+        <div class="book-page prop-page prop-p1" data-bk-index="1">
+          <div class="prop-page-inner">
+            <p class="prop-eyebrow">01</p>
+            <p class="prop-intro-word">Well...</p>
+            <p class="prop-para private-text">What's the point of all of this? The flowers, the photos, the notes, the memories, the random pages, and this entire website.</p>
+            <p class="prop-para private-text">Honestly Ananya, you already know everything. This is just my way of saying <em>thank you.</em></p>
+            <p class="prop-para private-text">Thank you for every conversation, every reel, every laugh, every memory, every moment you probably don't even realize mattered to me.</p>
+            <div class="prop-divider"></div>
+            <p class="prop-highlight private-text">Because if I'm being real, I am literally happiest when I'm talking to you.</p>
+          </div>
+        </div>
+        <!-- PAGE 2 -->
+        <div class="book-page prop-page prop-p2-dark" data-bk-index="2">
+          <div class="prop-page-inner">
+            <p class="prop-eyebrow" style="color:rgba(255,255,255,0.3);">02</p>
+            <h2 class="prop-dark-heading">yes, I know<br>I act obsessed.</h2>
+            <p class="prop-para-light private-text">And honestly? Maybe I am. I know it's probably not healthy, but at this point I don't even care.</p>
+            <p class="prop-para-light private-text">Yaar, it's been so long now. Sometimes it genuinely kills me inside that you're not mine already.</p>
+            <div class="prop-divider" style="background:rgba(255,255,255,0.12)"></div>
+            <p class="prop-para-light private-text">I wanted to give this to you in person too. I imagined us somewhere together, laughing, having fun, and then I'd awkwardly hand you this whole thing. But somehow we've rarely even hung out alone.</p>
+          </div>
+        </div>
+        <!-- PAGE 3 -->
+        <div class="book-page prop-page prop-p3-cream" data-bk-index="3">
+          <div class="prop-page-inner">
+            <p class="prop-eyebrow">03</p>
+            <p class="prop-para private-text">And yes, I get jealous. Seeing you with someone else still annoys me more than it should. But one thing I'll never forget is how much you've respected that feeling instead of making fun of it.</p>
+            <p class="prop-para private-text"><strong>Thank you for that. I really mean it.</strong></p>
+            <div class="prop-divider"></div>
+            <p class="prop-para private-text">And honestly? I was already in love with you before. But these past few months something happened. I don't know what. All I do is think about you.</p>
+            <p class="prop-aside">Also, can you please send me reels without me asking first? Like damn. 😭</p>
+          </div>
+        </div>
+        <!-- PAGE 4 -->
+        <div class="book-page prop-page prop-p4" data-bk-index="4">
+          <div class="prop-page-inner">
+            <p class="prop-eyebrow">04</p>
+            <p class="prop-para private-text">So... yeah. I like you. A lot. More than I've ever liked anyone.</p>
+            <p class="prop-para private-text">And I know we've talked about this before, and you know how I feel. But I'm asking properly now. In the most extra way possible, clearly.</p>
+            <div class="prop-divider"></div>
+            <p class="prop-highlight private-text">You know what comes next. Scroll one more time.</p>
+          </div>
+        </div>
+        <!-- PAGE 5 — PROPOSAL -->
+        <div class="book-page prop-question-page" data-bk-index="5">
+          <div class="prop-q-inner">
+            <p class="prop-q-label">the only question</p>
+            <h1 class="prop-q-title">Will you<br><span>be mine?</span></h1>
+            <div class="prop-q-rule"></div>
+            <div class="prop-q-btns" id="old-prop-btns">
+              <button class="prop-q-yes" onclick="oldSayYes()">yes ♡</button>
+              <button class="prop-q-no" id="old-no-btn" onmouseenter="oldEvadeNo(this)" onclick="oldClickNo()">no</button>
+            </div>
+            <canvas id="old-yes-canvas"></canvas>
+          </div>
+        </div>
+        <div class="bk-dots" id="proposal-dots"></div>
+        <div class="bk-counter" id="proposal-counter">01 / 06</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Old site Windows Error -->
+  <div class="win-error old-win-err" id="old-win-error" style="position:fixed;z-index:9999;">
+    <div class="win-titlebar" id="old-win-titlebar">
+      <div class="win-title-text">⚠ System Error</div>
+      <div class="win-controls">
+        <div class="win-ctrl-btn">_</div>
+        <div class="win-ctrl-btn">□</div>
+        <div class="win-ctrl-btn close-btn" onclick="oldDismissError()">✕</div>
+      </div>
+    </div>
+    <div class="win-body">
+      <div class="win-icon">🛑</div>
+      <div class="win-message" id="old-win-msg">
+        <p><strong>heart.exe has stopped working.</strong></p>
+        <p>A critical error occurred: user selected "No".</p>
+        <p>Please try again with "Yes".</p>
+      </div>
+    </div>
+    <div class="win-footer">
+      <button class="win-ok-btn" onclick="oldDismissError()">OK</button>
+      <button class="win-ok-btn" onclick="oldDismissError()">Cancel</button>
+    </div>
+  </div>
+  <div class="bsod old-bsod" id="old-bsod">
+    <div style="width:min(700px,90vw);">
+      <p class="bsod-title">:( HEART_OVERLOAD_ERROR</p>
+      <p>Your PC ran into a problem that it couldn't handle.<br><strong class="bsod-highlight">STOP CODE: NO_WAS_NOT_AN_OPTION</strong></p>
+      <button class="bsod-restart" onclick="oldRestartBSOD()">→ restart and try again</button>
+    </div>
+  </div>
+
+</div><!-- /old-world -->
+
+
+<!-- ══════════════════════════════════════════════
+     NEW WORLD — The Archive (love_book)
+══════════════════════════════════════════════ -->
+<div id="new-world">
+
+  <!-- ENTRY SCREEN -->
+  <div id="entry-screen" class="screen active">
+    <div class="entry-bg"></div>
+    <div class="entry-fragment" style="top:8%;left:4%;transform:rotate(-12deg);">
+      <img src="assets/images/her/IMG-20260610-WA0007.jpg" style="width:130px;height:170px;object-fit:cover;opacity:0.22;filter:grayscale(1) contrast(1.1);" alt="">
+    </div>
+    <div class="entry-fragment" style="bottom:10%;right:5%;transform:rotate(8deg);">
+      <img src="assets/images/her/IMG-20260610-WA0009.jpg" style="width:110px;height:150px;object-fit:cover;opacity:0.18;filter:grayscale(1);" alt="">
+    </div>
+    <div class="entry-fragment" style="top:15%;right:8%;transform:rotate(5deg);">
+      <img src="assets/images/her/IMG_20260607_224640_645.jpg" style="width:95px;height:130px;object-fit:cover;opacity:0.15;filter:grayscale(1);" alt="">
+    </div>
+    <div class="entry-fragment" style="bottom:20%;left:7%;transform:rotate(-6deg);">
+      <img src="assets/images/her/IMG-20260610-WA0005.jpg" style="width:105px;height:140px;object-fit:cover;opacity:0.14;filter:grayscale(1);" alt="">
+    </div>
+    <div class="entry-fragment" style="top:42%;left:0%;transform:rotate(3deg);">
+      <div style="width:80px;height:16px;background:rgba(200,16,46,0.65);border-radius:1px;"></div>
+    </div>
+    <div class="entry-fragment" style="bottom:35%;right:0%;transform:rotate(-2deg);">
+      <div style="width:55px;height:14px;background:rgba(200,16,46,0.5);border-radius:1px;"></div>
+    </div>
+    <div class="entry-center">
+      <span class="entry-kicker">a private archive &nbsp;·&nbsp; made with intent</span>
+      <h1 class="entry-title">FOR<br>ANANYA.</h1>
+      <div class="entry-rule"></div>
+      <p class="entry-subtitle">
+        three things I couldn't say out loud.<br>
+        so I wrote them down instead.
+      </p>
+      <button class="entry-btn" id="openArchiveBtn" style="margin-top:2.8rem;" onclick="openBoard()">
+        open the archive
+      </button>
+    </div>
+  </div>
+
+  <!-- BOARD SCREEN -->
+  <div id="board-screen" class="screen">
+    <div class="board-bg"></div>
+    <div class="board-header">
+      <span class="board-eyebrow">for ananya &nbsp;·&nbsp; june 2026</span>
+      <div class="board-title">the archive.</div>
+    </div>
+    <div class="board-items">
+      <div class="board-pin-item" id="pin-book1" style="transform:rotate(-2.5deg);" onclick="openBook(1)">
+        <div class="pin"></div>
+        <div class="board-card book-card book-card-cover-red">
+          <div class="book-card-spine"><span>i · lines that remind me of you</span></div>
+          <span class="book-card-label" style="margin-top:1.5rem;">Book I</span>
+          <span class="book-card-title">Lines that<br>remind me <em>of you</em></span>
+          <span class="book-card-num">songs / lyrics / why</span>
+        </div>
+      </div>
+      <div class="board-pin-item" id="pin-book2" style="transform:rotate(1.5deg);margin-top:30px;" onclick="openBook(2)">
+        <div class="pin"></div>
+        <div class="board-card book-card book-card-cover-black">
+          <div class="book-card-spine"><span>ii · my intention with you</span></div>
+          <span class="book-card-label" style="margin-top:1.5rem;">Book II</span>
+          <span class="book-card-title">my intention <em style="color:#F5F0E8;">with you</em></span>
+          <span class="book-card-num">what I want / why you</span>
+        </div>
+      </div>
+      <div class="board-pin-item" id="pin-letter" style="transform:rotate(3deg);margin-top:-10px;" onclick="openLetter()">
+        <div class="pin" style="background:radial-gradient(circle at 35% 30%, #E8E0D0 0%, #C4B8A0 100%);"></div>
+        <div class="board-card envelope-card">
+          <div class="env-flap"></div>
+          <div class="env-body">
+            <div class="env-seal">♥</div>
+            <div class="env-to">for ananya</div>
+            <div style="font-family:var(--ff-mono);font-size:0.52rem;letter-spacing:0.15em;color:var(--dust);text-transform:uppercase;margin-top:0.4rem;">a letter</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="position:absolute;bottom:8vh;right:6vw;transform:rotate(-3deg);pointer-events:none;">
+      <div style="background:#FFF59D;padding:1rem 1.2rem;box-shadow:2px 4px 12px rgba(0,0,0,0.3);max-width:170px;">
+        <div style="font-family:'Caveat',cursive;font-size:1.1rem;color:#333;line-height:1.4;">p.s. — read in order.<br>it matters.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OVERLAY -->
+  <div id="overlay">
+    <button class="back-btn" id="backBtn" onclick="closeOverlay()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M9 2L4 7L9 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      back
+    </button>
+
+    <!-- BOOK 1 VIEWER -->
+    <div class="book-viewer" id="book1-viewer">
+      <button class="page-nav page-nav-prev show" id="b1-prev" onclick="flipPage(1,-1)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <div style="position:relative;">
+        <div class="zine" id="zine1">
+          <div class="zine-spine" id="zine1-spine"></div>
+          <div class="zine-pages" id="b1-pages"></div>
+        </div>
+        <div class="zine-hud" id="b1-hud"></div>
+      </div>
+      <button class="page-nav page-nav-next show" id="b1-next" onclick="flipPage(1,1)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <!-- BOOK 2 VIEWER -->
+    <div class="book-viewer" id="book2-viewer">
+      <button class="page-nav page-nav-prev show" id="b2-prev" onclick="flipPage(2,-1)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M10 3L5 8L10 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+      <div style="position:relative;">
+        <div class="zine" id="zine2">
+          <div class="zine-spine" id="zine2-spine"></div>
+          <div class="zine-pages" id="b2-pages"></div>
+        </div>
+        <div class="zine-hud" id="b2-hud"></div>
+      </div>
+      <button class="page-nav page-nav-next show" id="b2-next" onclick="flipPage(2,1)">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <!-- LETTER VIEWER -->
+    <div class="letter-viewer" id="letter-viewer">
+      <div class="envelope-wrap">
+        <div class="env-outer" id="env-outer">
+          <div class="env-outer-flap"></div>
+          <div class="env-outer-seal" id="env-seal" onclick="breakSeal()">♥</div>
+          <div class="letter-paper" id="letter-paper">
+            <div class="letter-inner">
+              <div class="letter-polaroid">
+                <img src="assets/images/her/IMG-20260610-WA0015.jpg" alt="her">
+                <span class="letter-polaroid-cap">you ♡</span>
+              </div>
+              <div class="letter-text-wrap private-text">
+                <span class="letter-sal">Hey ananya,</span>
+                <p>I don't really know how to start this. I've rewritten this like four times. But here it is — my messy, honest, unfiltered attempt at saying the thing I've been sitting with for a while.</p>
+                <p>There's this thing that happens when I'm around you. Everything else goes quiet. Not like, boring quiet. More like the kind of quiet where you realise you haven't been breathing right and suddenly you are.</p>
+                <p>You make the ordinary feel like it's worth noticing. And I notice everything when you're around.</p>
+                <p>Anyway. I made you something. Three somethings, actually. And after you've seen them all — I have a question.</p>
+                <span class="letter-sig">— abhinavv ♡</span>
+              </div>
+            </div>
+            <button class="letter-continue" onclick="openProposal()">continue to the last thing →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROPOSAL VIEWER -->
+    <div class="proposal-viewer" id="proposal-viewer">
+      <canvas class="prop-canvas" id="prop-canvas"></canvas>
+      <div class="proposal-body" id="proposal-body">
+        <span class="prop-over">one last thing.</span>
+        <div class="prop-q">will you<br><span>be mine?</span></div>
+        <p class="prop-desc">No pressure. Take your time. I've made up <em>my</em> mind though.</p>
+        <div class="prop-btns" id="prop-btns">
+          <button class="prop-yes" onclick="sayYes()">yes ♡</button>
+          <span class="prop-evader" id="maybe-wrap"><button class="prop-maybe" id="prop-maybe" onmouseenter="evadeBtn(this)">maybe</button></span>
+          <span class="prop-evader" id="no-wrap"><button class="prop-no" id="prop-no" onmouseenter="evadeBtn(this)" onclick="clickNo()">no</button></span>
+        </div>
+      </div>
+      <div class="yes-panel" id="yes-panel">
+        <canvas class="prop-canvas" id="yes-canvas"></canvas>
+        <div class="yes-inner">
+          <span class="yes-heart">♥</span>
+          <div class="yes-title">SHE SAID YES.</div>
+          <p class="yes-msg">okay wow. okay.<br>I'm really glad you did.<br><br>so — hi. I'm yours now.</p>
+        </div>
+      </div>
+    </div>
+  </div><!-- /overlay -->
+
+  <!-- Windows Error (new world) -->
+  <div class="win-error" id="win-error">
+    <div class="win-titlebar" id="win-titlebar">
+      <div class="win-title-text">⚠ System Error</div>
+      <div class="win-controls">
+        <div class="win-ctrl-btn">_</div>
+        <div class="win-ctrl-btn">□</div>
+        <div class="win-ctrl-btn close-btn" onclick="dismissError()">✕</div>
+      </div>
+    </div>
+    <div class="win-body">
+      <div class="win-icon">🛑</div>
+      <div class="win-message" id="win-msg">
+        <p><strong>heart.exe has stopped working.</strong></p>
+        <p>A critical error occurred: user selected an unsupported option ("No").</p>
+        <p>Please try again with a different input.</p>
+      </div>
+    </div>
+    <div class="win-footer">
+      <button class="win-ok-btn" onclick="dismissError()">OK</button>
+      <button class="win-ok-btn" onclick="dismissError()">Cancel</button>
+    </div>
+  </div>
+  <div class="bsod" id="bsod">
+    <div style="width:min(700px,90vw);">
+      <p class="bsod-title">:( HEART_OVERLOAD_ERROR</p>
+      <p>Your PC ran into a problem it couldn't handle, and now needs to restart.<br><strong class="bsod-highlight">STOP CODE: NO_WAS_NOT_AN_OPTION</strong></p>
+      <p style="margin-top:1.5rem;">0% complete. Collecting feelings...</p>
+      <p style="margin-top:1rem;opacity:0.7;font-size:12px;">If you need more convincing, ask the person who made this.<br>They have <em>many</em> reasons and will not stop talking.</p>
+      <button class="bsod-restart" onclick="restartFromBSOD()">→ restart and try again</button>
+    </div>
+  </div>
+  <div id="yt-player" style="position:fixed;bottom:-999px;left:-999px;width:1px;height:1px;pointer-events:none;"></div>
+
+</div><!-- /new-world -->
+
+
+<!-- ══════════════════════════════════════════════
+     MASTER GATEWAY SCRIPT
+══════════════════════════════════════════════ -->
+<script>
+/* ─── GATEWAY STATE ─────────────────────────────────────── */
+let selVer = 'new';
+let privOn = false;
+
+function selectVer(v) {
+  selVer = v;
+  document.getElementById('btn-old').className = 'ver-btn' + (v==='old' ? ' active-old' : '');
+  document.getElementById('btn-new').className = 'ver-btn' + (v==='new' ? ' active-new' : '');
+  const cta = document.getElementById('gw-cta');
+  cta.textContent = v === 'old' ? 'open the original  →' : 'open the archive  →';
+  cta.className = 'gw-cta' + (v==='new' ? ' v-new' : '');
+}
+
+function togglePrivacy() {
+  privOn = !privOn;
+  const pill = document.getElementById('gw-toggle');
+  const desc = document.getElementById('gw-privacy-desc');
+  const notice = document.getElementById('gw-notice');
+  const tFor = document.getElementById('tgl-for');
+  const tShow = document.getElementById('tgl-show');
+  pill.classList.toggle('on', privOn);
+  tFor.classList.toggle('on', !privOn);
+  tShow.classList.toggle('on', privOn);
+  desc.textContent = privOn ? 'Showing someone — text will be hidden.' : 'For my eyes only — everything visible.';
+  notice.classList.toggle('show', privOn);
+}
+
+function launch() {
+  // Apply privacy to body
+  if (privOn) document.body.classList.add('privacy-on');
+
+  // Hide gateway
+  const gw = document.getElementById('gateway');
+  gw.classList.add('hidden');
+
+  // Show privacy badge if privacy on
+  if (privOn) {
+    const badge = document.getElementById('privacy-badge');
+    badge.classList.add('visible');
+  }
+
+  setTimeout(() => {
+    gw.style.display = 'none';
+
+    if (selVer === 'old') {
+      // Enable old CSS + JS
+      document.getElementById('old-css').disabled = false;
+      document.getElementById('old-world').classList.add('active');
+      // Load old JS
+      if (!document.getElementById('old-main-js')) {
+        const s = document.createElement('script');
+        s.id = 'old-main-js';
+        s.src = 'assets/js/main.js';
+        document.body.appendChild(s);
+      }
+      // Old proposal JS
+      initOldProposal();
+    } else {
+      // Enable new CSS
+      document.getElementById('new-css').disabled = false;
+      document.getElementById('new-world').classList.add('active');
+      // Load YT for new world
+      loadYT();
+    }
+  }, 650);
+}
+
+function togglePrivacyLive() {
+  document.body.classList.toggle('privacy-on');
+  const badge = document.getElementById('privacy-badge');
+  const on = document.body.classList.contains('privacy-on');
+  document.getElementById('pb-label').textContent = on ? 'privacy on' : 'privacy off';
+}
+
+// Keyboard shortcuts on gateway
+document.addEventListener('keydown', e => {
+  const gw = document.getElementById('gateway');
+  if (gw.style.display === 'none') return;
+  if (e.key === 'Enter') launch();
+  if (e.key === '1') selectVer('old');
+  if (e.key === '2') selectVer('new');
+  if (e.key === 'p') togglePrivacy();
+});
+</script>
+
+<!-- ══════════════════════════════════════════════
+     OLD WORLD PROPOSAL SCRIPT
+══════════════════════════════════════════════ -->
+<script>
+let oldNoCount = 0;
+function initOldProposal() {
+  // nothing needed — handlers are inline
+}
+function oldSayYes() {
+  const canvas = document.getElementById('old-yes-canvas');
+  if (canvas) {
+    canvas.style.display = 'block';
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    startOldConfetti(canvas);
+  }
+  const inner = document.querySelector('.prop-q-inner');
+  if (inner) {
+    inner.innerHTML += '<div style="margin-top:2rem;font-family:\'Playfair Display\',serif;font-style:italic;font-size:1.6rem;color:#c8102e;">she said yes. ♥</div>';
+  }
+}
+function oldEvadeNo(btn) {
+  const vw = window.innerWidth, vh = window.innerHeight;
+  btn.style.position = 'fixed';
+  btn.style.left = (50 + Math.random() * (vw - 200)) + 'px';
+  btn.style.top  = (50 + Math.random() * (vh - 100)) + 'px';
+}
+function oldClickNo() {
+  oldNoCount++;
+  if (oldNoCount >= 4) { document.getElementById('old-bsod').style.display='flex'; return; }
+  const err = document.getElementById('old-win-error');
+  err.style.display = 'block';
+  err.style.top  = (80 + Math.random() * 300) + 'px';
+  err.style.left = (80 + Math.random() * 500) + 'px';
+}
+function oldDismissError() { document.getElementById('old-win-error').style.display = 'none'; }
+function oldRestartBSOD() { oldNoCount=0; document.getElementById('old-bsod').style.display='none'; }
+function startOldConfetti(canvas) {
+  const ctx = canvas.getContext('2d');
+  const pts = Array.from({length:70}, ()=>({
+    x:canvas.width/2, y:canvas.height/2,
+    vx:(Math.random()-.5)*12, vy:-7-Math.random()*9,
+    r:4+Math.random()*5,
+    color:['#C8102E','#FF4060','#FFD700','#FF90AA'][Math.floor(Math.random()*4)],
+    alpha:1, g:0.25
+  }));
+  function loop() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=p.g;p.alpha-=0.009;if(p.alpha<=0)return;ctx.save();ctx.globalAlpha=p.alpha;ctx.fillStyle=p.color;ctx.fillRect(p.x-p.r/2,p.y-p.r/2,p.r,p.r);ctx.restore();});
+    if(pts.some(p=>p.alpha>0)) requestAnimationFrame(loop);
+  }
+  loop();
+}
+</script>
+
+<!-- ══════════════════════════════════════════════
+     NEW WORLD ARCHIVE SCRIPT (from love_book.html)
+══════════════════════════════════════════════ -->
+<script>
+/* ─── SONG DATA ──────────────────────────────────────────── */
+const SONGS = [
+  { title:"Tum Se Hi", artist:"Mohit Chauhan", ytId:"V7S3_Z4k4L8", start:59, end:220, note:"My days start with you and my nights are filled with your thoughts.", lines:[{t:59,text:"Na hai yeh paana"},{t:65,text:"Na khona hi hai"},{t:70,text:"Tera na hona, hona hi hai"},{t:76,text:"Tum se hi din hota hai"},{t:82,text:"Surmaiye shaam aati hai"},{t:88,text:"Tum se hi din hota hai"},{t:94,text:"Tum se raat hoti hai"}], image:"assets/images/her/IMG-20260610-WA0007.jpg", stickyQ:"why you?", stickyHint:"Tap to hear what I hear when I think of you." },
+  { title:"Kuch Toh Hua Hai", artist:"Sonu Nigam", ytId:"b-y1AeaA_pU", start:85, end:160, note:"Something changed when we met. And I love whatever it is.", lines:[{t:85,text:"Kuch toh hua hai"},{t:90,text:"Kuch ho raha hai"},{t:96,text:"Dil ko teri zaroorat hai"},{t:102,text:"Kuch toh hua hai"},{t:107,text:"Kuch ho raha hai"}], image:"assets/images/her/IMG-20260610-WA0009.jpg", stickyQ:"why you?", stickyHint:"Something definitely happened the moment I met you." },
+  { title:"Bekhayali", artist:"Sachet Tandon", ytId:"vdK2n30vW_g", start:58, end:160, note:"You show up in my thoughts even in the emptiest moments.", lines:[{t:58,text:"Bekhayali mein bhi tera"},{t:64,text:"Khayal aata hai"},{t:70,text:"Bekhayali mein bhi tera"},{t:76,text:"Khayal aata hai"},{t:82,text:"Teri aankhon se jo pee leta"},{t:88,text:"Zeher bhi amrit lagta hai"}], image:"assets/images/her/IMG_20260607_224640_645.jpg", stickyQ:"why you?", stickyHint:"In the quietest parts of my day — it's still you." },
+  { title:"Aaj Jaane Ki Zid Na Karo", artist:"Farida Khanum", ytId:"8t3r-mU4mH0", start:105, end:200, note:"I never want the moment to end when we're together.", lines:[{t:105,text:"Aaj jaane ki"},{t:110,text:"Zid na karo"},{t:116,text:"Yun hi pehlu mein baithe raho"},{t:122,text:"Haay mar jaayenge"},{t:128,text:"Hum toh lut jaayenge"}], image:"assets/images/her/IMG-20260610-WA0008.jpg", stickyQ:"why you?", stickyHint:"Just — please don't go yet." },
+  { title:"Teri Aankhon Mein", artist:"Darshan Raval", ytId:"nE1cT9Q3b_M", start:80, end:180, note:"Your eyes do something to me. I can't fully explain it.", lines:[{t:80,text:"Teri aankhon mein kuch aisa hai"},{t:87,text:"Jo bhar aata hai"},{t:93,text:"Main teri aankhon mein kho jaata"},{t:99,text:"Dil ghabra jaata hai"}], image:"assets/images/her/IMG_20260607_224818_140.jpg", stickyQ:"why you?", stickyHint:"Your eyes — I can't look away and I can't look at them either." },
+  { title:"Samjhawan", artist:"Arijit Singh", ytId:"H2fC4r67hy0", start:48, end:140, note:"I genuinely don't know what I'd do without you. Simple as that.", lines:[{t:48,text:"Main tenu samjhawan ki"},{t:54,text:"Na tere bina lagda ji"},{t:60,text:"Main tenu samjhawan ki"},{t:66,text:"Na tere bina lagda ji"}], image:"assets/images/her/IMG_20260607_225253_267.jpg", stickyQ:"why you?", stickyHint:"I don't know how to do this without you." },
+];
+
+const INTENTIONS = [
+  { heading:"what I want", headingEm:"with you.", quote:"\"I'm not here to complicate your life. I'm here because you make mine feel worth something.\"", body:["I want the boring stuff. The silences that don't feel awkward. Walking somewhere with no real plan and it still feeling like the best part of the day.","I want to be the person you text at 2am when something funny happens. Or something sad. Or nothing in particular.","I want to know your opinions on everything — films, food, what makes people annoying. I want to disagree with you sometimes and still think you're completely right."], sig:"— this is my intention", image:"assets/images/her/IMG-20260610-WA0005.jpg", caption:"somewhere with you" },
+  { heading:"I pay attention", headingEm:"to you.", quote:"\"The way you exist in a room is different from everyone else. I don't know how else to say it.\"", body:["I notice the way you talk about things you care about — there's this shift. Like you're more awake.","I notice when you're tired before you say it. I notice when something bothered you even if you laughed it off.","I'm not good with a lot of things. But I am good at paying attention to you. I'd like permission to keep doing that."], sig:"— I see you", image:"assets/images/her/IMG_20260607_225513_386.jpg", caption:"I see you" },
+  { heading:"I'm not perfect", headingEm:"but I'm honest.", quote:"\"I won't promise perfect. But I'll promise real.\"", body:["I'll mess up. I'll probably say the wrong thing once or twice. I'll overthink things I shouldn't and underthink things I should.","But I won't pretend. I won't put on an act. What you see is what I am — someone who is, genuinely, in your corner.","And I'll keep showing up. That's the part I can actually promise."], sig:"— just being honest", image:"assets/images/her/IMG_20260607_224640_645.jpg", caption:"honest" },
+  { heading:"so here's", headingEm:"the question.", quote:"\"After all of this — I think you already know what I'm about to ask.\"", body:["I've made three things for you. A book of songs that remind me of you. A book of what I actually want. And a letter I rewrote four times.","And now I'm at the part where I ask.","There's one more page left in this archive. Go see it."], sig:"— go on. click next.", image:"assets/images/her/IMG-20260610-WA0015.jpg", caption:"the question", isLast:true },
+];
+
+let currentBook=0, b1Page=0, b2Page=0, ytPlayer=null, ytReady=false, noCount=0, stickyPeeled=[];
+
+window.onYouTubeIframeAPIReady = function() {
+  ytPlayer = new YT.Player('yt-player', {
+    height:'1', width:'1',
+    playerVars:{autoplay:0,controls:0,enablejsapi:1},
+    events:{onReady:()=>{ytReady=true;}}
+  });
+};
+
+function loadYT() {
+  if(document.getElementById('yt-api-script')) return;
+  const s=document.createElement('script'); s.id='yt-api-script'; s.src='https://www.youtube.com/iframe_api'; document.head.appendChild(s);
+}
+function playSong(song) { if(!ytReady||!ytPlayer) return; try{ytPlayer.loadVideoById({videoId:song.ytId,startSeconds:song.start,endSeconds:song.end});ytPlayer.setVolume(70);}catch(e){} }
+function stopMusic() { if(ytReady&&ytPlayer) try{ytPlayer.stopVideo();}catch(e){} }
+
+function showScreen(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function openBoard() {
+  showScreen('board-screen');
+  document.querySelectorAll('.board-pin-item').forEach((el,i)=>{el.style.opacity='0';setTimeout(()=>{el.style.transition='opacity 0.7s ease, transform 0.7s cubic-bezier(0.16,1,0.3,1)';el.style.opacity='1';},200+i*160);});
+}
+function openOverlay() { document.getElementById('overlay').classList.add('open'); }
+function closeOverlay() { document.querySelectorAll('.book-viewer,.letter-viewer,.proposal-viewer').forEach(v=>v.classList.remove('active')); document.getElementById('overlay').classList.remove('open'); stopMusic(); }
+function buildSpine(id,count=9){const el=document.getElementById(id);if(!el)return;el.innerHTML='';for(let i=0;i<count;i++){const r=document.createElement('div');r.className='zine-ring';el.appendChild(r);}}
+function buildHud(id,total,current){const el=document.getElementById(id);if(!el)return;el.innerHTML='';for(let i=0;i<total;i++){const d=document.createElement('div');d.className='hud-dot'+(i===current?' on':'');el.appendChild(d);}}
+function updateHud(id,current){document.querySelectorAll(`#${id} .hud-dot`).forEach((d,i)=>d.classList.toggle('on',i===current));}
+
+function buildBook1(){
+  const container=document.getElementById('b1-pages'); container.innerHTML=''; stickyPeeled=new Array(SONGS.length).fill(false);
+  const cp=document.createElement('div'); cp.className='zine-page active'; cp.id='b1-p-0';
+  cp.innerHTML=`<div class="page-left"><div class="cover-left"><div class="cover-big-num">I</div><span class="cover-label-top">for ananya &nbsp;·&nbsp; book one</span><div class="cover-main-title">Lines that remind me <em>of you</em></div><div class="cover-rule"></div><span class="cover-hint">songs / lyrics / why</span></div><span class="page-num">01</span></div><div class="page-right"><div class="intro-page"><div class="intro-heading">before you listen —</div><div class="intro-text"><p>I have a playlist. I've had it for a while. Some of these songs I found randomly, some I've known forever. But somewhere along the way, they all started reminding me of you.</p><p>Not because the lyrics are perfectly you. More because the feeling is. That particular ache, or warmth, or stillness — that's yours.</p><p>Each page has a song. There's a note over it — peel it off to hear what I was thinking when I first put this together.</p><p>Turn on your volume.</p></div><span class="page-num">02</span></div></div>`;
+  container.appendChild(cp);
+  SONGS.forEach((song,idx)=>{
+    const pg=document.createElement('div'); pg.className='zine-page'; pg.id=`b1-p-${idx+1}`;
+    const linesHtml=song.lines.map(l=>`<div class="lyric-line" data-t="${l.t}">${l.text}</div>`).join('');
+    const rotPolaroid = (idx % 2 === 0 ? -2.5 : 2.0) + (Math.random() * 1.5 - 0.75);
+    const rotPaper = (idx % 2 === 0 ? 3.0 : -3.5) + (Math.random() * 2 - 1);
+    const hasTapeLeft = idx % 3 === 0;
+    const hasTapeRight = idx % 3 === 1;
+    pg.innerHTML=`<div class="page-left"><div class="collage-container"><div class="collage-bg-texture"></div><div class="ripped-paper-back" style="transform: rotate(${rotPaper}deg); background: ${idx % 2 === 0 ? 'var(--red-dark)' : 'var(--coal)'};"></div><div class="polaroid-frame" style="transform: rotate(${rotPolaroid}deg);"><div class="tape-strip top-center"></div>${hasTapeLeft ? '<div class="tape-strip angle-left"></div>' : ''}${hasTapeRight ? '<div class="tape-strip angle-right"></div>' : ''}<img src="${song.image}" alt="her" onerror="this.style.display='none'"><div class="polaroid-caption">${song.title} ♡</div></div><div class="doodle star-doodle" style="top: 10%; right: 8%;">✨</div><div class="doodle heart-doodle" style="bottom: 8%; left: 8%;">♥</div><div class="film-strip-scrap" style="transform: rotate(${(idx % 2 === 0 ? -12 : 15)}deg); bottom: ${idx % 2 === 0 ? '6%' : '12%'}; right: ${idx % 2 === 0 ? '-12px' : 'auto'}; left: ${idx % 2 === 0 ? 'auto' : '-10px'};">${Array.from({length:4}).map(()=>'<div class="film-perf"></div>').join('')}</div></div><span class="page-num">${String((idx+1)*2+1).padStart(2,'0')}</span></div><div class="page-right"><div class="sticky-wrap" id="sticky-${idx}" onclick="peelSticky(${idx},event)"><div class="sticky-q">${song.stickyQ}</div><div class="sticky-sub">${song.stickyHint}</div><div class="sticky-tap">tap to reveal</div></div><div class="lyrics-content-side"><div class="lyrics-box" id="lyricsbox-${idx}"><div class="lyrics-song-name">${song.title}</div><div class="lyrics-artist">${song.artist}</div><div class="lyrics-scroll" id="lscroll-${idx}">${linesHtml}</div><div class="lyrics-note private-text">"${song.note}"</div></div></div><span class="page-num">${String((idx+1)*2+2).padStart(2,'0')}</span></div>`;
+    container.appendChild(pg);
+  });
+  buildSpine('zine1-spine',10); buildHud('b1-hud',SONGS.length+1,0);
+}
+
+function peelSticky(idx,e){
+  if(stickyPeeled[idx])return; stickyPeeled[idx]=true;
+  document.getElementById(`sticky-${idx}`).classList.add('peeled');
+  setTimeout(()=>document.getElementById(`lyricsbox-${idx}`).classList.add('visible'),400);
+  playSong(SONGS[idx]); startLyricSync(idx,SONGS[idx]); sprayHearts(e.clientX,e.clientY,8);
+}
+
+let lyricTimer=null;
+function startLyricSync(idx,song){
+  clearInterval(lyricTimer);
+  const lines=document.querySelectorAll(`#lscroll-${idx} .lyric-line`);
+  lyricTimer=setInterval(()=>{
+    if(!ytReady||!ytPlayer)return; let curT; try{curT=ytPlayer.getCurrentTime();}catch(e){return;}
+    let litIdx=-1; lines.forEach((line,li)=>{if(curT>=parseFloat(line.dataset.t))litIdx=li;});
+    lines.forEach((line,li)=>line.classList.toggle('lit',li===litIdx));
+    if(litIdx>=0&&lines[litIdx])lines[litIdx].scrollIntoView({behavior:'smooth',block:'center'});
+  },300);
+}
+
+function flipPage(bookNum,dir){
+  if(bookNum===1){const total=SONGS.length+1,next=b1Page+dir;if(next<0||next>=total)return;stopMusic();clearInterval(lyricTimer);animateFlip('b1',b1Page,next,dir);b1Page=next;updateHud('b1-hud',b1Page);document.getElementById('b1-prev').classList.toggle('show',b1Page>0);document.getElementById('b1-next').classList.toggle('show',b1Page<total-1);}
+  else{const total=INTENTIONS.length+1,next=b2Page+dir;if(next<0||next>=total)return;animateFlip('b2',b2Page,next,dir);b2Page=next;updateHud('b2-hud',b2Page);document.getElementById('b2-prev').classList.toggle('show',b2Page>0);document.getElementById('b2-next').classList.toggle('show',b2Page<total-1);}
+}
+
+function animateFlip(prefix,from,to,dir){
+  const fromEl=document.getElementById(`${prefix}-p-${from}`),toEl=document.getElementById(`${prefix}-p-${to}`);
+  if(!fromEl||!toEl)return;
+  fromEl.classList.add(dir>0?'leaving':'leaving-back');
+  setTimeout(()=>fromEl.classList.remove('active','leaving','leaving-back'),500);
+  toEl.style.opacity='0'; toEl.classList.add('active'); toEl.classList.add(dir>0?'entering':'entering-back');
+  setTimeout(()=>{toEl.classList.remove('entering','entering-back');toEl.style.opacity='';},600);
+}
+
+function openBook(num){
+  openOverlay();
+  if(num===1){buildBook1();b1Page=0;document.getElementById('book1-viewer').classList.add('active');document.getElementById('b1-prev').classList.remove('show');}
+  else{buildBook2();b2Page=0;document.getElementById('book2-viewer').classList.add('active');document.getElementById('b2-prev').classList.remove('show');}
+}
+
+function buildBook2(){
+  const container=document.getElementById('b2-pages'); container.innerHTML='';
+  const cp=document.createElement('div'); cp.className='zine-page active'; cp.id='b2-p-0';
+  cp.innerHTML=`<div class="page-left"><div class="cover2-left"><div class="cover2-accent"></div><div class="cover-big-num" style="color:rgba(200,16,46,0.08);">II</div><span class="cover-label-top">for ananya &nbsp;·&nbsp; book two</span><div class="cover-main-title" style="color:var(--white);">my intention <em style="color:#F5C0C8;">with you</em></div><div class="cover-rule"></div><span class="cover-hint">what I want / why you / where this is going</span></div><span class="page-num" style="color:rgba(255,255,255,0.2);">01</span></div><div class="page-right"><div class="intro-page"><div class="intro-heading">this is me<br>being honest.</div><div class="intro-text"><p>This is harder to write than the songs. Songs are easy — someone else already found the words. This is just me.</p><p>I'm not trying to impress you. I'm trying to be clear. About what I want, what I'm offering, and why it's you.</p><p>Read it slowly.</p></div><span class="page-num">02</span></div></div>`;
+  container.appendChild(cp);
+  INTENTIONS.forEach((item,idx)=>{
+    const pg=document.createElement('div'); pg.className='zine-page'; pg.id=`b2-p-${idx+1}`;
+    const isLast=!!item.isLast;
+    const nextBtn=isLast?`<div style="margin-top:1.5rem;"><button onclick="closeOverlay();openLetter();" style="background:var(--red);color:var(--white);border:none;padding:0.7rem 2rem;font-family:var(--ff-mono);font-size:0.62rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;border-radius:2px;cursor:pointer;">open the letter →</button></div>`:'';
+    const bodyHtml=item.body.map(p=>`<p class="private-text">${p}</p>`).join('');
+    const rotEd = (idx % 2 === 0 ? 1.5 : -1.8) + (Math.random() * 1.0 - 0.5);
+    const rotPaper = (idx % 2 === 0 ? -2.2 : 2.5) + (Math.random() * 1.5 - 0.75);
+    pg.innerHTML=`<div class="page-left"><div class="collage-container"><div class="collage-bg-texture" style="background:radial-gradient(circle, rgba(0,0,0,0) 65%, rgba(200,16,46,0.06) 100%);"></div><div class="ripped-paper-back" style="background:var(--paper); transform:rotate(${rotPaper}deg); width:80%; height:75%;"></div><div class="editorial-frame" style="transform: rotate(${rotEd}deg);"><div class="tape-strip angle-right" style="background:rgba(200,16,46,0.4);"></div><img src="${item.image}" alt="her" onerror="this.style.display='none'"><div class="editorial-caption">${item.caption}</div></div><div class="doodle memo-sticker" style="top: 8%; left: 8%; font-family:var(--ff-mono); font-size: 0.5rem; letter-spacing: 0.15em; background:var(--red); color:var(--white); padding: 0.3rem 0.6rem; transform: rotate(-8deg); box-shadow: 1px 2px 5px rgba(0,0,0,0.2);">PAGE ${idx+1}</div></div><span class="page-num" style="color:rgba(255,255,255,0.2);">${String((idx+1)*2+1).padStart(2,'0')}</span></div><div class="page-right"><div class="intention-content"><div class="int-heading">${item.heading} <em>${item.headingEm}</em></div><div class="int-quote private-text">${item.quote}</div><div class="int-body">${bodyHtml}</div><div class="int-sig private-text">${item.sig}</div>${nextBtn}</div><span class="page-num">${String((idx+1)*2+2).padStart(2,'0')}</span></div>`;
+    container.appendChild(pg);
+  });
+  buildSpine('zine2-spine',10); buildHud('b2-hud',INTENTIONS.length+1,0);
+}
+
+function openLetter(){closeOverlay();setTimeout(()=>{openOverlay();document.getElementById('letter-viewer').classList.add('active');},300);}
+function breakSeal(){document.getElementById('env-outer').classList.add('opened');}
+function openProposal(){closeOverlay();setTimeout(()=>{openOverlay();document.getElementById('proposal-viewer').classList.add('active');startPetals();},400);}
+
+function evadeBtn(btn){
+  const wrap=btn.closest('.prop-evader'); if(!wrap)return;
+  const dx=(Math.random()-.5)*320,dy=(Math.random()-.5)*200;
+  const cur=new DOMMatrix(getComputedStyle(wrap).transform);
+  const nx=(cur.m41||0)+dx,ny=(cur.m42||0)+dy;
+  const maxX=window.innerWidth*0.35,maxY=window.innerHeight*0.3;
+  wrap.style.transform=`translate(${Math.max(-maxX,Math.min(maxX,nx))+'px'},${Math.max(-maxY,Math.min(maxY,ny))+'px'})`;
+}
+
+const ERROR_MSGS=[
+  {title:"heart.exe has stopped working",body:`<p><strong>Critical Error:</strong> The option "No" has been detected.</p><p>This input is not supported in the current emotional state.</p><p>Please select "Yes" to continue.</p>`},
+  {title:"Runtime Exception — INVALID_RESPONSE",body:`<p>The system has encountered an unexpected value: <strong>"No"</strong>.</p><p>Stack trace: reason → overthinking → incorrect conclusion.</p><p>Try again? Recommended: Yes.</p>`},
+  {title:"Error 404: Good Answer Not Found",body:`<p>The server could not locate an acceptable reason for clicking "No".</p><p>Redirecting you back to the question...</p>`},
+  {title:"Warning: Heart Overflow Detected",body:`<p>The feelings buffer has exceeded capacity. Rebooting...</p><p><strong>Cause:</strong> User refuses to say yes despite all evidence pointing to yes.</p>`},
+];
+function clickNo(){noCount++;if(noCount>=4){showBSOD();return;}const msg=ERROR_MSGS[(noCount-1)%ERROR_MSGS.length];const err=document.getElementById('win-error');document.querySelector('#win-error .win-title-text').textContent='⚠ '+msg.title;document.getElementById('win-msg').innerHTML=msg.body;const vw=window.innerWidth,vh=window.innerHeight;err.style.top=(100+Math.random()*(vh-300))+'px';err.style.left=(100+Math.random()*(vw-400))+'px';err.style.transform='none';err.classList.add('show');makeDraggable(err);}
+function dismissError(){document.getElementById('win-error').classList.remove('show');}
+let dragState=null;
+function makeDraggable(el){const bar=el.querySelector('.win-titlebar');bar.onmousedown=(e)=>{dragState={el,startX:e.clientX-el.offsetLeft,startY:e.clientY-el.offsetTop};el.classList.add('dragging');};}
+document.addEventListener('mousemove',(e)=>{if(!dragState)return;dragState.el.style.left=(e.clientX-dragState.startX)+'px';dragState.el.style.top=(e.clientY-dragState.startY)+'px';});
+document.addEventListener('mouseup',()=>{if(dragState)dragState.el.classList.remove('dragging');dragState=null;});
+function showBSOD(){dismissError();document.getElementById('bsod').classList.add('show');}
+function restartFromBSOD(){noCount=0;document.getElementById('bsod').classList.remove('show');}
+function sayYes(){document.getElementById('yes-panel').classList.add('show');startYesConfetti();sprayHearts(window.innerWidth/2,window.innerHeight/2,30);}
+
+let petalAnim=null;
+function startPetals(){
+  const canvas=document.getElementById('prop-canvas'); if(!canvas)return;
+  const ctx=canvas.getContext('2d'); canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  const petals=Array.from({length:25},()=>({x:Math.random()*canvas.width,y:-20-Math.random()*200,vy:0.6+Math.random()*0.8,vx:(Math.random()-.5)*0.6,r:4+Math.random()*5,angle:Math.random()*Math.PI*2,spin:(Math.random()-.5)*0.04,opacity:0.3+Math.random()*0.4}));
+  function drawPetal(ctx,x,y,r,angle,opacity){ctx.save();ctx.translate(x,y);ctx.rotate(angle);ctx.globalAlpha=opacity;ctx.beginPath();ctx.ellipse(0,0,r,r*1.8,0,0,Math.PI*2);ctx.fillStyle=`hsl(${350+Math.random()*15},80%,${55+Math.random()*15}%)`;ctx.fill();ctx.restore();}
+  function loop(){ctx.clearRect(0,0,canvas.width,canvas.height);petals.forEach(p=>{p.x+=p.vx+Math.sin(p.y*.01)*.3;p.y+=p.vy;p.angle+=p.spin;if(p.y>canvas.height+30){p.y=-20;p.x=Math.random()*canvas.width;}drawPetal(ctx,p.x,p.y,p.r,p.angle,p.opacity);});petalAnim=requestAnimationFrame(loop);}
+  if(petalAnim)cancelAnimationFrame(petalAnim); loop();
+}
+
+function startYesConfetti(){
+  const canvas=document.getElementById('yes-canvas'); if(!canvas)return;
+  const ctx=canvas.getContext('2d'); canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  const particles=Array.from({length:80},()=>({x:canvas.width/2,y:canvas.height/2,vx:(Math.random()-.5)*14,vy:-8-Math.random()*10,r:5+Math.random()*5,color:['#C8102E','#FF4060','#FF7090','#FFD0D8','#FFF8BE','#FFD700'][Math.floor(Math.random()*6)],shape:Math.random()>.5?'heart':'rect',alpha:1,gravity:0.25,spin:(Math.random()-.5)*0.12,rot:Math.random()*Math.PI*2}));
+  function drawHeart(ctx,x,y,r){ctx.beginPath();ctx.moveTo(x,y-r*.5);ctx.bezierCurveTo(x+r,y-r*1.5,x+r*2,y+r*.5,x,y+r*1.5);ctx.bezierCurveTo(x-r*2,y+r*.5,x-r,y-r*1.5,x,y-r*.5);ctx.fill();}
+  function loopConf(){ctx.clearRect(0,0,canvas.width,canvas.height);particles.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=p.gravity;p.rot+=p.spin;p.alpha-=0.008;if(p.alpha<=0)return;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.globalAlpha=p.alpha;ctx.fillStyle=p.color;if(p.shape==='heart')drawHeart(ctx,0,0,p.r*.5);else ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r);ctx.restore();});if(particles.some(p=>p.alpha>0))requestAnimationFrame(loopConf);}
+  loopConf();
+}
+
+function sprayHearts(cx,cy,count){
+  const emojis=['♥','❤','🌹','✨','💌','🎀'];
+  for(let i=0;i<count;i++){const h=document.createElement('div');h.className='spray-heart';h.textContent=emojis[Math.floor(Math.random()*emojis.length)];const angle=Math.random()*Math.PI*2,speed=4+Math.random()*8,vx=Math.cos(angle)*speed,vy=Math.sin(angle)*speed,scale=0.7+Math.random()*1.2,rot=(Math.random()-.5)*720;h.style.cssText=`left:${cx}px;top:${cy}px;--vx:${vx}px;--vy:${vy}px;--scale:${scale};--rot:${rot}deg;animation-delay:${Math.random()*200}ms;`;document.body.appendChild(h);setTimeout(()=>h.remove(),1500);}
+}
+
+document.addEventListener('keydown',e=>{
+  const ov=document.getElementById('overlay'); if(!ov) return;
+  if(e.key==='ArrowRight'||e.key==='ArrowDown'){if(document.getElementById('book1-viewer').classList.contains('active'))flipPage(1,1);else if(document.getElementById('book2-viewer').classList.contains('active'))flipPage(2,1);}
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp'){if(document.getElementById('book1-viewer').classList.contains('active'))flipPage(1,-1);else if(document.getElementById('book2-viewer').classList.contains('active'))flipPage(2,-1);}
+  if(e.key==='Escape'){if(document.getElementById('bsod').classList.contains('show'))return;closeOverlay();}
+});
+
+let scrollLock=false;
+document.addEventListener('wheel',e=>{
+  if(scrollLock)return;
+  const ov=document.getElementById('overlay'); if(!ov||!ov.classList.contains('open'))return;
+  const dir=e.deltaY>0?1:-1;
+  if(document.getElementById('book1-viewer').classList.contains('active'))flipPage(1,dir);
+  else if(document.getElementById('book2-viewer').classList.contains('active'))flipPage(2,dir);
+  scrollLock=true; setTimeout(()=>scrollLock=false,700);
+},{passive:true});
+</script>
+
+<!-- Old site proposal additions: extra CSS for proposal page in old world -->
+<style>
+  .prop-question-page {
+    background: #0D0B09 !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+  .prop-q-inner {
+    text-align: center;
+    padding: 2rem;
+    position: relative;
+    z-index: 2;
+  }
+  .prop-q-label {
+    font-family: 'Space Mono', 'Inter', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 1.5rem;
+    display: block;
+  }
+  .prop-q-title {
+    font-family: 'Bebas Neue', 'Playfair Display', serif;
+    font-size: clamp(3rem, 7vw, 6rem);
+    color: white;
+    line-height: 0.9;
+    letter-spacing: 0.03em;
+    margin-bottom: 2rem;
+  }
+  .prop-q-title span { color: #C8102E; }
+  .prop-q-rule { width: 40px; height: 2px; background: #C8102E; margin: 0 auto 2.5rem; }
+  .prop-q-btns { display: flex; gap: 1rem; align-items: center; justify-content: center; flex-wrap: wrap; }
+  .prop-q-yes {
+    padding: 0.9rem 2.5rem;
+    background: #C8102E; color: white; border: none;
+    font-family: 'Space Mono', monospace; font-size: 0.7rem;
+    font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+    cursor: pointer; border-radius: 2px;
+    transition: transform 0.18s, box-shadow 0.18s;
+  }
+  .prop-q-yes:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(200,16,46,0.4); }
+  .prop-q-no {
+    padding: 0.9rem 2rem;
+    background: transparent; color: rgba(255,255,255,0.4);
+    border: 1px solid rgba(255,255,255,0.15);
+    font-family: 'Space Mono', monospace; font-size: 0.65rem;
+    font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;
+    cursor: pointer; border-radius: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  #old-yes-canvas {
+    position: fixed; inset: 0; pointer-events: none; z-index: 9999; display: none;
+  }
+  /* Old bsod display fix */
+  .old-bsod { display: none; }
+  .old-bsod.show, .old-bsod[style*="flex"] { display: flex !important; }
+  .old-win-err { display: none; }
+</style>
+
+</body>
+</html>

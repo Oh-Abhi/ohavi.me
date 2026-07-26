@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>for her.</title>
+    <meta name="description" content="a film in pages.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Mono:wght@300;400&family=DM+Sans:wght@200;300;400&display=swap" rel="stylesheet">
+
+    <style>
+        /* ────────────────────────────────────────────
+           RESET & BASE
+        ──────────────────────────────────────────── */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --red:   #C41E3A;
+            --red-dark: #9A1528;
+            --white: #FFFFFF;
+            --cream: #F8F3EE;
+            --black: #080808;
+            --gray:  #888;
+            --flip-duration: 0.9s;
+            --flip-ease: cubic-bezier(0.645, 0.045, 0.355, 1.000);
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: var(--black);
+            cursor: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ────────────────────────────────────────────
+           CURSOR
+        ──────────────────────────────────────────── */
+        #cursor {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background: var(--white);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99999;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+            transition: transform 0.15s ease, width 0.3s ease, height 0.3s ease;
+        }
+
+        #cursor.hovered {
+            width: 40px;
+            height: 40px;
+        }
+
+        /* ────────────────────────────────────────────
+           BOOK CONTAINER
+        ──────────────────────────────────────────── */
+        #book {
+            position: fixed;
+            inset: 0;
+            perspective: 2500px;
+            perspective-origin: 50% 50%;
+        }
+
+        /* ────────────────────────────────────────────
+           BOOK PAGES — STACKING & FLIP
+        ──────────────────────────────────────────── */
+        .page {
+            position: absolute;
+            inset: 0;
+            transform-origin: left center;
+            transform: rotateY(0deg);
+            transform-style: preserve-3d;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            transition: transform var(--flip-duration) var(--flip-ease);
+            will-change: transform;
+        }
+
+        /* The page-edge shadow — appears while page is turning */
+        .page::before {
+            content: '';
+            position: absolute;
+            top: 0; right: 0; bottom: 0;
+            width: 60px;
+            background: linear-gradient(to left, rgba(0,0,0,0.25), transparent);
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .page.is-turning::before { opacity: 1; }
+
+        .page.flipped {
+            transform: rotateY(-180deg);
+        }
+
+        /* ────────────────────────────────────────────
+           PAGE 0 — A24 VIDEO COVER
+        ──────────────────────────────────────────── */
+        .page-video {
+            background: var(--black);
+            overflow: hidden;
+        }
+
+        .video-wrapper {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: saturate(0.65) contrast(1.12) brightness(0.9);
+        }
+
+        /* Red vignette tint */
+        .video-tint {
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 30% 60%, rgba(196, 30, 58, 0.25) 0%, transparent 65%),
+                linear-gradient(to bottom, rgba(8,8,8,0.4) 0%, transparent 30%, transparent 70%, rgba(8,8,8,0.6) 100%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Film grain */
+        .grain {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            opacity: 0.04;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            animation: grainShift 0.15s steps(2) infinite;
+        }
+
+        @keyframes grainShift {
+            0%  { background-position: 0 0; }
+            50% { background-position: 150px 75px; }
+            100%{ background-position: 75px 150px; }
+        }
+
+        /* Letterbox bars */
+        .letterbox {
+            position: absolute;
+            left: 0; right: 0;
+            z-index: 4;
+            background: var(--black);
+        }
+        .letterbox.top    { top: 0;    height: 10vh; }
+        .letterbox.bottom { bottom: 0; height: 10vh; }
+
+        /* A24 studio badge */
+        .a24-badge {
+            position: absolute;
+            top: 4.2vh;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'DM Mono', monospace;
+            font-weight: 300;
+            font-size: clamp(0.6rem, 1vw, 0.8rem);
+            letter-spacing: 0.7em;
+            color: rgba(255,255,255,0.8);
+            z-index: 8;
+        }
+
+        /* Video page title block */
+        .video-title {
+            position: absolute;
+            bottom: 14vh;
+            left: 6%;
+            z-index: 8;
+        }
+
+        .video-title .label {
+            font-family: 'DM Mono', monospace;
+            font-weight: 300;
+            font-size: clamp(0.55rem, 0.9vw, 0.72rem);
+            letter-spacing: 0.35em;
+            color: rgba(255,255,255,0.45);
+            text-transform: uppercase;
+            margin-bottom: 0.6rem;
+        }
+
+        .video-title h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 300;
+            font-size: clamp(3.5rem, 7vw, 6rem);
+            line-height: 0.92;
+            color: var(--white);
+            letter-spacing: -0.02em;
+        }
+
+        /* Scroll hint */
+        .scroll-hint {
+            position: absolute;
+            bottom: 4.5vh;
+            right: 5%;
+            z-index: 8;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-family: 'DM Mono', monospace;
+            font-size: clamp(0.55rem, 0.8vw, 0.68rem);
+            letter-spacing: 0.3em;
+            color: rgba(255,255,255,0.3);
+            text-transform: uppercase;
+        }
+
+        .scroll-bar {
+            width: 48px;
+            height: 1px;
+            background: rgba(255,255,255,0.15);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .scroll-bar::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: rgba(255,255,255,0.7);
+            animation: scanline 2.2s ease-in-out infinite;
+        }
+
+        @keyframes scanline {
+            0%   { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* ────────────────────────────────────────────
+           SPREAD PAGES (two-column)
+        ──────────────────────────────────────────── */
+        .page-spread {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        /* Spine divider */
+        .page-spread::after {
+            content: '';
+            position: absolute;
+            top: 4%; bottom: 4%;
+            left: calc(50% - 0.5px);
+            width: 1px;
+            background: rgba(0,0,0,0.06);
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .half {
+            height: 100%;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .red-half   { background: var(--red); }
+        .white-half { background: var(--white); }
+        .cream-half { background: var(--cream); }
+        .black-half { background: var(--black); }
+
+        /* ────────────────────────────────────────────
+           FULL-BLEED PAGES
+        ──────────────────────────────────────────── */
+        .page-full-red   { background: var(--red); }
+        .page-full-white { background: var(--white); }
+        .page-full-black { background: var(--black); }
+        .page-full-cream { background: var(--cream); }
+
+        /* ────────────────────────────────────────────
+           TYPOGRAPHY
+        ──────────────────────────────────────────── */
+        .title-xl {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 300;
+            font-size: clamp(4rem, 10vw, 9rem);
+            line-height: 0.88;
+            letter-spacing: -0.03em;
+        }
+
+        .title-lg {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 300;
+            font-size: clamp(2.5rem, 6vw, 5.5rem);
+            line-height: 0.92;
+            letter-spacing: -0.02em;
+        }
+
+        .title-md {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 300;
+            font-size: clamp(1.8rem, 3.5vw, 3.2rem);
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+        }
+
+        .italic-quote {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-weight: 400;
+            font-size: clamp(1.1rem, 2.2vw, 1.9rem);
+            line-height: 1.55;
+        }
+
+        .mono-sm {
+            font-family: 'DM Mono', monospace;
+            font-weight: 300;
+            font-size: clamp(0.55rem, 0.85vw, 0.72rem);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+        }
+
+        .body-copy {
+            font-family: 'DM Sans', sans-serif;
+            font-weight: 300;
+            font-size: clamp(0.8rem, 1.1vw, 1rem);
+            line-height: 1.85;
+            letter-spacing: 0.01em;
+        }
+
+        /* Colour utilities */
+        .col-white { color: var(--white); }
+        .col-red   { color: var(--red);   }
+        .col-black { color: var(--black); }
+        .col-white-faint { color: rgba(255,255,255,0.45); }
+        .col-black-faint { color: rgba(8,8,8,0.45); }
+
+        /* ────────────────────────────────────────────
+           PHOTO UTILITIES
+        ──────────────────────────────────────────── */
+        .photo-fill {
+            position: absolute;
+            inset: 0;
+        }
+
+        .photo-fill img,
+        .photo-fill video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .bw { filter: grayscale(100%) contrast(1.08); }
+
+        .photo-inset {
+            display: block;
+            width: 68%;
+            max-width: 420px;
+        }
+
+        .photo-inset img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* ────────────────────────────────────────────
+           LAYOUT HELPERS
+        ──────────────────────────────────────────── */
+        .pad    { padding: 5% 7%; }
+        .pad-sm { padding: 4% 5%; }
+
+        .flex-col  { display: flex; flex-direction: column; }
+        .flex-row  { display: flex; flex-direction: row; }
+        .flex-center { align-items: center; justify-content: center; }
+        .flex-between{ justify-content: space-between; }
+        .flex-end  { justify-content: flex-end; }
+        .items-end { align-items: flex-end; }
+        .items-center { align-items: center; }
+        .h-full    { height: 100%; }
+        .flex-1    { flex: 1; }
+        .mt-auto   { margin-top: auto; }
+        .mb-auto   { margin-bottom: auto; }
+
+        /* ────────────────────────────────────────────
+           ENTRY ANIMATIONS (on reveal)
+        ──────────────────────────────────────────── */
+        .page.revealed .fade-up {
+            animation: fadeUp 0.75s ease forwards;
+        }
+
+        .page.revealed .fade-up:nth-child(1) { animation-delay: 0.05s; }
+        .page.revealed .fade-up:nth-child(2) { animation-delay: 0.18s; }
+        .page.revealed .fade-up:nth-child(3) { animation-delay: 0.32s; }
+        .page.revealed .fade-up:nth-child(4) { animation-delay: 0.45s; }
+
+        .half .fade-up:nth-child(1) { animation-delay: 0.08s; }
+        .half .fade-up:nth-child(2) { animation-delay: 0.22s; }
+        .half .fade-up:nth-child(3) { animation-delay: 0.38s; }
+
+        .fade-up { opacity: 0; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(18px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ────────────────────────────────────────────
+           PAGE COUNTER (bottom center)
+        ──────────────────────────────────────────── */
+        #page-counter {
+            position: fixed;
+            bottom: 2.8%;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9000;
+            font-family: 'DM Mono', monospace;
+            font-weight: 300;
+            font-size: 0.62rem;
+            letter-spacing: 0.35em;
+            color: rgba(255,255,255,0.25);
+            mix-blend-mode: difference;
+            pointer-events: none;
+        }
+
+        /* ────────────────────────────────────────────
+           PROGRESS DOTS (right edge)
+        ──────────────────────────────────────────── */
+        #page-dots {
+            position: fixed;
+            right: 2.5%;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 9000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            mix-blend-mode: difference;
+        }
+
+        .dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            transition: all 0.35s ease;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background: rgba(255,255,255,0.85);
+            height: 20px;
+            border-radius: 2px;
+        }
+
+        /* ────────────────────────────────────────────
+           NAV ARROWS (left/right edges)
+        ──────────────────────────────────────────── */
+        .nav-arrow {
+            position: fixed;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 9000;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            mix-blend-mode: difference;
+        }
+
+        body:hover .nav-arrow { opacity: 1; }
+
+        .nav-arrow.prev { left: 2%; }
+        .nav-arrow.next { right: 5%; }
+
+        .nav-arrow svg {
+            width: 18px;
+            height: 18px;
+            stroke: rgba(255,255,255,0.5);
+            stroke-width: 1.5;
+            fill: none;
+        }
+
+        /* ────────────────────────────────────────────
+           SPECIAL: RED PAGE TEXTURE
+        ──────────────────────────────────────────── */
+        .red-half::after,
+        .page-full-red::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 70% 30%, rgba(255,255,255,0.06) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        /* ────────────────────────────────────────────
+           SPREAD 1 — specific layout
+        ──────────────────────────────────────────── */
+        .chapter-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 300;
+            font-size: clamp(5rem, 15vw, 14rem);
+            line-height: 1;
+            color: rgba(255,255,255,0.07);
+            position: absolute;
+            bottom: -2%;
+            right: -2%;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* ────────────────────────────────────────────
+           PHOTO GRID
+        ──────────────────────────────────────────── */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3px;
+        }
+
+        .grid-2 img {
+            width: 100%;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* ────────────────────────────────────────────
+           END PAGE
+        ──────────────────────────────────────────── */
+        .red-line {
+            width: 40px;
+            height: 1px;
+            background: var(--red);
+            margin: 1.5rem auto;
+        }
+
+        /* ────────────────────────────────────────────
+           RESPONSIVE
+        ──────────────────────────────────────────── */
+        @media (max-width: 768px) {
+            .page-spread {
+                grid-template-columns: 1fr;
+                grid-template-rows: 1fr 1fr;
+            }
+            .page-spread::after { display: none; }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- ── CURSOR ── -->
+<div id="cursor"></div>
+
+<!-- ── PAGE COUNTER ── -->
+<div id="page-counter">01 / 06</div>
+
+<!-- ── PROGRESS DOTS ── -->
+<div id="page-dots"></div>
+
+<!-- ── NAV ARROWS ── -->
+<button class="nav-arrow prev" id="nav-prev" aria-label="Previous page">
+    <svg viewBox="0 0 18 18"><polyline points="11 3 5 9 11 15"/></svg>
+</button>
+<button class="nav-arrow next" id="nav-next" aria-label="Next page">
+    <svg viewBox="0 0 18 18"><polyline points="7 3 13 9 7 15"/></svg>
+</button>
+
+
+<!-- ════════════════════════════════════════════
+     BOOK
+════════════════════════════════════════════ -->
+<div id="book">
+
+
+    <!-- ══ PAGE 0 — A24 VIDEO COVER ══ -->
+    <div class="page page-video revealed" data-index="0">
+
+        <div class="video-wrapper">
+            <!-- Replace src with whichever video you prefer -->
+            <video autoplay muted loop playsinline preload="auto">
+                <source src="assets/videos/memories/VID_20260608_080351_261.mp4" type="video/mp4">
+                <source src="assets/videos/memories/VID-20260324-WA0024.mp4" type="video/mp4">
+            </video>
+        </div>
+
+        <div class="video-tint"></div>
+        <div class="grain"></div>
+        <div class="letterbox top"></div>
+        <div class="letterbox bottom"></div>
+
+        <div class="a24-badge fade-up">A  2  4</div>
+
+        <div class="video-title">
+            <p class="label fade-up">a film about</p>
+            <h1 class="fade-up" style="color: var(--white); font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: clamp(3.5rem, 7vw, 6rem); line-height: 0.92; letter-spacing: -0.02em;">her.</h1>
+        </div>
+
+        <div class="scroll-hint fade-up">
+            <div class="scroll-bar"></div>
+            scroll to turn
+        </div>
+
+    </div>
+
+
+    <!-- ══ PAGE 1 — RED + WHITE EDITORIAL ══ -->
+    <div class="page page-spread" data-index="1">
+
+        <!-- LEFT: Cherry Red -->
+        <div class="half red-half pad flex-col flex-between">
+            <p class="mono-sm col-white-faint fade-up" style="opacity:0.5;">chapter one</p>
+
+            <div class="fade-up">
+                <h2 class="title-xl col-white">She<br>&amp; I.</h2>
+            </div>
+
+            <p class="mono-sm col-white-faint fade-up">2025 — 2026</p>
+
+            <span class="chapter-number">01</span>
+        </div>
+
+        <!-- RIGHT: White with full-bleed photo -->
+        <div class="half white-half" style="position: relative;">
+            <div class="photo-fill">
+                <img src="assets/images/her/IMG_20260610_225715.jpg" alt="" class="bw">
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ══ PAGE 2 — FULL RED, CENTERED B&W PHOTO ══ -->
+    <div class="page page-full-red flex-col flex-center" data-index="2">
+
+        <div class="photo-inset fade-up" style="width:52%; max-width:380px;">
+            <img src="assets/images/her/IMG_20260610_225728.jpg" alt="" class="bw">
+        </div>
+
+        <!-- Bottom label -->
+        <div style="position:absolute; bottom:6%; left:0; right:0; display:flex; justify-content:center;">
+            <p class="mono-sm col-white-faint fade-up">— for you</p>
+        </div>
+
+        <!-- Top label -->
+        <div style="position:absolute; top:6%; left:7%;">
+            <p class="mono-sm col-white-faint fade-up">photographs</p>
+        </div>
+
+    </div>
+
+
+    <!-- ══ PAGE 3 — WHITE QUOTE + RED PHOTO ══ -->
+    <div class="page page-spread" data-index="3">
+
+        <!-- LEFT: White — italic quote -->
+        <div class="half white-half pad flex-col" style="justify-content:center;">
+            <p class="mono-sm col-black-faint fade-up" style="margin-bottom:2rem;">— note to self</p>
+
+            <p class="italic-quote col-black fade-up">
+                &#8220;placeholder —<br>
+                you'll tell me<br>
+                what goes here.&#8221;
+            </p>
+
+            <div class="fade-up" style="margin-top: auto;">
+                <p class="mono-sm col-black-faint">tell me the words ↓</p>
+            </div>
+        </div>
+
+        <!-- RIGHT: Red — colorful photo -->
+        <div class="half red-half" style="position:relative;">
+            <div class="photo-fill">
+                <img src="assets/images/her/IMG_20260607_225253_267.jpg" alt="">
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- ══ PAGE 4 — WHITE PHOTO GRID ══ -->
+    <div class="page page-full-white" data-index="4">
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; height:100%;">
+
+            <!-- Left col: small photo grid -->
+            <div class="pad flex-col flex-between">
+                <p class="mono-sm col-black-faint fade-up">film stills</p>
+
+                <div class="grid-2 fade-up" style="margin: 5% 0; flex:1; align-content:center;">
+                    <img src="assets/images/her/IMG-20260610-WA0005.jpg" class="bw" alt="">
+                    <img src="assets/images/her/IMG-20260610-WA0009.jpg" class="bw" alt="">
+                    <img src="assets/images/her/IMG-20260610-WA0011.jpg" class="bw" alt="">
+                    <img src="assets/images/her/IMG-20260610-WA0013.jpg" class="bw" alt="">
+                </div>
+
+                <p class="mono-sm col-black-faint fade-up">2026</p>
+            </div>
+
+            <!-- Right col: big single photo -->
+            <div style="position:relative; overflow:hidden;">
+                <div class="photo-fill">
+                    <img src="assets/images/her/IMG_20260610_225850.jpg" alt="">
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ══ PAGE 5 — END / PLACEHOLDER ══ -->
+    <div class="page page-full-black flex-col flex-center" data-index="5">
+
+        <div style="text-align:center;">
+            <p class="mono-sm col-white-faint fade-up" style="color:rgba(255,255,255,0.3);">fin.</p>
+            <div class="red-line"></div>
+            <h2 class="title-md col-white fade-up" style="font-style:italic; color:rgba(255,255,255,0.85);">more soon.</h2>
+            <p class="mono-sm fade-up" style="margin-top:2rem; color:rgba(255,255,255,0.2); letter-spacing:0.4em;">tell me what to add here</p>
+        </div>
+
+    </div>
+
+
+</div>
+<!-- end #book -->
+
+
+<script>
+/* ════════════════════════════════════════════
+   CURSOR
+════════════════════════════════════════════ */
+const cursor = document.getElementById('cursor');
+
+document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top  = e.clientY + 'px';
+});
+
+document.querySelectorAll('button, .dot').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
+});
+
+
+/* ════════════════════════════════════════════
+   BOOK FLIP ENGINE
+════════════════════════════════════════════ */
+class BookFlip {
+    constructor() {
+        this.pages      = [...document.querySelectorAll('.page')];
+        this.total      = this.pages.length;
+        this.current    = 0;
+        this.flipping   = false;
+
+        this.$counter   = document.getElementById('page-counter');
+        this.$dots      = document.getElementById('page-dots');
+        this.$prev      = document.getElementById('nav-prev');
+        this.$next      = document.getElementById('nav-next');
+
+        this._init();
+    }
+
+    _init() {
+        // Stack pages by z-index (first page on top)
+        this.pages.forEach((p, i) => {
+            p.style.zIndex = this.total - i;
+        });
+
+        // Build dots
+        this.pages.forEach((_, i) => {
+            const dot = document.createElement('div');
+            dot.className = 'dot' + (i === 0 ? ' active' : '');
+            dot.addEventListener('click', () => this._goTo(i));
+            this.$dots.appendChild(dot);
+        });
+
+        // Events
+        window.addEventListener('wheel',   this._onWheel.bind(this),   { passive: false });
+        window.addEventListener('keydown', this._onKey.bind(this));
+        this.$prev.addEventListener('click', () => this.backward());
+        this.$next.addEventListener('click', () => this.forward());
+
+        // Touch
+        let touchY = 0;
+        window.addEventListener('touchstart', e => { touchY = e.touches[0].clientY; }, { passive: true });
+        window.addEventListener('touchend',   e => {
+            const dy = touchY - e.changedTouches[0].clientY;
+            if (Math.abs(dy) > 40) { dy > 0 ? this.forward() : this.backward(); }
+        }, { passive: true });
+
+        this._updateUI();
+    }
+
+    /* ── FORWARD: flip current page away (right → left) ── */
+    forward() {
+        if (this.current >= this.total - 1 || this.flipping) return;
+        this.flipping = true;
+
+        const page = this.pages[this.current];
+        page.classList.add('is-turning');
+
+        // Small rAF delay so the class is painted before transition starts
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                page.classList.add('flipped');
+            });
+        });
+
+        const dur = parseFloat(
+            getComputedStyle(document.documentElement)
+                .getPropertyValue('--flip-duration')
+        ) * 1000 || 900;
+
+        setTimeout(() => {
+            page.classList.remove('is-turning');
+            page.style.zIndex = 0;         // send behind everything
+            this.current++;
+            this._reveal(this.pages[this.current]);
+            this.flipping = false;
+            this._updateUI();
+        }, dur);
+    }
+
+    /* ── BACKWARD: un-flip previous page (left → right) ── */
+    backward() {
+        if (this.current <= 0 || this.flipping) return;
+        this.flipping = true;
+
+        const prev = this.pages[this.current - 1];
+
+        // Instantly snap to flipped state (no animation)
+        prev.style.transition = 'none';
+        prev.style.zIndex     = this.total + 1;
+        prev.classList.add('flipped');
+
+        // Force browser to apply the instant snap
+        void prev.offsetWidth;
+
+        // Re-enable transition and animate back to flat
+        prev.style.transition = '';
+        prev.classList.add('is-turning');
+
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                prev.classList.remove('flipped');
+            });
+        });
+
+        const dur = parseFloat(
+            getComputedStyle(document.documentElement)
+                .getPropertyValue('--flip-duration')
+        ) * 1000 || 900;
+
+        setTimeout(() => {
+            prev.classList.remove('is-turning');
+            this.pages[this.current].classList.remove('revealed');
+            this.current--;
+            this._reveal(prev);
+            this.flipping = false;
+            this._updateUI();
+        }, dur);
+    }
+
+    _goTo(index) {
+        if (index === this.current || this.flipping) return;
+        index > this.current ? this.forward() : this.backward();
+    }
+
+    /* Trigger content animations on the revealed page */
+    _reveal(page) {
+        page.classList.remove('revealed');
+        void page.offsetWidth;
+        page.classList.add('revealed');
+
+        // reset individual fade-ups so they re-animate
+        page.querySelectorAll('.fade-up').forEach(el => {
+            el.style.animation = 'none';
+            void el.offsetWidth;
+            el.style.animation = '';
+        });
+    }
+
+    _onWheel(e) {
+        e.preventDefault();
+        if (Math.abs(e.deltaY) < 25) return;
+        e.deltaY > 0 ? this.forward() : this.backward();
+    }
+
+    _onKey(e) {
+        if (['ArrowRight', 'ArrowDown', ' '].includes(e.key)) { e.preventDefault(); this.forward();  }
+        if (['ArrowLeft',  'ArrowUp'         ].includes(e.key)) { e.preventDefault(); this.backward(); }
+    }
+
+    _updateUI() {
+        // Counter
+        this.$counter.textContent =
+            String(this.current + 1).padStart(2, '0') + ' / ' +
+            String(this.total).padStart(2, '0');
+
+        // Dots
+        this.$dots.querySelectorAll('.dot').forEach((d, i) => {
+            d.classList.toggle('active', i === this.current);
+        });
+
+        // Arrow visibility
+        this.$prev.style.opacity = this.current === 0              ? '0' : '';
+        this.$next.style.opacity = this.current === this.total - 1 ? '0' : '';
+    }
+}
+
+// Boot
+const book = new BookFlip();
+</script>
+
+</body>
+</html>
