@@ -143,8 +143,104 @@ function stopProgressTimer() {
   if (audioProgressTimer) clearInterval(audioProgressTimer);
 }
 
+// ═══════════════════════════════════
+// PIN GATE & EXPERIENCE CHOICE LOGIC
+// ═══════════════════════════════════
+const CORRECT_PIN = "1301";
+let pinBuffer = "";
+
+function initPinGate() {
+  const overlay = document.getElementById("pinGateOverlay");
+  if (!overlay) return; // not on index.html, skip
+
+  const choiceOverlay = document.getElementById("choiceModalOverlay");
+  const pinCard = overlay.querySelector(".pin-card");
+  const errMsg = document.getElementById("pinErrMsg");
+
+  // check if already unlocked this session
+  if (sessionStorage.getItem("pin_unlocked") === "1") {
+    overlay.classList.remove("open");
+    if (choiceOverlay) choiceOverlay.classList.add("open");
+    return;
+  }
+
+  function updateDots() {
+    for (let i = 0; i < 4; i++) {
+      const dot = document.getElementById("dot" + i);
+      if (dot) dot.classList.toggle("filled", i < pinBuffer.length);
+    }
+  }
+
+  function shakeCard() {
+    pinCard.classList.add("shake");
+    setTimeout(() => pinCard.classList.remove("shake"), 450);
+  }
+
+  function pressKey(num) {
+    if (pinBuffer.length >= 4) return;
+    pinBuffer += num;
+    updateDots();
+    if (pinBuffer.length === 4) {
+      setTimeout(() => {
+        if (pinBuffer === CORRECT_PIN) {
+          sessionStorage.setItem("pin_unlocked", "1");
+          overlay.style.transition = "opacity .4s";
+          overlay.style.opacity = "0";
+          setTimeout(() => {
+            overlay.classList.remove("open");
+            overlay.style.opacity = "";
+            if (choiceOverlay) choiceOverlay.classList.add("open");
+          }, 400);
+        } else {
+          shakeCard();
+          errMsg.classList.add("show");
+          setTimeout(() => errMsg.classList.remove("show"), 2000);
+          pinBuffer = "";
+          updateDots();
+        }
+      }, 150);
+    }
+  }
+
+  overlay.querySelectorAll(".pin-key[data-num]").forEach(btn => {
+    btn.addEventListener("click", () => pressKey(btn.dataset.num));
+  });
+
+  document.getElementById("pinDelBtn").addEventListener("click", () => {
+    if (pinBuffer.length > 0) {
+      pinBuffer = pinBuffer.slice(0, -1);
+      updateDots();
+    }
+  });
+
+  // keyboard support
+  document.addEventListener("keydown", (e) => {
+    if (!overlay.classList.contains("open")) return;
+    if (/^[0-9]$/.test(e.key)) pressKey(e.key);
+    if (e.key === "Backspace") {
+      if (pinBuffer.length > 0) { pinBuffer = pinBuffer.slice(0, -1); updateDots(); }
+    }
+  });
+
+  // Choice buttons
+  document.getElementById("choiceOldRoomBtn")?.addEventListener("click", () => {
+    window.location.href = "/legacy/index.html";
+  });
+  document.getElementById("choiceNewRoomBtn")?.addEventListener("click", () => {
+    if (choiceOverlay) {
+      choiceOverlay.style.transition = "opacity .3s";
+      choiceOverlay.style.opacity = "0";
+      setTimeout(() => {
+        choiceOverlay.classList.remove("open");
+        choiceOverlay.style.opacity = "";
+      }, 300);
+    }
+  });
+}
+
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
+  initPinGate();
   initAudioEngine();
   loadData();
   bindEvents();
@@ -171,29 +267,44 @@ async function fetchTrackLyrics(title, artist) {
 
 // Persistent Data Handling
 async function loadData() {
-  let loadedCatalog = null;
+  let localData = [];
+  try {
+    const raw = localStorage.getItem("local_music_catalog");
+    if (raw) localData = JSON.parse(raw);
+  } catch (e) {}
 
+  let serverData = null;
   try {
     const res = await fetch("/api/songs");
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data)) {
-        loadedCatalog = data;
-      }
+      if (Array.isArray(data)) serverData = data;
     }
   } catch (err) {
     console.warn("Failed to fetch from /api/songs:", err);
   }
 
-  if (loadedCatalog && Array.isArray(loadedCatalog)) {
-    catalog = loadedCatalog;
-    localStorage.setItem("local_music_catalog", JSON.stringify(catalog));
-  } else {
-    catalog = [];
-    localStorage.removeItem("local_music_catalog");
+  const map = new Map();
+  if (Array.isArray(serverData)) {
+    serverData.forEach(s => map.set(s.id || s.youtubeId, s));
+  }
+  if (Array.isArray(localData)) {
+    localData.forEach(s => map.set(s.id || s.youtubeId, s));
   }
 
-  // Extract unique playlists
+  catalog = Array.from(map.values());
+  localStorage.setItem("local_music_catalog", JSON.stringify(catalog));
+
+  if (catalog.length > 0) {
+    try {
+      fetch("/api/songs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(catalog)
+      });
+    } catch (e) {}
+  }
+
   playlists = Array.from(new Set(catalog.flatMap(s => s.playlists || []).filter(Boolean)));
 
   renderPage();
@@ -213,6 +324,7 @@ async function saveData() {
     console.warn("Server sync error:", err);
   }
 }
+
 
 async function deleteTrack(songId) {
   if (!confirm("Are you sure you want to delete this soundtrack?")) return;
@@ -497,8 +609,6 @@ function renderSongsGrid() {
   if (viewMode === "list") {
     grid.innerHTML = songs.map(song => {
       const isCurPlaying = isPlaying && currentTrack && currentTrack.id === song.id;
-      const byName = song.addedBy || "Avi";
-      const isAwwnanya = byName.toLowerCase().includes("awwnanya");
       return `
         <div class="cw">
           <div class="card ${isCurPlaying ? 'playing' : ''} ${song.isFav ? 'is-fav' : ''}" data-id="${song.id}">
@@ -512,10 +622,7 @@ function renderSongsGrid() {
             </div>
             <div class="card-info-wrap">
               <div class="card-title">${song.title}</div>
-              <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
-                <span class="card-artist">${song.artist}</span>
-                <span class="added-by-pill ${isAwwnanya ? 'awwnanya' : ''}">${byName}</span>
-              </div>
+              <div class="card-artist" style="margin-top:2px;">${song.artist}</div>
             </div>
             ${song.isFav ? `<div class="card-fav-icon">♥</div>` : ''}
             <button class="card-del-btn" data-delid="${song.id}" title="Delete soundtrack">✕</button>
@@ -526,8 +633,6 @@ function renderSongsGrid() {
   } else {
     grid.innerHTML = songs.map(song => {
       const isCurPlaying = isPlaying && currentTrack && currentTrack.id === song.id;
-      const byName = song.addedBy || "Avi";
-      const isAwwnanya = byName.toLowerCase().includes("awwnanya");
       return `
         <div class="cw">
           <div class="card ${isCurPlaying ? 'playing' : ''} ${song.isFav ? 'is-fav' : ''}" data-id="${song.id}">
@@ -542,10 +647,7 @@ function renderSongsGrid() {
               ${song.isFav ? `<div class="card-fav-icon">♥</div>` : ''}
             </div>
             <div class="card-title">${song.title}</div>
-            <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:4px;">
-              <span class="card-artist" style="margin-top:0;">${song.artist}</span>
-              <span class="added-by-pill ${isAwwnanya ? 'awwnanya' : ''}">${byName}</span>
-            </div>
+            <div class="card-artist" style="margin-top:4px;">${song.artist}</div>
           </div>
         </div>
       `;
@@ -589,25 +691,6 @@ function setupTilt(card) {
   });
 }
 
-function getPlaylistOwnerBadge(plName) {
-  const plSongs = catalog.filter(s => s.playlists && s.playlists.includes(plName));
-  if (plSongs.length === 0) return `<span class="pl-owner-badge her">💖 Her Playlist</span>`;
-  
-  let awwnanyaCount = 0;
-  let aviCount = 0;
-  plSongs.forEach(s => {
-    const owner = (s.addedBy || 'Avi').toLowerCase();
-    if (owner.includes('awwnanya') || owner.includes('her')) awwnanyaCount++;
-    else aviCount++;
-  });
-
-  if (awwnanyaCount >= aviCount) {
-    return `<span class="pl-owner-badge her">💖 Her Playlist</span>`;
-  } else {
-    return `<span class="pl-owner-badge my">🎧 Avi's Playlist</span>`;
-  }
-}
-
 function renderPlaylists() {
   const container = document.getElementById("playlistsContainer");
   if (!container) return;
@@ -629,7 +712,6 @@ function renderPlaylists() {
 
       const ytmUrl = `https://music.youtube.com/search?q=${encodeURIComponent(plName)}`;
       const spotifyUrl = `https://open.spotify.com/search/${encodeURIComponent(plName)}`;
-      const ownerBadge = getPlaylistOwnerBadge(plName);
 
       return `
         <div class="pl-card" data-pl="${plName}">
@@ -640,9 +722,6 @@ function renderPlaylists() {
             <div class="pl-card-title-row">
               <span class="pl-card-name">${plName}</span>
               <span class="pl-card-count">${plSongs.length} tracks</span>
-            </div>
-            <div style="margin-top:4px;">
-              ${ownerBadge}
             </div>
           </div>
           <div class="pl-card-actions">
@@ -689,9 +768,6 @@ function renderPlaylists() {
   }
 }
 
-
-
-
 function renderPlaylistsAccordion() {
   const container = document.getElementById("playlistsContainer");
   if (!container) return;
@@ -700,18 +776,15 @@ function renderPlaylistsAccordion() {
     const plSongs = catalog.filter(s => s.playlists && s.playlists.includes(plName));
     const ytmUrl = `https://music.youtube.com/search?q=${encodeURIComponent(plName)}`;
     const spotifyUrl = `https://open.spotify.com/search/${encodeURIComponent(plName)}`;
-    const ownerBadge = getPlaylistOwnerBadge(plName);
 
     return `
       <div class="pl-accordion">
         <div class="pl-acc-header" data-pl="${plName}">
           <div class="pl-acc-left">
-            <div class="pl-acc-title" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div class="pl-acc-title">
               <span>${plName}</span>
-              ${ownerBadge}
               <span class="pl-acc-count">(${plSongs.length} tracks)</span>
             </div>
-
             <div class="pl-actions" onclick="event.stopPropagation()">
               <button class="btn-s pl-edit-btn" data-pl="${plName}" style="height:26px;padding:0 10px;font-size:11px;">
                 ✏ Edit
@@ -746,8 +819,6 @@ function renderPlaylistsAccordion() {
         </div>
       </div>
     `;
-  }).join("");
-
   container.querySelectorAll(".pl-acc-header").forEach(header => {
     header.addEventListener("click", () => {
       const accordion = header.closest(".pl-accordion");

@@ -36,13 +36,6 @@
 
       <nav class="tbr tbr-nav">
         <a href="music.html" class="nav-tab active">🎵 Soundtracks</a>
-        <a href="/archive/index.html" class="nav-tab">📁 Archive Room</a>
-        <button class="btn-s" id="openImportModalHeaderBtn" style="margin-left:6px;background:rgba(233,169,144,0.15);color:var(--text);border:1px solid rgba(233,169,144,0.4);">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          Import Playlist
-        </button>
         <button class="btn-s" id="openAddTrackBtn" style="margin-left:6px;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -50,6 +43,7 @@
           Search & Add
         </button>
       </nav>
+
     </div>
   </header>
 
@@ -123,11 +117,8 @@
 
     <!-- PLAYLISTS Header & Container -->
     <div class="pl-view-toolbar">
-      <div class="pl-view-title" style="display:flex;align-items:center;gap:10px;">
-        <span>Playlists</span>
-        <button class="btn-s" id="openImportModalBtn" style="font-size:11px;height:28px;padding:0 10px;background:rgba(233,169,144,0.15);color:var(--text);border:1px solid rgba(233,169,144,0.4);">
-          + Import Playlist
-        </button>
+      <div class="pl-view-title">
+        Playlists
       </div>
       <div class="btn-group">
         <button class="btn-group-btn on" id="plViewCardsBtn" title="Stacked Cards View">
@@ -141,6 +132,7 @@
       </div>
     </div>
     <div id="playlistsContainer"></div>
+
 
 
     <!-- Footer -->
@@ -447,14 +439,6 @@
           <input type="text" class="curation-input" id="curationNewPlaylistInput" placeholder="+ Create new playlist name..." />
         </div>
 
-        <div class="curation-form-grp">
-          <label>Added By</label>
-          <select class="curation-input" id="curationAddedByInput">
-            <option value="Avi" selected>Avi</option>
-            <option value="Awwnanya">Awwnanya</option>
-          </select>
-        </div>
-
         <button class="curation-submit-btn" id="saveCurationBtn">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
@@ -465,53 +449,8 @@
     </div>
   </div>
 
-  <!-- IMPORT SPOTIFY / YOUTUBE PLAYLIST MODAL -->
-  <div class="mov" id="importPlaylistModal">
-    <div class="ms search-modal-card" style="max-width:540px;">
-      <button class="mc" id="importModalCloseBtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-
-      <div class="sm-header" style="margin-bottom:18px;">
-        <div class="sm-badge" style="background:rgba(233,169,144,0.2);color:var(--text);">
-          <span>📥 Automatic Importer</span>
-        </div>
-        <h2 class="sm-title" style="font-size:22px;">Import Playlist</h2>
-        <p class="sm-subtitle">Paste a Spotify or YouTube / YT Music playlist URL to import all tracks automatically.</p>
-      </div>
-
-      <div class="curation-form-grp">
-        <label>Playlist Link <span style="font-weight:400;opacity:0.6;">(Spotify or YouTube URL)</span></label>
-        <input type="text" class="sm-input" id="importUrlInput" placeholder="https://open.spotify.com/playlist/... or https://youtube.com/playlist?list=..." style="width:100%;margin-top:6px;" />
-      </div>
-
-      <div class="curation-form-grp" style="margin-top:12px;">
-        <label>Playlist Name</label>
-        <input type="text" class="sm-input" id="importNameInput" placeholder="e.g. Her Favorites 💖 or Late Night Vibes" style="width:100%;margin-top:6px;" />
-      </div>
-
-      <div class="curation-form-grp" style="margin-top:12px;">
-        <label>Playlist Owner / Creator Badge</label>
-        <select class="sm-input" id="importOwnerInput" style="width:100%;margin-top:6px;background:var(--card-bg);color:var(--text);">
-          <option value="Awwnanya" selected>Awwnanya (Her Playlist 💖)</option>
-          <option value="Avi">Avi (My Playlist 🎧)</option>
-        </select>
-      </div>
-
-      <div id="importStatusMsg" style="display:none;margin-top:14px;font-size:13px;font-weight:500;padding:10px 14px;border-radius:10px;background:rgba(233,169,144,0.15);color:var(--text);"></div>
-
-      <button class="curation-submit-btn" id="startImportBtn" style="margin-top:18px;width:100%;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-        </svg>
-        <span id="startImportBtnText">Import All Tracks</span>
-      </button>
-    </div>
-  </div>
-
   <!-- PLAYLIST EDITOR MODAL -->
+
   <div class="mov" id="playlistEditModal">
     <div class="pl-edit-modal-wrap">
       <div class="pl-edit-header">
