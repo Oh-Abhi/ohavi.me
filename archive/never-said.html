@@ -35,6 +35,7 @@
       height: 48px;
       background: rgba(247,244,239,0.93);
       backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid rgba(26,24,22,0.1);
       display: flex;
       align-items: center;
@@ -117,6 +118,9 @@
       font-size: 17px;
       font-style: italic;
       color: var(--muted);
+      max-width: 640px;
+      margin: 0 auto;
+      line-height: 1.6;
     }
 
     /* ── Spreads ── */
@@ -173,6 +177,7 @@
       background: rgba(247,244,239,0.75);
       padding: 2px 6px;
       border-radius: 2px;
+      z-index: 2;
     }
 
     /* Chapter typography */
@@ -226,11 +231,12 @@
       padding: 60px 24px;
       text-align: center;
       border-bottom: 1px solid rgba(26,24,22,0.1);
+      background: rgba(176,122,90,0.03);
     }
 
     .q-text {
       font-family: var(--serif);
-      font-size: clamp(18px, 3vw, 30px);
+      font-size: clamp(18px, 3vw, 28px);
       font-style: italic;
       color: var(--ink);
       max-width: 680px;
@@ -242,7 +248,7 @@
       font-size: 10px;
       letter-spacing: 0.16em;
       text-transform: uppercase;
-      color: var(--muted);
+      color: var(--accent);
       margin-top: 18px;
     }
 
@@ -287,112 +293,20 @@
       color: var(--muted);
     }
 
-    /* ── Blur Overlay & Note Card ── */
-    .page-blur-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: rgba(247, 244, 239, 0.82);
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .blurred-content {
-      filter: blur(20px);
-      pointer-events: none;
-      user-select: none;
-      -webkit-user-select: none;
-    }
-
-    .note-card {
-      width: 100%;
-      max-width: 440px;
-      background: rgba(255, 255, 255, 0.94);
-      border: 1px solid rgba(26, 24, 22, 0.12);
-      border-radius: 28px;
-      padding: 40px 32px;
-      text-align: center;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12);
-      animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    @keyframes popIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    .note-badge {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: #B07A5A;
-      background: rgba(176, 122, 90, 0.12);
-      padding: 5px 16px;
-      border-radius: 20px;
-      display: inline-block;
-      margin-bottom: 18px;
-    }
-
-    .note-title {
-      font-family: var(--serif);
-      font-size: 26px;
-      font-weight: 500;
-      color: var(--ink);
-      margin-bottom: 14px;
-      line-height: 1.3;
-    }
-
-    .note-body {
-      font-size: 15px;
-      line-height: 1.7;
-      color: #3A3633;
-      margin-bottom: 26px;
-    }
-
-    .btn-back-home {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 13px 30px;
-      border-radius: 18px;
-      background: #B07A5A;
-      color: #fff;
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 0.04em;
-      text-decoration: none;
-      box-shadow: 0 6px 18px rgba(176, 122, 90, 0.3);
-      transition: all 0.2s ease;
-    }
-
-    .btn-back-home:hover {
-      background: #966345;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 22px rgba(176, 122, 90, 0.4);
+    /* Responsive stacking */
+    @media (max-width: 900px) {
+      .spread-3col, .spread-2col, .spread-text-wide, .spread-wide-text {
+        grid-template-columns: 1fr;
+      }
+      .text-panel { border-right: none; border-bottom: 1px solid rgba(26,24,22,0.1); padding: 32px 24px; }
+      .p-cell { height: 260px !important; border-right: none; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Fixed Blurred Overlay & Note Card -->
-  <div class="page-blur-overlay">
-    <div class="note-card">
-      <div class="note-badge">A Quick Note 🌙</div>
-      <h2 class="note-title">Hold on a bit...</h2>
-      <p class="note-body">Ye kal dekh lena i am tired abhi  pura krne ka mann nhi 😴🤍</p>
-      <a href="../home.html" class="btn-back-home">← Back to Home</a>
-    </div>
-  </div>
-
-  <div class="blurred-content">
-
-    <!-- Topbar -->
-    <nav class="bar">
+  <!-- Topbar -->
+  <nav class="bar">
     <a href="../home.html" class="bar-brand">for her</a>
     <div class="bar-nav">
       <a href="../home.html">Home</a>
@@ -404,11 +318,11 @@
 
   <div class="page-wrap">
 
-    <!-- Hero -->
+    <!-- Hero Header -->
     <div class="letter-hero">
       <div class="hero-eyebrow">The Final Letter &nbsp;·&nbsp; Room 03</div>
       <h1 class="hero-title">One Last<br><em>Thing...</em></h1>
-      <p class="hero-quote">"Thank you for making it till the end."</p>
+      <p class="hero-quote">"well take a breath, this paragraph journey is gonna be so long, so thank you pehle hi for giving your valuable time."</p>
     </div>
 
     <div class="mag-meta">
@@ -417,19 +331,19 @@
       <span>p. 02</span>
     </div>
 
-    <!-- ── SPREAD 1: Intro text + tall photo ── -->
+    <!-- ── SPREAD 1: Intro / Before You Read ── -->
     <div class="spread spread-text-wide">
 
       <div class="text-panel">
         <div class="chap-eyebrow">Before You Read</div>
-        <h2 class="chap-title">If you're reading this, you've made it to the end.</h2>
+        <h2 class="chap-title">Take A Breath</h2>
         <div class="chap-rule"></div>
         <div class="chap-body">
-          <p>Thank you for taking the time to explore everything. Every page before this had a reason to exist, and this is where all of it comes together.</p>
-          <p>This isn't meant to change your mind about anything or ask you for something in return.</p>
-          <p>It's simply everything I wanted to say, collected in one place.</p>
+          <p>well take a breath, this paragraph journey is gonna be so long, so thank you pehle hi for giving your valuable time. And will you do one favour? Like, I know you'll forget what I'm saying in para 1 till you reach para 2, so if you feel so, reply after each para with whatever I'm saying, then move forward. So lemme start ig.</p>
+          <p>well Ananya, idk where should I start and like I don't have any specific thing I wanna talk about, so it's gonna be a mix of everything, so hope you don't get bored.</p>
+          <p>so first, listen to a few parts of these I wrote after the day wo story wali chiz jo you ignored so keep it in your mind</p>
         </div>
-        <div class="chap-foot">Read chronologically &nbsp;·&nbsp; Scroll slowly</div>
+        <div class="chap-foot">Intro &nbsp;·&nbsp; Read at your own pace</div>
       </div>
 
       <div class="photo-stack">
@@ -445,7 +359,7 @@
 
     </div>
 
-    <!-- ── SPREAD 2: 3 wide photos ── -->
+    <!-- ── SPREAD 2: 3 Photos Grid ── -->
     <div class="spread spread-3col">
       <div class="p-cell" style="height:340px;">
         <span class="p-num">03</span>
@@ -463,64 +377,68 @@
 
     <div class="mag-meta">
       <span>p. 03</span>
-      <span>Chapter 01 — Before Anything Else</span>
+      <span>Chapter 01 — Understanding &amp; Apologies</span>
       <span>p. 04</span>
     </div>
 
-    <!-- ── SPREAD 3: Chapter 1 ── -->
+    <!-- ── SPREAD 3: Chapter 01 ── -->
     <div class="spread spread-wide-text">
 
       <div class="photo-stack">
-        <div class="p-cell" style="height:560px;">
+        <div class="p-cell" style="height:340px;">
           <span class="p-num">06</span>
           <img src="../photos/IMG_20260610_230008.png" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+        <div class="p-cell no-bottom" style="height:340px;">
+          <span class="p-num">07</span>
+          <img src="../photos/IMG_20260610_230029.png" onerror="this.style.background='#E8E4DE'" alt="" />
         </div>
       </div>
 
       <div class="text-panel no-border">
-        <div class="chap-eyebrow">Chapter 01 &nbsp;·&nbsp; Appreciation</div>
-        <h2 class="chap-title">Before Anything Else</h2>
+        <div class="chap-eyebrow">Chapter 01 &nbsp;·&nbsp; Realization</div>
+        <h2 class="chap-title">I Owe You A Ton Of Apologies</h2>
         <div class="chap-rule"></div>
         <div class="chap-body">
-          <p>First of all, thank you. Thank you for taking the time to read through all of this and for making it till the end.</p>
-          <p>I know life gets busy, and you didn't have to spend your time exploring this website, but the fact that you did means more to me than I can put into words.</p>
-          <p>Every page before this—the songs, the playlists, the 11:11 screenshots—had a specific reason to exist. None of it was added just to fill space. This entire website is simply my way of appreciating you and celebrating having you in my life.</p>
-          <p>Thank you for staying. Thank you for reading. Thank you for being exactly who you are.</p>
+          <p>now Ananya, look, I complain hamesha to you about almost everything atp, but I really wanna say smth ki I understand you. I know why you say smth and with which intention you say it. I owe you a ton of apologies. I know I made everything so complicated for you and me. Tbh, ye itni saari negativity I give in your life, fir I try to control everything and all.</p>
+          <p>and it's not like I don't notice whatever you do for me, all those appreciable stuff. Haan, I may not be good at showing that, but wo sab means the world to me. Ye, you listen to my paras, mere bina logic ke VMs and sab kuch, and I try to pay back whatever I feel, but shayad uss chiz mein I complicate things for you bahut zyada.</p>
+          <p>dekho, I don't wanna justify kuch bhi, but I wanna say ki you are important to me, and ydk wo ki kitna zyada. I told you, I don't need anyone if I have you, and I do whatever I can to make you feel wo. But I also understand I make you feel bad jab I complain about you, and you don't deserve ye itna complain. You deserve all the love and care, and I mean it.</p>
+          <p>but the reality is ki making you feel bad was never my intention. Also, I really have self-realisation, and it's not like whatever I do for you, kisi aur ke liye karta to wo mil jaati. No, that's not the care. I try to control everything, and that's not right. I tried to change wo, but wo dheere dheere hoga. You can't expect saare changes ek din mein. But yes, I say kuch bhi without realisation, and I feel abhi ki I made sab kuch kitna zyada difficult for you. Aur ek aur chiz, I know when you have no interest, fir bhi saamne wala does all this for you, you just don't like it. I have that experience, so I understand you.</p>
         </div>
         <div class="chap-foot">Chapter 01 of 06</div>
       </div>
 
     </div>
 
-    <!-- ── Quote Break ── -->
+    <!-- ── Quote Break 1 ── -->
     <div class="quote-break">
-      <p class="q-text">"I got so caught up in what was hurting me that I sometimes forgot to pause and appreciate everything you were already doing."</p>
-      <div class="q-attr">Chapter 02 — I'm Sorry</div>
+      <p class="q-text">"You deserve all the love and care, and I mean it. But the reality is ki making you feel bad was never my intention."</p>
+      <div class="q-attr">Chapter 01 — Understanding</div>
     </div>
 
-    <!-- ── SPREAD 4: Chapter 2 + photos ── -->
+    <!-- ── SPREAD 4: Chapter 02 ── -->
     <div class="spread spread-2col">
 
       <div class="text-panel">
-        <div class="chap-eyebrow">Chapter 02 &nbsp;·&nbsp; Apology</div>
-        <h2 class="chap-title">I'm Sorry</h2>
+        <div class="chap-eyebrow">Chapter 02 &nbsp;·&nbsp; Quiet Reflections</div>
+        <h2 class="chap-title">Quiet Expectations</h2>
         <div class="chap-rule"></div>
         <div class="chap-body">
-          <p>Before saying anything else, I owe you a genuine apology.</p>
-          <p>Looking back, I realize there were times when I complained too much, held too many expectations, and made things far more chaotic than they ever needed to be.</p>
-          <p>I want to acknowledge my mistakes honestly, without making excuses or shifting blame onto you. I am truly sorry for any moment I made you feel overwhelmed or unheard.</p>
+          <p>now I don't do it for any selfishness, but there is a corner that expects smth from you. Not too much, and obvi not everything I want you will do, but fir bhi. Dekho, whatever you do for your other friends, like sharing their stories and everything, and I'm not talking about just one person. Like, you shared Yasharth ki shayari wagera and ye iska to everyone. So look, I'm not insecure or smth, it's just I have an account jispe I post ye aesthetic chizen. I sent you uske posts don't know kitni baar. You don't even follow wo, to bura lagta hai thoda sa. So if I'm doing whatever I can, can't she just make me feel utna bhi? Jab I say you ignore, like hmm... I'm your friend too na, I guess. So when I see what you do for others, it's just my default reaction. I feel bad, idk. And there are lots of chizen jisse you can make me feel thoda sa hi important. I literally got tired begging ki nickname rakh lo, ye kar lo. Like, ye sab insaan khud kar leta hai, mujhe maangne se nahi milta lol.</p>
+          <p>and dekho, you don't ask for anything meri side se. I tried everything to make you feel that special. I repost all your reels, I comment sabse pehle, aur bhi jo hota hai wo. And agar you think isse mujhe fake hopes aayengi, to kya hope? Like tell me, main atp kya hope rakhun? Nahi hoga kuch, I know. To agar you say ki you don't want me to lose as a friend, to wo bhi to show na. Khair, I'm becoming rude again. Sorry, I don't mean to.</p>
+          <p>and I don't expect kuch bhi, and main complain bhi nahi karunga agar thoda sa bhi aap karte. I'm so fucking sorry for making your life so chaotic.</p>
         </div>
         <div class="chap-foot">Chapter 02 of 06</div>
       </div>
 
       <div class="photo-stack">
-        <div class="p-cell no-right" style="height:280px;">
-          <span class="p-num">07</span>
-          <img src="../photos/IMG_20260610_230029.png" onerror="this.style.background='#E8E4DE'" alt="" />
-        </div>
-        <div class="p-cell no-right no-bottom" style="height:280px;">
+        <div class="p-cell no-right" style="height:320px;">
           <span class="p-num">08</span>
           <img src="../photos/IMG-20260610-WA0015.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+        <div class="p-cell no-right no-bottom" style="height:320px;">
+          <span class="p-num">09</span>
+          <img src="../photos/1781014822480.png" onerror="this.style.background='#E8E4DE'" alt="" />
         </div>
       </div>
 
@@ -528,141 +446,205 @@
 
     <div class="mag-meta">
       <span>p. 05</span>
-      <span>Chapter 03 — Things I Never Told You</span>
+      <span>Chapter 03 — Choices &amp; The Future</span>
       <span>p. 06</span>
     </div>
 
-    <!-- ── SPREAD 5: 3 photos ── -->
+    <!-- ── SPREAD 5: 3 Photos Grid ── -->
     <div class="spread spread-3col">
-      <div class="p-cell" style="height:300px;">
-        <span class="p-num">09</span>
-        <img src="../photos/1781014822480.png" onerror="this.style.background='#E8E4DE'" alt="" />
-      </div>
       <div class="p-cell" style="height:300px;">
         <span class="p-num">10</span>
         <img src="../photos/1781014830273.png" onerror="this.style.background='#E8E4DE'" alt="" />
       </div>
-      <div class="p-cell no-right" style="height:300px;">
+      <div class="p-cell" style="height:300px;">
         <span class="p-num">11</span>
         <img src="../photos/1781014842250.png" onerror="this.style.background='#E8E4DE'" alt="" />
       </div>
+      <div class="p-cell no-right" style="height:300px;">
+        <span class="p-num">12</span>
+        <img src="../photos/1781014866056.png" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
     </div>
 
-    <!-- ── SPREAD 6: Chapter 3 ── -->
+    <!-- ── SPREAD 6: Chapter 03 ── -->
     <div class="spread spread-wide-text">
 
       <div class="photo-stack">
-        <div class="p-cell" style="height:300px;">
-          <span class="p-num">12</span>
-          <img src="../photos/1781014866056.png" onerror="this.style.background='#E8E4DE'" alt="" />
-        </div>
-        <div class="p-cell no-bottom" style="height:300px;">
+        <div class="p-cell" style="height:320px;">
           <span class="p-num">13</span>
           <img src="../photos/1781014873693.png" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+        <div class="p-cell no-bottom" style="height:320px;">
+          <span class="p-num">14</span>
+          <img src="../photos/IMG-20260610-WA0005.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
         </div>
       </div>
 
       <div class="text-panel no-border">
-        <div class="chap-eyebrow">Chapter 03 &nbsp;·&nbsp; The Things I Never Told You</div>
-        <h2 class="chap-title">The Things I Never Said</h2>
+        <div class="chap-eyebrow">Chapter 03 &nbsp;·&nbsp; The Choice</div>
+        <h2 class="chap-title">If You Want Peace, Or Chaos</h2>
         <div class="chap-rule"></div>
         <div class="chap-body">
-          <p>There are so many quiet details about you that I've noticed over time—things you probably don't even realize people notice.</p>
-          <p>I've noticed your incredible patience, the quiet kindness in how you treat people, and the small ways you make everything around you feel a little brighter.</p>
-          <p>You have this subtle warmth that makes people feel safe and understood, even when you aren't trying to.</p>
-          <p>Those little things are the exact reason why you became so genuinely important to me.</p>
+          <p>and ye sab bolte hue mujhe khud bura lagta hai. Tf am I doing? So dekho Awnanya, I am really giving you a chance. Agar for your peace and everything you wanna leave me, and like no talking and smth, do it. You are free to go. Main nahi rokunga. I won't come in your way kabhi bhi, and I will keep wo promise, trust ki I'm not gonna date or anything, at least ye college tak, coz I'm tired too... ye begging for just love.</p>
+          <p>and second option, agar you want chaos in your life, to stay. And I promise I'll keep improving myself, for you, for us. But I will have expectations from you too. Reply jab you think you get the answer. I'm not using Insta and all anyway, so I'll just see your DM whenever you do.</p>
+          <p>baaki I was planning smth to surprise you. Wo saved wali chizen, it's already exposed. And I was about to post smth in my CF jisme only you are the one, but I dumped abhi ke liye wo idea. Aur isme I was planning to make wo wali list ki what we will do in future, like bucket list wali chiz, but I'll think of that in future depending on your response.</p>
         </div>
         <div class="chap-foot">Chapter 03 of 06</div>
       </div>
 
     </div>
 
-    <div class="mag-meta">
-      <span>p. 07</span>
-      <span>Chapter 04 — Behind This Project</span>
-      <span>p. 08</span>
+    <!-- ── Quote Break 2 ── -->
+    <div class="quote-break">
+      <p class="q-text">"Coz yes, I still see a future with you, and I adore you yaar. I can't just give up on you."</p>
+      <div class="q-attr">Chapter 04 — What We Have</div>
     </div>
 
-    <!-- ── SPREAD 7: Chapter 4 + photos ── -->
+    <!-- ── SPREAD 7: Chapter 04 ── -->
     <div class="spread spread-2col">
 
       <div class="text-panel">
-        <div class="chap-eyebrow">Chapter 04 &nbsp;·&nbsp; Behind the Scenes</div>
-        <h2 class="chap-title">Behind This Project</h2>
+        <div class="chap-eyebrow">Chapter 04 &nbsp;·&nbsp; Looking Ahead</div>
+        <h2 class="chap-title">First &amp; Last Love</h2>
         <div class="chap-rule"></div>
         <div class="chap-body">
-          <p>I've been thinking about building something like this for a very long time. What started as a tiny draft slowly turned into a complete passion project.</p>
-          <p>If you wondered why I quietly disappeared for a while—this was the reason. I spent countless hours tweaking design details, refining playlists, writing synced lyrics, and assembling memories.</p>
-          <p>There were so many pages that never made it—ideas I scrapped because they didn't feel right. This isn't even the full vision I originally had, but I decided to share it now rather than making you wait for perfection.</p>
+          <p>and I'll conflict myself aage, to reply upar wala first. Dekho, I know you don't, but the truth is you don't see things jo you want in your BF, and like I can't argue uspe. But atp I really don't know if I'll be able to see you with someone else. And like last time yk I tried kuch na kuch to move on, fir bhi I failed. Abhi you say you will become someone else's girl... ahh, it bothers me imagining that. Like ab you will become, tab kya hoga idk. But tab we won't talk, it's obvious, so you'll lose my friendship anyway. Tab dekho, agar abhi you stay, to karunga main try to not make your life chaotic and make it all simple. Coz yes, I still see a future with you, and I adore you yaar. I can't just give up on you. Ydk how much I want you to become my first and last love. And yes, I know I'm not forcing you again to answer. It's just I'm telling you everything na. Also, you stopped sending me reels. I miss that spam and everything.</p>
         </div>
         <div class="chap-foot">Chapter 04 of 06</div>
       </div>
 
       <div class="photo-stack">
-        <div class="p-cell no-right" style="height:560px;">
-          <span class="p-num">14</span>
-          <img src="../photos/IMG-20260610-WA0005.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+        <div class="p-cell no-right" style="height:280px;">
+          <span class="p-num">15</span>
+          <img src="../photos/IMG-20260610-WA0006.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+        <div class="p-cell no-right no-bottom" style="height:280px;">
+          <span class="p-num">16</span>
+          <img src="../photos/IMG-20260610-WA0007.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
         </div>
       </div>
 
     </div>
 
-    <!-- ── SPREAD 8: Chapter 5 ── -->
+    <div class="mag-meta">
+      <span>p. 07</span>
+      <span>Chapter 05 — Promises &amp; Love</span>
+      <span>p. 08</span>
+    </div>
+
+    <!-- ── SPREAD 8: 3 Photos Grid ── -->
     <div class="spread spread-3col">
       <div class="p-cell" style="height:300px;">
-        <span class="p-num">15</span>
+        <span class="p-num">17</span>
         <img src="../photos/IMG-20260610-WA0008.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
       </div>
       <div class="p-cell" style="height:300px;">
-        <span class="p-num">16</span>
+        <span class="p-num">18</span>
         <img src="../photos/IMG-20260610-WA0009.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
       </div>
       <div class="p-cell no-right" style="height:300px;">
-        <span class="p-num">17</span>
+        <span class="p-num">19</span>
         <img src="../photos/IMG-20260610-WA0010.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
       </div>
     </div>
 
-    <div class="mag-meta">
-      <span>p. 09</span>
-      <span>Chapter 05 &amp; 06 — Closing</span>
-      <span>p. 10</span>
-    </div>
+    <!-- ── SPREAD 9: Chapter 05 ── -->
+    <div class="spread spread-wide-text">
 
-    <!-- ── SPREAD 9: Chapters 5 + 6 side by side ── -->
-    <div class="spread spread-2col">
+      <div class="photo-stack">
+        <div class="p-cell" style="height:320px;">
+          <span class="p-num">20</span>
+          <img src="../photos/IMG-20260610-WA0011.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+        <div class="p-cell no-bottom" style="height:320px;">
+          <span class="p-num">21</span>
+          <img src="../photos/IMG-20260610-WA0012.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+      </div>
 
-      <div class="text-panel">
-        <div class="chap-eyebrow">Chapter 05 &nbsp;·&nbsp; Looking Ahead</div>
-        <h2 class="chap-title">Looking Ahead</h2>
+      <div class="text-panel no-border">
+        <div class="chap-eyebrow">Chapter 05 &nbsp;·&nbsp; Promises</div>
+        <h2 class="chap-title">No One Will Love You Like I Do</h2>
         <div class="chap-rule"></div>
         <div class="chap-body">
-          <p>This website isn't meant to be a static project that stays frozen in time. It's something that will keep growing.</p>
-          <p>I'll continue updating the songs whenever I discover new tracks that remind me of you. There are also new ideas planned—private posts, organized saved collections, and more quiet little corners.</p>
-          <p>Think of this as a quiet room that will always be here for you whenever you feel like revisiting it.</p>
+          <p>again, last, all I wanna say ki I know Ananya, you deserve a lot better than me. Someone more mature and intelligent than me, and maybe you will get one. But I promise he won't love you like I do. In fact, no one will.</p>
+          <p style="font-weight: 600; color: var(--ink);">No one will fear losing you like I do.</p>
+          <p>And I will always be aisa for you. I really promise. I mean it. It's just I'm informing you, nothing else.</p>
+          <p>And I owe bahut saari apologies. Please maaf kar dena mujhe for all those paragraphs, complaints, and whatever I made you feel. Jab I say "I hate you," I'm genuinely sorry for everything.</p>
+          <p style="font-size: 16px; font-weight: 600; color: var(--accent); letter-spacing: 0.05em; margin-top: 6px;">JAAANNÚUU.</p>
+          <p style="font-size: 16px; font-weight: 700; color: var(--ink); letter-spacing: 0.02em;">AND I LOVE YOU SOO SOO SOOOO MUCHHH.</p>
+          <p style="margin-top: 4px;">And you can also think... only if your answer is ki we're still friends, where will we go uss din? We planned we will hang out na. To again, no hai to nvm.</p>
         </div>
         <div class="chap-foot">Chapter 05 of 06</div>
       </div>
 
-      <div class="text-panel no-border" style="background: rgba(176,122,90,0.05);">
-        <div class="chap-eyebrow">Chapter 06 &nbsp;·&nbsp; Goodbye</div>
-        <h2 class="chap-title">Goodbye (For This Website)</h2>
+    </div>
+
+    <div class="mag-meta">
+      <span>p. 09</span>
+      <span>Chapter 06 — You Are An Art</span>
+      <span>p. 10</span>
+    </div>
+
+    <!-- ── SPREAD 10: Chapter 06 ── -->
+    <div class="spread spread-2col">
+
+      <div class="text-panel">
+        <div class="chap-eyebrow">Chapter 06 &nbsp;·&nbsp; Appreciation</div>
+        <h2 class="chap-title">You Are An Art, Ananya</h2>
         <div class="chap-rule"></div>
         <div class="chap-body">
-          <p>And so, we've arrived at the end of this letter.</p>
-          <p>Thank you again for being here, for reading, and for sharing this experience with me. I genuinely wish you all the happiness, warmth, and peace in the world.</p>
-          <p>Whether you spent five minutes here today or revisit this years from now, I'm simply glad you experienced something built with genuine care.</p>
-          <p>Take good care of yourself. Always. ♥</p>
+          <p>also, I still have lots of complaints lol, but they're not more important than you, to I'll forget.</p>
+          <p>And I am gussa thoda sa uss din ko leke. The day you texted wo Gang Cobra wale group mein ki you wanna hang out chahe Abhinav aaye na aaye. I mean Dia or Diwa se to I can't expect ki they'll think of me, but tum aur Aman se hi I will expect na ki you'll say "Abhinav ke aane ke baad hi jayenge." And you two were the most excited.</p>
+          <p>itni negativity mein sometimes I genuinely forget ki how nice you are.</p>
+          <p style="font-family: var(--serif); font-size: 17px; font-style: italic; color: var(--accent); font-weight: 500; margin: 4px 0;">You are kind. You are sweet. You feel. You understand. You are an art, Ananya.</p>
+          <p style="font-family: var(--serif); font-size: 17px; font-style: italic; color: var(--ink); margin-bottom: 4px;">You are worthy of the world.</p>
+          <p>I'm sorry again for making you feel shit sometimes when I complain. And yk uss din when you said ki it hurts you too jab I got hurt by you... 😭😭😭😭</p>
+          <p>I understand why you wanted to go.</p>
+          <p>You were thinking about me tab bhi, and you're still here. We're talking... it's all because of that.</p>
+          <p>You care about me. I know, yaar. Sorry, dekho.</p>
+          <p>Khair, that's all. Thanks again for reading yahan tak. I know kuch kuch parts mein I went too much with emotions, but this side of me is only for you, to you can expect itna. Aur agar kuch samajh nahi aaya, to skip that part. I don't get it either.</p>
         </div>
         <div class="chap-foot">Chapter 06 of 06 &nbsp;·&nbsp; End</div>
       </div>
 
+      <div class="photo-stack">
+        <div class="p-cell no-right" style="height:240px;">
+          <span class="p-num">22</span>
+          <img src="../photos/IMG-20260610-WA0013.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+        <div class="p-cell no-right" style="height:240px;">
+          <span class="p-num">23</span>
+          <img src="../photos/IMG-20260610-WA0014.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+        <div class="p-cell no-right no-bottom" style="height:240px;">
+          <span class="p-num">24</span>
+          <img src="../photos/Screenshot_20260610_003345.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── SPREAD 11: Concluding Photo Gallery ── -->
+    <div class="spread spread-3col">
+      <div class="p-cell" style="height:300px;">
+        <span class="p-num">25</span>
+        <img src="../photos/IMG_20260112_232608_746.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
+      <div class="p-cell" style="height:300px;">
+        <span class="p-num">26</span>
+        <img src="../photos/IMG_20260112_232614_708.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
+      <div class="p-cell no-right" style="height:300px;">
+        <span class="p-num">27</span>
+        <img src="../photos/IMG_20260607_225253_267.jpg" onerror="this.style.background='#E8E4DE'" alt="" />
+      </div>
     </div>
 
     <!-- ── Final Screen ── -->
     <div class="final-spread">
       <p class="final-title">Thank you for reading. ♥</p>
-      <p class="final-sub" style="margin-top:14px;">A quiet space built with care.</p>
+      <p class="final-sub" style="margin-top:14px;">A quiet space built with care for Ananya.</p>
     </div>
 
     <!-- Footer -->
@@ -672,7 +654,6 @@
       <span>p. 10</span>
     </div>
 
-  </div>
   </div>
 
 </body>
